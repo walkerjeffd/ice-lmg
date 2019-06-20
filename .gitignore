@@ -19,3 +19,10 @@ yarn-error.log*
 *.njsproj
 *.sln
 *.sw?
+
+# data folder
+data/**/*
+
+# r folder
+r/.Rproj.user
+r/.Rhistory
