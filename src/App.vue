@@ -57,6 +57,15 @@
         <v-layout>
           <v-flex>
             <v-card class="ice-card elevation-10">
+              <v-toolbar dark class="subheading">
+                <strong class=" pr-2">Theme: </strong>
+                <span v-if="loading.theme">Loading... <v-progress-circular indeterminate color="primary" :size="20" class="ml-2"></v-progress-circular></span>
+                <span v-else-if="error.theme"><v-icon color="error" size="19">mdi-alert</v-icon> {{error.theme}}</span>
+                <span v-else-if="theme">{{ theme.title }}</span>
+                <span v-else>None</span>
+                <v-spacer></v-spacer>
+                <v-btn small color="default" @click="dialogs.theme = true">Browse</v-btn>
+              </v-toolbar>
               <v-tabs
                 v-model="tabs.active"
                 color="blue"
@@ -74,7 +83,7 @@
                   <v-icon v-else>mdi-menu-down</v-icon>
                 </v-btn>
                 <v-tab-item :transition="false" :reverse-transition="false">
-                  <v-toolbar dark class="subheading">
+                  <!-- <v-toolbar dark class="subheading">
                     <strong class=" pr-2">Theme: </strong>
                     <span v-if="loading.theme">Loading... <v-progress-circular indeterminate color="primary" :size="20" class="ml-2"></v-progress-circular></span>
                     <span v-else-if="error.theme"><v-icon color="error" size="19">mdi-alert</v-icon> {{error.theme}}</span>
@@ -82,18 +91,9 @@
                     <span v-else>None</span>
                     <v-spacer></v-spacer>
                     <v-btn small color="default" @click="dialogs.theme = true">Browse</v-btn>
-                  </v-toolbar>
+                  </v-toolbar> -->
                   <v-card v-show="!tabs.hide" :max-height="$vuetify.breakpoint.height - 250" style="overflow-y: auto">
                     <v-card-text>
-                      <v-slider
-                        v-model="decade.value"
-                        :tick-labels="decade.labels"
-                        :max="decade.labels.length - 1"
-                        step="1"
-                        label="Decade"
-                        ticks="always"
-                        tick-size="7">
-                      </v-slider>
                       <v-autocomplete
                         :items="variables"
                         v-model="variable"
@@ -102,8 +102,17 @@
                         item-text="label"
                         label="Select variable...">
                       </v-autocomplete>
+                      <v-subheader class="pl-0">Select Decade</v-subheader>
+                      <v-slider
+                        v-model="decade.value"
+                        :tick-labels="decade.labels"
+                        :max="decade.labels.length - 1"
+                        step="1"
+                        ticks="always"
+                        tick-size="7">
+                      </v-slider>
+                      <v-subheader class="pl-0">{{ variable.label }}<span v-if="variable.units">&nbsp;({{ variable.units }})</span></v-subheader>
                       <ice-legend id="legend" :colorScale="colorScale" :variable="variable" class="pt-3"></ice-legend>
-                      <!-- <v-divider></v-divider> -->
                     </v-card-text>
                   </v-card>
                 </v-tab-item>
