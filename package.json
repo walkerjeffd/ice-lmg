@@ -18,7 +18,7 @@
     "leaflet": "^1.5.1",
     "vue": "^2.6.10",
     "vue2-leaflet": "^2.1.1",
-    "vuetify": "^1.5.5",
+    "vuetify": "^1.5.16",
     "vuex": "^3.0.1"
   },
   "devDependencies": {
