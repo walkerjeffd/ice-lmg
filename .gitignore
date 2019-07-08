@@ -26,3 +26,4 @@ data/**/*
 # r folder
 r/.Rproj.user
 r/.Rhistory
+.Rproj.user

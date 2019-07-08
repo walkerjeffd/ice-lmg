@@ -16,6 +16,9 @@ export default new Vuex.Store({
     theme: state => state.theme,
     variables: state => (state.theme ? state.theme.variables : []),
     variable: state => state.variable,
+    variableById: state => id => {
+      return state.theme.variables.find(v => v.id === id)
+    },
     layer: state => (state.theme ? state.theme.layer : null)
   },
   mutations: {

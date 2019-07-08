@@ -60,7 +60,8 @@ df_vars <- read_csv(file.path(theme_path, "variables.csv"), col_types = cols(
   scale_domain_max = col_double(),
   scale_transform = col_character(),
   formats_text = col_character(),
-  formats_axis = col_character()
+  formats_axis = col_character(),
+  decadal = col_logical()
 ))
 
 vars <- map(1:nrow(df_vars), ~ list(
@@ -140,5 +141,40 @@ toJSON(ls_theme, auto_unbox = TRUE, pretty = TRUE)
 
 write_json(ls_theme, path = file.path(theme_path, "theme.json"), auto_unbox = TRUE, pretty = TRUE)
 
-# load data ---------------------------------------------------------------
+# feature datasets ---------------------------------------------------------
 
+decadal_vars <- df_vars %>% 
+  filter(decadal) %>% 
+  pull(id)
+
+df_feature <- df %>% 
+  arrange(id, decade) %>% 
+  group_by(id) %>% 
+  nest() %>% 
+  mutate(
+    constants = map(data, function (x) {
+      x %>% 
+        select(-decadal_vars) %>% 
+        select(-decade) %>% 
+        filter(row_number() == 1)
+    }),
+    decadals = map(data, function (x) {
+      x %>% 
+        arrange(decade) %>% 
+        select(decadal_vars)
+    })
+  )
+
+
+if (!dir.exists(file.path(theme_path, "features"))) {
+  cat("Creating featured directory: ", file.path(theme_path, "features"), "\n", sep = "")
+  dir.create(file.path(theme_path, "features"))
+}
+
+for (i in 1:nrow(df_feature)) {
+  feature_data <- list(
+    id = df_feature$id[[i]],
+    values = c(as.list(df_feature$constants[[i]]), as.list(df_feature$decadals[[i]]))
+  )
+  write_json(feature_data, path = file.path(theme_path, "features", glue("{feature_data$id}.json")), auto_unbox = TRUE, pretty = TRUE)
+}

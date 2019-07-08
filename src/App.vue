@@ -17,7 +17,7 @@
     <v-content v-if="$vuetify.breakpoint.smAndUp">
       <v-hover>
         <v-navigation-drawer
-          v-model="sidebar.drawer"
+          v-model="leftSidebar.open"
           dark
           app
           :mini-variant="!hover"
@@ -25,11 +25,11 @@
           stateless
           temporary
           slot-scope="{ hover }"
-          class="mr-2">
+          class="mr-2 left-drawer">
           <v-list class="pt-0">
             <v-divider></v-divider>
             <v-list-tile
-              v-for="item in sidebar.items"
+              v-for="item in leftSidebar.items"
               :key="item.title"
               @click.stop="dialogs[item.dialog] = true">
               <v-list-tile-action>
@@ -98,6 +98,7 @@
                         :items="variables"
                         v-model="variable"
                         return-object
+                        dense
                         item-value="id"
                         item-text="label"
                         label="Select variable...">
@@ -111,8 +112,8 @@
                         ticks="always"
                         tick-size="7">
                       </v-slider>
-                      <v-subheader class="pl-0">{{ variable.label }}<span v-if="variable.units">&nbsp;({{ variable.units }})</span></v-subheader>
-                      <ice-legend id="legend" :colorScale="colorScale" :variable="variable" class="pt-3"></ice-legend>
+                      <v-subheader class="pl-0" v-if="variable">{{ variable.label }}<span v-if="variable.units">&nbsp;({{ variable.units }})</span></v-subheader>
+                      <ice-legend id="legend" :colorScale="colorScale" :variable="variable" class="pt-3" v-if="variable"></ice-legend>
                     </v-card-text>
                   </v-card>
                 </v-tab-item>
@@ -123,6 +124,7 @@
                         :items="variables"
                         v-model="filters"
                         multiple
+                        dense
                         return-object
                         item-value="id"
                         item-text="label"
@@ -147,7 +149,8 @@
                 </v-btn>
               </v-toolbar>
               <v-card-text v-if="!debug.hide">
-                <pre>decadeValue: {{decadeValue}}</pre>
+                <pre>feature.selected: {{ !!feature.selected }}</pre>
+                <!-- <pre>decadeValue: {{decadeValue}}</pre> -->
                 <!-- <pre>counts: {{ counts }}</pre>
                 <pre>filters: {{ filters }}</pre>
                 <pre>variable: {{ variable }}</pre>
@@ -159,6 +162,18 @@
           </v-flex>
         </v-layout>
       </v-container>
+      <v-navigation-drawer
+        :value="!!feature.selected"
+        right
+        temporary
+        fixed
+        app
+        hide-overlay
+        stateless
+        :height="$vuetify.breakpoint.height - 64"
+        width="600">
+        <component v-if="theme" :is="theme.id" :selected="feature.selected"></component>
+      </v-navigation-drawer>
     </v-content>
     <v-content v-else>
       <v-container fill-height fluid grid-list-xs class="px-2">
@@ -210,22 +225,6 @@
           <v-btn icon @click="dialogs.theme = false">
             <v-icon>mdi-close</v-icon>
           </v-btn>
-          <!-- <v-tooltip bottom>
-            <template v-slot:activator="{ on }">
-              <v-btn :href="source" icon large target="_blank" v-on="on">
-                <v-icon large>code</v-icon>
-              </v-btn>
-            </template>
-            <span>Source</span>
-          </v-tooltip>
-          <v-tooltip right>
-            <template v-slot:activator="{ on }">
-              <v-btn icon large href="https://codepen.io/johnjleider/pen/wyYVVj" target="_blank" v-on="on">
-                <v-icon large>mdi-codepen</v-icon>
-              </v-btn>
-            </template>
-            <span>Codepen</span>
-          </v-tooltip> -->
         </v-toolbar>
 
         <v-card-text>
@@ -288,6 +287,11 @@ import IceMap from '@/components/IceMap'
 import IceMapLayer from '@/components/IceMapLayer'
 import IceFilter from '@/components/IceFilter'
 import IceLegend from '@/components/IceLegend'
+
+import GageCov from '@/components/datasets/GageCov'
+import GageTrends from '@/components/datasets/GageTrends'
+import GageFlow from '@/components/datasets/GageFlow'
+
 import * as d3 from 'd3'
 
 import { getValueById, getCrossfilter, getFilteredCount, getTotalCount } from '@/lib/crossfilter'
@@ -302,19 +306,22 @@ export default {
     IceMap,
     IceMapLayer,
     IceFilter,
-    IceLegend
+    IceLegend,
+    GageCov,
+    GageFlow,
+    GageTrends
   },
   data: () => ({
     filters: [],
     debug: {
-      hide: true
+      hide: false
     },
     tabs: {
       active: 0,
       hide: false
     },
-    sidebar: {
-      drawer: true,
+    leftSidebar: {
+      open: true,
       items: [
         { title: 'Welcome', dialog: 'welcome', icon: 'mdi-home' },
         { title: 'Download', dialog: 'download', icon: 'mdi-download' },
@@ -323,6 +330,9 @@ export default {
         { title: 'Contact Us', dialog: 'contact', icon: 'mdi-email' },
         { title: 'About', dialog: 'about', icon: 'mdi-information' }
       ]
+    },
+    rightSidebar: {
+      open: true
     },
     dialogs: {
       theme: false,
@@ -473,10 +483,13 @@ export default {
 .v-toolbar {
   background: rgba(0, 0, 0, 0.8) !important;
 }
-.v-navigation-drawer {
+.left-drawer {
   background: rgba(50, 50, 50, 0.6) !important;
+}
+.v-navigation-drawer {
   margin-top: 64px !important;
 }
+
 .v-list {
   background: none !important;
 }
