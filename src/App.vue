@@ -94,27 +94,22 @@
                         ticks="always"
                         tick-size="7">
                       </v-slider>
-                      <v-select
+                      <v-autocomplete
                         :items="variables"
                         v-model="variable"
+                        return-object
                         item-value="id"
                         item-text="label"
-                        return-object
-                        label="Select variable">
-                      </v-select>
+                        label="Select variable...">
+                      </v-autocomplete>
                       <ice-legend id="legend" :colorScale="colorScale" :variable="variable" class="pt-3"></ice-legend>
-                      <v-divider></v-divider>
-                      <!-- <v-select
-                        autocomplete
-                        :items="variables"
-                        v-model="filters"
-                        multiple
-                        return-object
-                        item-value="id"
-                        item-text="label"
-                        ref="select"
-                        label="Select variable(s)...">
-                      </v-select> -->
+                      <!-- <v-divider></v-divider> -->
+                    </v-card-text>
+                  </v-card>
+                </v-tab-item>
+                <v-tab-item :transition="false" :reverse-transition="false">
+                  <v-card v-show="!tabs.hide">
+                    <v-card-text>
                       <v-autocomplete
                         :items="variables"
                         v-model="filters"
@@ -126,12 +121,6 @@
                       </v-autocomplete>
                       <p>Filtered: {{ counts.filtered }} of {{ counts.total }}</p>
                       <ice-filter v-for="variable in filters" :key="variable.id" :variable="variable" @close="removeFilter(variable)"></ice-filter>
-                    </v-card-text>
-                  </v-card>
-                </v-tab-item>
-                <v-tab-item :transition="false" :reverse-transition="false">
-                  <v-card v-show="!tabs.hide">
-                    <v-card-text>
                     </v-card-text>
                   </v-card>
                 </v-tab-item>
