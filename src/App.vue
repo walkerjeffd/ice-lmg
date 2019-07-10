@@ -172,7 +172,7 @@
         stateless
         :height="$vuetify.breakpoint.height - 64"
         width="600">
-        <component v-if="theme" :is="theme.id" :selected="feature.selected"></component>
+        <component v-if="theme" :is="theme.id" :selected="feature.selected" @close="selectFeature()"></component>
       </v-navigation-drawer>
     </v-content>
     <v-content v-else>
@@ -288,9 +288,14 @@ import IceMapLayer from '@/components/IceMapLayer'
 import IceFilter from '@/components/IceFilter'
 import IceLegend from '@/components/IceLegend'
 
-import GageCov from '@/components/datasets/GageCov'
-import GageTrends from '@/components/datasets/GageTrends'
-import GageFlow from '@/components/datasets/GageFlow'
+import GageCov from '@/components/themes/GageCov'
+import GageQstat from '@/components/themes/GageQstat'
+import GageQtrend from '@/components/themes/GageQtrend'
+import GageQts from '@/components/themes/GageQts'
+import GageSolar from '@/components/themes/GageSolar'
+import Huc12Cov from '@/components/themes/Huc12Cov'
+import Huc12Qquantile from '@/components/themes/Huc12Qquantile'
+import Huc12Solar from '@/components/themes/Huc12Solar'
 
 import * as d3 from 'd3'
 
@@ -308,8 +313,13 @@ export default {
     IceFilter,
     IceLegend,
     GageCov,
-    GageFlow,
-    GageTrends
+    GageQstat,
+    GageQts,
+    GageQtrend,
+    GageSolar,
+    Huc12Cov,
+    Huc12Qquantile,
+    Huc12Solar
   },
   data: () => ({
     filters: [],
@@ -455,7 +465,7 @@ export default {
       }
     },
     getFeatureValue (feature) {
-      return getValueById(feature.properties.id)
+      return getValueById(feature.id)
     },
     getFeatureFill (feature) {
       const value = this.getFeatureValue(feature).mean

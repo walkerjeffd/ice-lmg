@@ -1,13 +1,13 @@
 <template>
   <v-card v-if="selected" style="height:100%">
     <v-card-title primary-title>
-      <h3 class="headline mb-0">Selected Gage: {{selected.properties.id}}</h3>
+      <h3 class="headline mb-0">Selected Gage: {{selected.id}}</h3>
     </v-card-title>
     <v-card-text>
-      <p>Theme: Streamflow Gages > Flow</p>
+      <p>Theme: {{ theme.title }}</p>
     </v-card-text>
     <v-card-actions>
-      <v-btn flat color="primary">text</v-btn>
+      <v-btn flat color="primary" @click="$emit('close')">Close</v-btn>
     </v-card-actions>
   </v-card>
 </template>
@@ -16,7 +16,7 @@
 import { mapGetters } from 'vuex'
 
 export default {
-  name: 'GageCov',
+  name: 'GageQts',
   props: ['selected'],
   data () {
     return {
@@ -36,7 +36,7 @@ export default {
         this.dataset = null
         return
       }
-      this.$http.get(`/${this.theme.id}/features/${this.selected.properties.id}.json`)
+      this.$http.get(`/${this.theme.id}/features/${this.selected.id}.json`)
         .then((response) => {
           console.log('GageCov: response', response)
           this.dataset = response.data

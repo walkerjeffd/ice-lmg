@@ -116,7 +116,7 @@ export default {
   methods: {
     setTipHtml () {
       this.tip.html(d => `
-        <strong>ID: ${d.properties.id}</strong><br>
+        <strong>ID: ${d.id}</strong><br>
         ${this.variable.label}: ${typeof this.getValue(d) === 'object' ? this.textFormatter(this.getValue(d).mean) + ` ${this.variable.units || ''}` : 'N/A'}
       `)
     },
@@ -162,7 +162,7 @@ export default {
 
       const circles = this.container
         .selectAll('circle')
-        .data(features, d => d.properties.id)
+        .data(features, d => d.id)
 
       circles.enter()
         .append('circle')
@@ -217,7 +217,7 @@ export default {
         .classed('selected', this.isSelected)
     },
     isSelected (feature) {
-      return !!this.selected && this.selected.properties.id === feature.properties.id
+      return !!this.selected && this.selected.id === feature.id
     }
   },
   render: function (h) {
