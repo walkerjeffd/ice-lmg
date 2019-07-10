@@ -50,8 +50,11 @@ export default new Vuex.Store({
               return csvParse(csvString, (d, i) => {
                 const x = {
                   $index: i,
-                  id: d.id,
-                  decade: d.decade
+                  id: d.id
+                }
+
+                if (theme.dimensions.decade) {
+                  x.decade = d.decade
                 }
 
                 theme.variables.forEach(v => {

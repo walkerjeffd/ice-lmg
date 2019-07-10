@@ -56,15 +56,15 @@
       <v-container fluid fill-height class="ice-container">
         <v-layout>
           <v-flex>
-            <v-card class="ice-card elevation-10">
-              <v-toolbar dark class="subheading">
+            <v-card class="ice-card elevation-10" v-if="theme">
+              <v-toolbar dark dense class="subheading ma-0 theme-toolbar">
                 <strong class=" pr-2">Theme: </strong>
                 <span v-if="loading.theme">Loading... <v-progress-circular indeterminate color="primary" :size="20" class="ml-2"></v-progress-circular></span>
                 <span v-else-if="error.theme"><v-icon color="error" size="19">mdi-alert</v-icon> {{error.theme}}</span>
                 <span v-else-if="theme">{{ theme.title }}</span>
                 <span v-else>None</span>
                 <v-spacer></v-spacer>
-                <v-btn small color="default" @click="dialogs.theme = true">Browse</v-btn>
+                <v-btn small color="default" @click="dialogs.theme = true"><v-icon small left>mdi-folder-open</v-icon> Browse</v-btn>
               </v-toolbar>
               <v-tabs
                 v-model="tabs.active"
@@ -103,22 +103,22 @@
                         item-text="label"
                         label="Select variable...">
                       </v-autocomplete>
-                      <v-subheader class="pl-0">Select Decade</v-subheader>
-                      <v-slider
-                        v-model="decade.value"
-                        :tick-labels="decade.labels"
-                        :max="decade.labels.length - 1"
-                        step="1"
-                        ticks="always"
-                        tick-size="7">
-                      </v-slider>
-                      <v-subheader class="pl-0" v-if="variable">{{ variable.label }}<span v-if="variable.units">&nbsp;({{ variable.units }})</span></v-subheader>
+                      <decade-dimension v-if="theme.dimensions.decade"></decade-dimension>
                       <ice-legend id="legend" :colorScale="colorScale" :variable="variable" class="pt-3" v-if="variable"></ice-legend>
+                      <div class="text-xs-center grey--text text--darken-2 font-weight-medium" v-if="variable">
+                        {{ variable.label }}<span v-if="variable.units">&nbsp;({{ variable.units }})</span>
+                        <v-tooltip right max-width="600">
+                          <template v-slot:activator="{ on }">
+                            <v-icon right v-on="on" small>mdi-help-circle</v-icon>
+                          </template>
+                          {{ variable.description }}
+                        </v-tooltip>
+                      </div>
                     </v-card-text>
                   </v-card>
                 </v-tab-item>
                 <v-tab-item :transition="false" :reverse-transition="false">
-                  <v-card v-show="!tabs.hide">
+                  <v-card v-show="!tabs.hide" :max-height="$vuetify.breakpoint.height - 250" style="overflow-y: auto">
                     <v-card-text>
                       <v-autocomplete
                         :items="variables"
@@ -137,10 +137,8 @@
                 </v-tab-item>
               </v-tabs>
             </v-card>
-          </v-flex>
-          <v-flex xs9>
-            <v-card class="ice-card elevation-10">
-              <v-toolbar dense dark>
+            <v-card class="ice-card elevation-10 mt-2">
+              <v-toolbar dense dark color="red darken-4">
                 <h4>Debug</h4>
                 <v-spacer></v-spacer>
                 <v-btn icon small outline @click="debug.hide = !debug.hide" class="mt-2 hide">
@@ -150,12 +148,10 @@
               </v-toolbar>
               <v-card-text v-if="!debug.hide">
                 <pre>feature.selected: {{ !!feature.selected }}</pre>
-                <!-- <pre>decadeValue: {{decadeValue}}</pre> -->
                 <!-- <pre>counts: {{ counts }}</pre>
                 <pre>filters: {{ filters }}</pre>
                 <pre>variable: {{ variable }}</pre>
                 <pre>layer: {{ layer }}</pre>
-                <pre>decade: {{ decade.value }}</pre>
                 <pre>feature: {{ feature.selected }}</pre> -->
               </v-card-text>
             </v-card>
@@ -170,7 +166,7 @@
         app
         hide-overlay
         stateless
-        :height="$vuetify.breakpoint.height - 64"
+        :height="$vuetify.breakpoint.height - 70"
         width="600">
         <component v-if="theme" :is="theme.id" :selected="feature.selected" @close="selectFeature()"></component>
       </v-navigation-drawer>
@@ -288,6 +284,8 @@ import IceMapLayer from '@/components/IceMapLayer'
 import IceFilter from '@/components/IceFilter'
 import IceLegend from '@/components/IceLegend'
 
+import DecadeDimension from '@/components/dimensions/DecadeDimension'
+
 import GageCov from '@/components/themes/GageCov'
 import GageQstat from '@/components/themes/GageQstat'
 import GageQtrend from '@/components/themes/GageQtrend'
@@ -299,7 +297,7 @@ import Huc12Solar from '@/components/themes/Huc12Solar'
 
 import * as d3 from 'd3'
 
-import { getValueById, getCrossfilter, getFilteredCount, getTotalCount } from '@/lib/crossfilter'
+import { getValueById, getFilteredCount, getTotalCount } from '@/lib/crossfilter'
 import themes from '@/assets/themes'
 import evt from '@/lib/events'
 import variableMixin from '@/mixins/variable'
@@ -312,6 +310,7 @@ export default {
     IceMapLayer,
     IceFilter,
     IceLegend,
+    DecadeDimension,
     GageCov,
     GageQstat,
     GageQts,
@@ -324,7 +323,7 @@ export default {
   data: () => ({
     filters: [],
     debug: {
-      hide: false
+      hide: true
     },
     tabs: {
       active: 0,
@@ -353,10 +352,6 @@ export default {
       contact: false,
       about: false
     },
-    decade: {
-      value: 5,
-      labels: ['1950s', '1960s', '1970s', '1980s', '1990s', '2000s']
-    },
     loading: {
       theme: false
     },
@@ -372,7 +367,6 @@ export default {
     feature: {
       selected: null
     },
-    dims: {},
     counts: {
       total: 0,
       filtered: 0
@@ -396,9 +390,6 @@ export default {
   }),
   computed: {
     ...mapGetters(['theme', 'variables', 'layer']),
-    decadeValue () {
-      return typeof this.decade.value === 'number' ? (1950 + this.decade.value * 10).toString() : null
-    },
     variable: {
       get () {
         return this.$store.getters.variable
@@ -412,22 +403,12 @@ export default {
     }
   },
   mounted () {
-    this.dims.decade = getCrossfilter().dimension(d => d.decade)
-    // this.selectDecade(this.decade.options[0])
     this.selectTheme(themes[0].children[0]).then(this.updateCounts)
-    this.decade.value = 5
-    this.selectDecade(this.decadeValue)
-
     evt.$on('xf:filter', this.updateCounts)
   },
   beforeDestroy () {
-    console.log('app:beforeDestroy')
-    this.dims.decade.dispose()
   },
   watch: {
-    'decade.value' (value) {
-      this.selectDecade(this.decadeValue)
-    },
     variable () {
       evt.$emit('map:render')
     }
@@ -441,11 +422,14 @@ export default {
       this.loading.theme = true
       this.error.theme = null
 
+      this.selectFeature()
+
       return this.$store.dispatch('loadTheme', theme)
         .then((theme) => {
           this.loading.theme = false
           this.error.theme = null
           this.dialogs.theme = false
+          this.updateCounts()
         })
         .catch((err) => {
           console.error(err)
@@ -455,8 +439,6 @@ export default {
         })
     },
     selectFeature (feature) {
-      console.log('selectFeature():', feature)
-
       if (!feature || this.feature.selected === feature) {
         this.feature.selected = null
       } else {
@@ -470,17 +452,6 @@ export default {
     getFeatureFill (feature) {
       const value = this.getFeatureValue(feature).mean
       return this.colorScale(this.variableScale(value))
-    },
-    selectDecade (decade) {
-      // console.log('selectDecade', decade)
-      if (decade) {
-        this.dims.decade.filterExact(this.decadeValue)
-      } else {
-        this.dims.decade.filterAll()
-      }
-      evt.$emit('map:render')
-      evt.$emit('xf:filter')
-      evt.$emit('filter:render')
     },
     removeFilter (variable) {
       this.filters.splice(this.filters.findIndex(v => v === variable), 1)
