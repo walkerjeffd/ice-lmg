@@ -17,3 +17,8 @@ circle.selected {
 .dc-chart {
   float: none !important;
 }
+
+.v-toolbar__content {
+  padding-left: 12px;
+  padding-right: 12px;
+}

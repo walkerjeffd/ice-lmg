@@ -1,50 +1,54 @@
 <template>
-  <v-card v-if="selected">
-    <v-card-title primary-title>
-      <h3 class="headline mb-0">Selected Gage: {{selected.id}}</h3>
-    </v-card-title>
-    <v-card-text v-if="loading">
-      <p>Loading...</p>
-    </v-card-text>
-    <v-card-text v-if="!loading && dataset">
-      <v-card>
-        <v-card-title><h4>Constant Variables</h4></v-card-title>
-        <v-divider></v-divider>
+  <ice-feature-container v-if="selected" @close="$emit('close')">
+    <template v-slot:title>
+      Gage: {{selected.id}}
+    </template>
+
+    <div v-if="dataset">
+      <ice-gage-properties-box :properties="dataset.properties"></ice-gage-properties-box>
+      <ice-feature-box>
+        <template v-slot:title>Basin Characteristics</template>
         <v-list dense>
           <v-list-tile v-for="variableId in tables.constants.fields" :key="variableId">
             <v-list-tile-content class="align-start" width="20">{{ variableById(variableId).label }}:</v-list-tile-content>
-            <v-list-tile-content class="align-end">{{ dataset.values[variableId] }} {{ variableById(variableId).units }}</v-list-tile-content>
+            <v-list-tile-content class="align-end">{{ dataset.values[0][variableId] }} {{ variableById(variableId).units }}</v-list-tile-content>
           </v-list-tile>
         </v-list>
-      </v-card>
-      <v-card class="mt-2">
-        <v-card-title><h4>Annual Precipitation</h4></v-card-title>
-        <v-divider></v-divider>
+      </ice-feature-box>
+      <ice-feature-box>
+        <template v-slot:title>Annual Precipitation</template>
         <highcharts class="chart" :options="charts.ppt"></highcharts>
-      </v-card>
-      <v-card class="mt-2">
-        <v-card-title><h4>Annual Air Temperature</h4></v-card-title>
-        <v-divider></v-divider>
+      </ice-feature-box>
+      <ice-feature-box>
+        <template v-slot:title>Annual Air Temperature</template>
         <highcharts class="chart" :options="charts.temp"></highcharts>
-      </v-card>
-    </v-card-text>
-    <v-card-actions>
-      <v-btn flat color="primary" @click="$emit('close')">Close</v-btn>
-    </v-card-actions>
-  </v-card>
+      </ice-feature-box>
+    </div>
+    <div v-else>
+      Loading...
+    </div>
+  </ice-feature-container>
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
 import highcharts from 'highcharts'
 
+import IceFeatureContainer from '@/components/IceFeatureContainer'
+import IceFeatureBox from '@/components/IceFeatureBox'
+import IceGagePropertiesBox from '@/components/IceGagePropertiesBox'
+
 export default {
   name: 'GageCov',
   props: ['selected'],
+  components: {
+    IceFeatureContainer,
+    IceFeatureBox,
+    IceGagePropertiesBox
+  },
   data () {
     return {
       dataset: null,
-      loading: false,
       tables: {
         constants: {
           fields: [
@@ -134,33 +138,27 @@ export default {
     ...mapGetters(['theme', 'variableById'])
   },
   mounted () {
-    console.log('GageCov: mounted', this.selected)
+    this.fetchData()
   },
   watch: {
     selected () {
-      console.log('GageCov:watch:selected', this.selected)
       this.fetchData()
     }
   },
   methods: {
     fetchData () {
-      console.log('GageCov:fetchData', this.selected)
       if (!this.selected) {
         this.dataset = null
         return
       }
-      this.loading = true
       this.$http.get(`/${this.theme.id}/features/${this.selected.id}.json`)
         .then((response) => {
-          console.log('GageCov: response', response.data)
           this.dataset = response.data
-          this.loading = false
-
-          const pptData = this.dataset.values.ppt_mean.map((m, i) => ({
-            mean: m,
-            sd: this.dataset.values.ppt_sd[i],
-            low: m - this.dataset.values.ppt_sd[i],
-            high: m + this.dataset.values.ppt_sd[i]
+          const pptData = this.dataset.values.map((d, i) => ({
+            mean: d.ppt_mean,
+            sd: d.ppt_sd,
+            low: d.ppt_mean - d.ppt_sd,
+            high: d.ppt_mean + d.ppt_sd
           }))
           this.charts.ppt.series = [
             {
@@ -180,11 +178,11 @@ export default {
             }
           ]
 
-          const tempData = this.dataset.values.temp_mean.map((m, i) => ({
-            mean: m,
-            sd: this.dataset.values.temp_sd[i],
-            low: m - this.dataset.values.temp_sd[i],
-            high: m + this.dataset.values.temp_sd[i]
+          const tempData = this.dataset.values.map((d, i) => ({
+            mean: d.temp_mean,
+            sd: d.temp_sd,
+            low: d.temp_mean - d.temp_sd,
+            high: d.temp_mean + d.temp_sd
           }))
           this.charts.temp.series = [
             {
@@ -213,3 +211,9 @@ export default {
   }
 }
 </script>
+
+<style>
+/* .v-toolbar__content {
+  padding-left: 12px;
+} */
+</style>

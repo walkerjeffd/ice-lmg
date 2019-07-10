@@ -1,14 +1,20 @@
 <template>
   <v-card elevation-1 class="my-2">
     <!-- <h4>{{ variable.label }}</h4> -->
-    <v-toolbar color="primary" dense dark height="32">
+    <v-toolbar dense color="grey lighten-2" flat height="32" class="ice-filter-toolbar">
       <strong>{{ variable.label }} <span v-if="variable.units">({{variable.units}})</span></strong>
+      <v-tooltip right max-width="600">
+        <template v-slot:activator="{ on }">
+          <v-icon right v-on="on" small>mdi-help-circle</v-icon>
+        </template>
+        {{ variable.description }}
+      </v-tooltip>
       <v-spacer></v-spacer>
-      <v-btn icon small outline @click="hide = !hide" class="mt-2 hide">
+      <v-btn icon small @click="hide = !hide" class="mt-2">
         <v-icon v-if="!hide">mdi-menu-up</v-icon>
         <v-icon v-else>mdi-menu-down</v-icon>
       </v-btn>
-      <v-btn icon small outline @click="close"><v-icon small>mdi-close</v-icon></v-btn>
+      <v-btn icon small @click="close"><v-icon small>mdi-close</v-icon></v-btn>
     </v-toolbar>
     <v-card-text v-if="!hide">
       Filter Range:
@@ -102,3 +108,10 @@ export default {
   }
 }
 </script>
+
+<style>
+.ice-filter-toolbar > .v-toolbar__content {
+  padding-left: 12px;
+  padding-right: 12px;
+}
+</style>
