@@ -1,6 +1,7 @@
 import Vue from 'vue'
 
 import './plugins/vuetify'
+import './plugins/highcharts'
 import './plugins/leaflet'
 import './plugins/axios'
 import './plugins/dc'
