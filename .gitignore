@@ -27,3 +27,4 @@ data/**/*
 r/.Rproj.user
 r/.Rhistory
 .Rproj.user
+r/rds/*.rds

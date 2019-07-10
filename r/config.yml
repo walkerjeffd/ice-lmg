@@ -1,3 +1,2 @@
 default:
-  sciencebase:
-    dir: /Users/jeff/Dropbox/SHEDS/lmg/data/sciencebase
+  data_dir: /Users/jeff/Dropbox/SHEDS/lmg/data

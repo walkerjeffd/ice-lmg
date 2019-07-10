@@ -1,4 +1,4 @@
-# theme: gage-cov
+# theme: gage-solar
 
 library(tidyverse)
 library(jsonlite)
@@ -11,7 +11,7 @@ config <- config::get()
 
 source("functions.R")
 
-theme_id <- "gage-cov"
+theme_id <- "gage-solar"
 theme_path <- file.path("../data/", theme_id)
 
 if (!dir.exists(theme_path)) {
@@ -22,50 +22,50 @@ if (!dir.exists(theme_path)) {
 
 # load variables from xml metadata ----------------------------------------
 
-xml <- read_xml(file.path(config$data_dir, "sciencebase", theme_id, "Summary of basin characteristics for NHD v.2 catchments in the southeastern U.S., 1950-2010 at USGS streamflow-gaging stations.xml"))
+xml <- read_xml(file.path(config$data_dir, "sciencebase", "gage-solar", "Solar radiation for NHD, v.2 catchments in the southeastern U.S., 1950-2010 at USGS streamflow-gaging stations.xml"))
 xml_find_all(xml, './eainfo/detailed') # only one file
 xml_attrs <- xml_find_all(xml, './eainfo/detailed[1]/attr')
 
 df_vars <- parse_xml_attrs(xml_attrs)
 
+
 # load dataset ------------------------------------------------------------
 
-df_dataset <- read_csv(file.path(config$data_dir, "sciencebase", theme_id, "all_gage_covariates.csv"), col_types = cols(
+df_dataset_decade <- read_csv(file.path(config$data_dir, "sciencebase", "gage-solar", "all_gage_solar.csv"), col_types = cols(
   .default = col_double(),
   site_no = col_character(),
   comid = col_character(),
-  huc12 = col_character(),
-  aquifers = col_character(),
-  cat_aquifers = col_character(),
-  bedperm = col_character(),
-  ecol3 = col_character(),
-  cat_ecol3 = col_character(),
-  hlr = col_character(),
-  physio = col_character(),
-  cat_physio = col_character(),
-  soller = col_character(),
-  cat_soller = col_character(),
-  statsgo = col_character()
+  huc12 = col_character()
 )) %>% 
   arrange(site_no, decade)
 
+# none of the sites have values varying by decade
+df_dataset_decade %>% 
+  select(site_no, decade, starts_with("dni_")) %>% 
+  gather(var, value, starts_with("dni_")) %>% 
+  group_by(site_no, var) %>% 
+  summarise(
+    range = diff(range(value))
+  ) %>% 
+  ungroup() %>% 
+  filter(range > 0) %>% 
+  nrow()
+
+# drop decade dimension
+df_dataset <- df_dataset_decade %>% 
+  select(-decade) %>% 
+  distinct()
+
 # output dataset
 out_dataset <- df_dataset %>% 
-  select(-comid, -huc12, -dec_long_va, -dec_lat_va) %>% 
-  select(id = site_no, everything())
-stopifnot(
-  out_dataset %>% 
-    group_by(id, decade) %>% 
-    count() %>% 
-    filter(n > 1) %>% 
-    nrow() == 0
-)
+  select(-dec_long_va, -dec_lat_va) %>% 
+  select(id = site_no, starts_with("dni_"))
+stopifnot(all(!duplicated(out_dataset$id)))
 
 # layer -------------------------------------------------------------------
 
 df_layer <- df_dataset %>% 
-  select(id = site_no, comid, huc12, dec_long_va, dec_lat_va) %>% 
-  distinct()
+  select(id = site_no, comid, huc12, dec_long_va, dec_lat_va)
 stopifnot(all(!duplicated(df_layer$id)))
 
 # duplicated comids
@@ -101,23 +101,20 @@ vars_config <- read_xlsx(file.path(config$data_dir, "themes.xlsx"), sheet = "var
   filter(theme == theme_id)
 
 out_vars <- map(1:nrow(vars_config), ~ list(
-  id = vars_config$id[.],
-  label = vars_config$label[.],
-  units = vars_config$units[.],
-  type = vars_config$type[.],
-  description = vars_config$description[.],
-  scale = list(
-    domain = c(vars_config$scale_domain_min[.], vars_config$scale_domain_max[.]),
-    transform = vars_config$scale_transform[.]
-  ),
-  formats = list(
-    text = vars_config$formats_text[.],
-    axis = vars_config$formats_axis[.]
-  ),
-  dims = list(
-    decade = vars_config$dims_decade[.]
-  )
-))
+    id = vars_config$id[.],
+    label = vars_config$label[.],
+    units = vars_config$units[.],
+    type = vars_config$type[.],
+    description = vars_config$description[.],
+    scale = list(
+      domain = c(vars_config$scale_domain_min[.], vars_config$scale_domain_max[.]),
+      transform = vars_config$scale_transform[.]
+    ),
+    formats = list(
+      text = vars_config$formats_text[.],
+      axis = vars_config$formats_axis[.]
+    )
+  ))
 
 # export ------------------------------------------------------------------
 
@@ -127,7 +124,7 @@ list(
   layer = sf_layer,
   dataset = df_dataset
 ) %>% 
-  saveRDS(glue("rds/{theme_id}.rds"))
+  saveRDS("rds/gage-solar.rds")
 
 # layer (geojson)
 sf_layer %>% 
@@ -162,28 +159,13 @@ if (!dir.exists(file.path(theme_path, "features"))) {
   dir.create(file.path(theme_path, "features"))
 }
 
-df_feature <- out_dataset %>% 
-  arrange(id, decade) %>% 
-  group_by(id) %>% 
-  nest() %>% 
-  mutate(
-    values = map(data, function (x) {
-      x %>% 
-        select(-decade) %>% 
-        select(filter(vars_config, !dims_decade)$id) %>% 
-        filter(row_number() == 1)
-    }),
-    arrays = map(data, function (x) {
-      x %>% 
-        arrange(decade) %>% 
-        select(filter(vars_config, dims_decade)$id)
-    })
-  )
-
-for (i in 1:nrow(df_feature)) {
+for (i in 1:nrow(df_dataset)) {
   feature_data <- list(
-    id = df_feature$id[[i]],
-    values = c(as.list(df_feature$values[[i]]), as.list(df_feature$arrays[[i]]))
+    id = df_dataset$site_no[[i]],
+    values = df_dataset %>%
+      filter(site_no == df_dataset$site_no[[i]]) %>% 
+      select(starts_with("dni_")) %>% 
+      as.list()
   )
   write_json(feature_data, path = file.path(theme_path, "features", glue("{feature_data$id}.json")), auto_unbox = TRUE, pretty = TRUE)
 }

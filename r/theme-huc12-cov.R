@@ -1,4 +1,4 @@
-# theme: gage-cov
+# theme: huc12-cov
 
 library(tidyverse)
 library(jsonlite)
@@ -11,7 +11,7 @@ config <- config::get()
 
 source("functions.R")
 
-theme_id <- "gage-cov"
+theme_id <- "huc12-cov"
 theme_path <- file.path("../data/", theme_id)
 
 if (!dir.exists(theme_path)) {
@@ -22,7 +22,7 @@ if (!dir.exists(theme_path)) {
 
 # load variables from xml metadata ----------------------------------------
 
-xml <- read_xml(file.path(config$data_dir, "sciencebase", theme_id, "Summary of basin characteristics for NHD v.2 catchments in the southeastern U.S., 1950-2010 at USGS streamflow-gaging stations.xml"))
+xml <- read_xml(file.path(config$data_dir, "sciencebase", theme_id, "Summary of basin characteristics for NHD, v.2 catchments in the southeastern U.S., 1950-2010 at 12-digit hydrologic unit code (HUC12) pour points.xml"))
 xml_find_all(xml, './eainfo/detailed') # only one file
 xml_attrs <- xml_find_all(xml, './eainfo/detailed[1]/attr')
 
@@ -30,9 +30,8 @@ df_vars <- parse_xml_attrs(xml_attrs)
 
 # load dataset ------------------------------------------------------------
 
-df_dataset <- read_csv(file.path(config$data_dir, "sciencebase", theme_id, "all_gage_covariates.csv"), col_types = cols(
+df_dataset <- read_csv(file.path(config$data_dir, "sciencebase", theme_id, "all_huc12_covariates.csv"), col_types = cols(
   .default = col_double(),
-  site_no = col_character(),
   comid = col_character(),
   huc12 = col_character(),
   aquifers = col_character(),
@@ -47,36 +46,29 @@ df_dataset <- read_csv(file.path(config$data_dir, "sciencebase", theme_id, "all_
   cat_soller = col_character(),
   statsgo = col_character()
 )) %>% 
-  arrange(site_no, decade)
+  arrange(huc12, comid, decade)
 
-# output dataset
+# output dataset (combine huc12-comid to generate unique id field)
 out_dataset <- df_dataset %>% 
-  select(-comid, -huc12, -dec_long_va, -dec_lat_va) %>% 
-  select(id = site_no, everything())
+  mutate(id = str_c(huc12, as.character(comid), sep = "-")) %>% 
+  select(-huc12, -comid, -dec_long_va, -dec_lat_va) %>% 
+  select(id, everything()) %>% 
+  distinct()
 stopifnot(
   out_dataset %>% 
-    group_by(id, decade) %>% 
-    count() %>% 
-    filter(n > 1) %>% 
+    mutate(id_decade = str_c(id, decade)) %>% 
+    filter(duplicated(id_decade)) %>% 
     nrow() == 0
 )
 
 # layer -------------------------------------------------------------------
 
 df_layer <- df_dataset %>% 
-  select(id = site_no, comid, huc12, dec_long_va, dec_lat_va) %>% 
-  distinct()
+  mutate(id = str_c(huc12, as.character(comid), sep = "-")) %>% 
+  select(id, huc12, comid, dec_long_va, dec_lat_va) %>% 
+  group_by(id) %>%
+  filter(row_number() == 1)
 stopifnot(all(!duplicated(df_layer$id)))
-
-# duplicated comids
-# stopifnot(all(!duplicated(df_layer$comid)))
-df_layer %>% 
-  group_by(comid) %>% 
-  mutate(n = n()) %>% 
-  filter(n > 1)
-
-df_dataset %>%
-  filter(comid == 766886)
 
 sf_layer <- st_as_sf(df_layer, crs = 4326, coords = c("dec_long_va", "dec_lat_va"))
 
@@ -88,7 +80,7 @@ ggplot(sf_layer) +
 
 df_vars %>%
   filter(
-    !variable %in% c("comid", "site_no", "huc12", "decade", "dec_long_va", "dec_lat_va")
+    !variable %in% c("comid", "huc12", "decade", "dec_long_va", "dec_lat_va")
   ) %>% 
   write_csv(file.path(theme_path, "meta-variables.csv"))
 
