@@ -100,7 +100,7 @@ create_layer <- function (df, coords = c("dec_long_va", "dec_lat_va")) {
   
   sf_layer <- sf::st_as_sf(df, crs = 4326, coords = coords)
   
-  stopifnot(all(!duplicated(layer$sf$id)))
+  stopifnot(all(!duplicated(sf_layer$id)))
   
   list(
     df = df,
@@ -129,7 +129,19 @@ export_theme <- function (theme, variables, dataset, layer) {
   cat("saving config to ", file.path(theme$path, "theme.json"), "\n", sep = "")
   list(
     id = theme$id,
-    title = str_c(if_else(theme$config$group == "gage", "Gages > ", "HUC12s > "), theme$config$name),
+    title = str_c(
+      case_when(
+        theme$config$group == "gage" ~ "Gages > ",
+        theme$config$group == "gage" ~ "HUC12s > ",
+        TRUE ~ ""
+      ),
+      theme$config$name
+    ),
+    description = theme$config$description,
+    source = list(
+      title = theme$config$sciencebase_title,
+      url = theme$config$sciencebase_url
+    ),
     layer = list(
       url = glue::glue("{theme$id}/layer.json")
     ),
