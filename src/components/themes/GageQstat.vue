@@ -40,7 +40,6 @@ export default {
         quantiles: {
           chart: {
             height: 300,
-            width: 500,
             marginTop: 20,
             type: 'line'
           },
@@ -88,8 +87,7 @@ export default {
     this.updateDataset()
   },
   beforeDestroy () {
-    this.charts.solar.series = []
-    this.charts.solar.yAxis.plotLines = []
+    this.charts.quantiles.series = []
   },
   methods: {
     updateDataset () {

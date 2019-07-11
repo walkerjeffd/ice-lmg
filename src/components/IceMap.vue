@@ -113,7 +113,6 @@ export default {
 
     this.svg = d3.select(this.map.getPanes().overlayPane)
       .append('svg')
-      .style('border', '1px solid black')
     this.overlay = this.svg.append('g').attr('class', 'leaflet-zoom-hide')
 
     this.$on('resize', this.resize)

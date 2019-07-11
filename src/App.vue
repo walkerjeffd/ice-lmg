@@ -57,78 +57,91 @@
         <v-layout>
           <v-flex>
             <v-card class="ice-card elevation-10" v-if="theme">
-              <v-toolbar dark dense class="subheading ma-0 theme-toolbar">
-                <strong class=" pr-2">Theme: </strong>
+              <v-toolbar dark dense color="primary" class="subheading ma-0 theme-toolbar">
+                <span class="pr-2"><v-icon size="20" class="mr-1">mdi-database</v-icon> <strong>Theme</strong>: </span>
                 <span v-if="loading.theme">Loading... <v-progress-circular indeterminate color="primary" :size="20" class="ml-2"></v-progress-circular></span>
                 <span v-else-if="error.theme"><v-icon color="error" size="19">mdi-alert</v-icon> {{error.theme}}</span>
                 <span v-else-if="theme">{{ theme.title }}</span>
                 <span v-else>None</span>
                 <v-spacer></v-spacer>
-                <v-btn small color="default" @click="dialogs.theme = true"><v-icon small left>mdi-folder-open</v-icon> Browse</v-btn>
+                <v-btn round small color="grey lighten-2 elevation-2" light @click="dialogs.theme = true">
+                  <v-icon small class="mr-2">mdi-folder-open</v-icon> Browse
+                </v-btn>
               </v-toolbar>
+            </v-card>
+            <v-card class="ice-card elevation-10 mt-2" v-if="theme">
               <v-tabs
                 v-model="tabs.active"
-                color="blue"
+                color="primary"
                 dark
                 slider-color="white">
                 <v-tab ripple>
-                  <v-icon small class="mr-1">mdi-table</v-icon> Variables
+                  <v-icon small class="mr-1">mdi-table</v-icon> Variable
                 </v-tab>
                 <v-tab ripple>
-                  <v-icon small class="mr-1">mdi-chart-bar</v-icon> Histograms &amp; Filters
+                  <v-icon small class="mr-1">mdi-chart-bar</v-icon> Crossfilters
                 </v-tab>
                 <v-spacer></v-spacer>
-                <v-btn icon small outline @click="tabs.hide = !tabs.hide" class="mt-2 hide">
+                <v-btn icon small outline @click="tabs.hide = !tabs.hide" class="mt-2 grey lighten-2 elevation-2" light>
                   <v-icon v-if="!tabs.hide">mdi-menu-up</v-icon>
                   <v-icon v-else>mdi-menu-down</v-icon>
                 </v-btn>
                 <v-tab-item :transition="false" :reverse-transition="false">
-                  <!-- <v-toolbar dark class="subheading">
-                    <strong class=" pr-2">Theme: </strong>
-                    <span v-if="loading.theme">Loading... <v-progress-circular indeterminate color="primary" :size="20" class="ml-2"></v-progress-circular></span>
-                    <span v-else-if="error.theme"><v-icon color="error" size="19">mdi-alert</v-icon> {{error.theme}}</span>
-                    <span v-else-if="theme">{{ theme.title }}</span>
-                    <span v-else>None</span>
-                    <v-spacer></v-spacer>
-                    <v-btn small color="default" @click="dialogs.theme = true">Browse</v-btn>
-                  </v-toolbar> -->
-                  <v-card v-show="!tabs.hide" :max-height="$vuetify.breakpoint.height - 250" style="overflow-y: auto">
+                  <v-card v-show="!tabs.hide">
                     <v-card-text>
                       <v-autocomplete
-                        :items="variables"
+                        :items="mapVariables"
                         v-model="variable"
                         return-object
                         dense
                         item-value="id"
                         item-text="label"
+                        :menu-props="{ closeOnClick: false, closeOnContentClick: false, openOnClick: false, maxHeight: 400 }"
                         label="Select variable...">
+                        <template v-slot:item="data">
+                          <v-list-tile-title class="pl-3" v-html="data.item.label"></v-list-tile-title>
+                          <v-spacer></v-spacer>
+                          <v-tooltip right max-width="600">
+                            <template v-slot:activator="{ on }">
+                              <v-icon v-on="on" color="grey lighten-1">mdi-information</v-icon>
+                            </template>
+                            {{ data.item.description }}
+                          </v-tooltip>
+                        </template>
                       </v-autocomplete>
                       <decade-dimension v-if="theme.dimensions.decade"></decade-dimension>
-                      <ice-legend id="legend" :colorScale="colorScale" :variable="variable" class="pt-3" v-if="variable"></ice-legend>
-                      <div class="text-xs-center grey--text text--darken-2 font-weight-medium" v-if="variable">
-                        {{ variable.label }}<span v-if="variable.units">&nbsp;({{ variable.units }})</span>
-                        <v-tooltip right max-width="600">
-                          <template v-slot:activator="{ on }">
-                            <v-icon right v-on="on" small>mdi-help-circle</v-icon>
-                          </template>
-                          {{ variable.description }}
-                        </v-tooltip>
-                      </div>
                     </v-card-text>
                   </v-card>
                 </v-tab-item>
                 <v-tab-item :transition="false" :reverse-transition="false">
-                  <v-card v-show="!tabs.hide" :max-height="$vuetify.breakpoint.height - 250" style="overflow-y: auto">
+                  <v-card v-show="!tabs.hide" :max-height="$vuetify.breakpoint.height - 450" style="overflow-y: auto">
                     <v-card-text>
                       <v-autocomplete
-                        :items="variables"
+                        :items="filterVariables"
                         v-model="filters"
                         multiple
                         dense
                         return-object
                         item-value="id"
                         item-text="label"
-                        label="Select variable(s)...">
+                        chips
+                        deletable-chips
+                        clearable
+                        label="Select crossfilter variable(s)...">
+                        <template v-slot:item="data">
+                          <v-list-tile-action>
+                            <v-checkbox :value="data.tile.props.value"></v-checkbox>
+                          </v-list-tile-action>
+                          <v-list-tile-title class="pl-3" v-html="data.item.label"></v-list-tile-title>
+                          <v-spacer></v-spacer>
+                          <v-tooltip right max-width="600">
+                            <template v-slot:activator="{ on }">
+                              <v-icon v-on="on" color="grey lighten-1">mdi-information</v-icon>
+                            </template>
+                            {{ data.item.description }}
+                          </v-tooltip>
+                          <br>
+                        </template>
                       </v-autocomplete>
                       <p>Filtered: {{ counts.filtered }} of {{ counts.total }}</p>
                       <ice-filter v-for="variable in filters" :key="variable.id" :variable="variable" @close="removeFilter(variable)"></ice-filter>
@@ -138,10 +151,32 @@
               </v-tabs>
             </v-card>
             <v-card class="ice-card elevation-10 mt-2">
+              <v-toolbar dense dark color="primary">
+                <h4>Legend</h4>
+                <v-spacer></v-spacer>
+                <v-btn icon small outline @click="legend.hide = !legend.hide" class="mt-2 grey lighten-2 elevation-2" light>
+                  <v-icon v-if="!legend.hide">mdi-menu-up</v-icon>
+                  <v-icon v-else>mdi-menu-down</v-icon>
+                </v-btn>
+              </v-toolbar>
+              <v-card-text v-if="!legend.hide">
+                <ice-legend id="legend" :colorScale="colorScale" :variable="variable" class="pt-3" v-if="variable"></ice-legend>
+                <div class="text-xs-center grey--text text--darken-2 font-weight-medium" v-if="variable">
+                  {{ variable.label }}<span v-if="variable.units">&nbsp;({{ variable.units }})</span>
+                  <v-tooltip right max-width="600">
+                    <template v-slot:activator="{ on }">
+                      <v-icon right v-on="on" small>mdi-help-circle</v-icon>
+                    </template>
+                    {{ variable.description }}
+                  </v-tooltip>
+                </div>
+              </v-card-text>
+            </v-card>
+            <v-card class="ice-card elevation-10 mt-2" v-if="debug.visible">
               <v-toolbar dense dark color="red darken-4">
                 <h4>Debug</h4>
                 <v-spacer></v-spacer>
-                <v-btn icon small outline @click="debug.hide = !debug.hide" class="mt-2 hide">
+                <v-btn icon small light @click="debug.hide = !debug.hide" class="mt-2 grey lighten-2 elevation-2">
                   <v-icon v-if="!debug.hide">mdi-menu-up</v-icon>
                   <v-icon v-else>mdi-menu-down</v-icon>
                 </v-btn>
@@ -216,7 +251,7 @@
       scrollable>
       <v-card>
         <v-toolbar dark color="primary">
-          <v-toolbar-title>Themes</v-toolbar-title>
+          <v-toolbar-title>Select a Theme</v-toolbar-title>
           <v-spacer></v-spacer>
           <v-btn icon @click="dialogs.theme = false">
             <v-icon>mdi-close</v-icon>
@@ -300,6 +335,7 @@ import * as d3 from 'd3'
 import { getValueById, getFilteredCount, getTotalCount } from '@/lib/crossfilter'
 import themes from '@/assets/themes'
 import evt from '@/lib/events'
+import { groupVariables } from '@/lib/utils'
 import variableMixin from '@/mixins/variable'
 
 export default {
@@ -323,10 +359,14 @@ export default {
   data: () => ({
     filters: [],
     debug: {
+      visible: process.env.NODE_ENV === 'development',
       hide: true
     },
     tabs: {
       active: 0,
+      hide: false
+    },
+    legend: {
       hide: false
     },
     leftSidebar: {
@@ -398,6 +438,12 @@ export default {
         return this.$store.dispatch('setVariable', value)
       }
     },
+    mapVariables () {
+      return groupVariables(this.variables.filter(d => d.map))
+    },
+    filterVariables () {
+      return groupVariables(this.variables.filter(d => d.filter))
+    },
     colorScale () {
       return d3.scaleSequential(d3.interpolateViridis)
     }
@@ -423,18 +469,19 @@ export default {
       this.error.theme = null
 
       this.selectFeature()
+      this.clearFilters()
 
       return this.$store.dispatch('loadTheme', theme)
         .then((theme) => {
-          this.loading.theme = false
           this.error.theme = null
-          this.dialogs.theme = false
           this.updateCounts()
         })
         .catch((err) => {
           console.error(err)
-          this.loading.theme = false
           this.error.theme = 'Failed to load theme'
+        })
+        .finally(() => {
+          this.loading.theme = false
           this.dialogs.theme = false
         })
     },
@@ -455,6 +502,9 @@ export default {
     },
     removeFilter (variable) {
       this.filters.splice(this.filters.findIndex(v => v === variable), 1)
+    },
+    clearFilters () {
+      this.filters = []
     }
   }
 }

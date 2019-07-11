@@ -1,47 +1,186 @@
 <template>
-  <v-card v-if="selected" style="height:100%">
-    <v-card-title primary-title>
-      <h3 class="headline mb-0">Selected: {{selected.id}}</h3>
-    </v-card-title>
-    <v-card-text>
-      <p>Theme: {{ theme.title }}</p>
-    </v-card-text>
-    <v-card-actions>
-      <v-btn flat color="primary" @click="$emit('close')">Close</v-btn>
-    </v-card-actions>
-  </v-card>
+  <ice-feature-container v-if="selected" @close="$emit('close')">
+    <template v-slot:title>
+      HUC12: {{selected.properties.huc12}}
+    </template>
+
+    <div v-if="dataset">
+      <ice-huc12-properties-box :properties="dataset.properties"></ice-huc12-properties-box>
+
+      <ice-feature-box>
+        <template v-slot:title>Monthly Solar Radiation</template>
+        <highcharts class="chart" :options="charts.solar"></highcharts>
+      </ice-feature-box>
+    </div>
+    <div v-else>
+      Loading...
+    </div>
+  </ice-feature-container>
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
+import highcharts from 'highcharts'
+
+import IceFeatureContainer from '@/components/IceFeatureContainer'
+import IceFeatureBox from '@/components/IceFeatureBox'
+import IceHuc12PropertiesBox from '@/components/IceHuc12PropertiesBox'
+
+const months = [
+  {
+    value: 'jan',
+    label: 'Jan'
+  },
+  {
+    value: 'feb',
+    label: 'Feb'
+  },
+  {
+    value: 'mar',
+    label: 'Mar'
+  },
+  {
+    value: 'apr',
+    label: 'Apr'
+  },
+  {
+    value: 'may',
+    label: 'May'
+  },
+  {
+    value: 'jun',
+    label: 'Jun'
+  },
+  {
+    value: 'jul',
+    label: 'Jul'
+  },
+  {
+    value: 'aug',
+    label: 'Aug'
+  },
+  {
+    value: 'sep',
+    label: 'Sep'
+  },
+  {
+    value: 'oct',
+    label: 'Oct'
+  },
+  {
+    value: 'nov',
+    label: 'Nov'
+  },
+  {
+    value: 'dec',
+    label: 'Dec'
+  }
+]
 
 export default {
   name: 'Huc12Solar',
   props: ['selected'],
+  components: {
+    IceFeatureContainer,
+    IceFeatureBox,
+    IceHuc12PropertiesBox
+  },
   data () {
     return {
-      dataset: null
+      dataset: null,
+      charts: {
+        solar: {
+          chart: {
+            height: 300,
+            width: 500,
+            marginTop: 20,
+            type: 'column'
+          },
+          title: {
+            text: null
+          },
+          legend: {
+            enabled: false
+          },
+          tooltip: {
+            valueDecimals: 1,
+            valueSuffix: ' kWh/m2/day',
+            shared: true
+          },
+          xAxis: {
+            type: 'category',
+            categories: months.map(d => d.label),
+            title: {
+              text: 'Month'
+            }
+          },
+          yAxis: {
+            title: {
+              text: 'kWh/m2/day'
+            }
+          },
+          series: []
+        }
+      }
     }
   },
   computed: {
     ...mapGetters(['theme'])
   },
-  mounted () {
-  },
   watch: {
+    dataset () {
+      this.updateCharts()
+    },
     selected () {
-      console.log('Huc12Solar:watch:selected', this.selected)
+      this.updateDataset()
+    }
+  },
+  mounted () {
+    this.updateDataset()
+  },
+  beforeDestroy () {
+    this.charts.solar.series = []
+    this.charts.solar.yAxis.plotLines = []
+  },
+  methods: {
+    updateDataset () {
       if (!this.selected) {
         this.dataset = null
         return
       }
-      this.$http.get(`/${this.theme.id}/features/${this.selected.id}.json`)
+      return this.$http.get(`/${this.theme.id}/features/${this.selected.id}.json`)
         .then((response) => {
           this.dataset = response.data
         })
         .catch((err) => {
           console.log('Huc12Solar: error', err)
         })
+    },
+    updateCharts () {
+      if (!this.dataset) {
+        this.charts.solar.series = []
+        this.charts.solar.yAxis.plotLines = []
+        return
+      }
+
+      const values = this.dataset.values
+
+      this.charts.solar.series = [
+        {
+          name: 'Mean',
+          data: months.map(m => values[`dni_${m.value}`])
+        }
+      ]
+      this.charts.solar.yAxis.plotLines = [{
+        value: this.dataset.values.dni_ann,
+        color: 'red',
+        dashStyle: 'shortdash',
+        width: 2,
+        label: {
+          text: `Annual Avg = ${highcharts.numberFormat(this.dataset.values.dni_ann, 1, '.', ',')} kWh/m2/day`
+        },
+        zIndex: 4
+      }]
     }
   }
 }

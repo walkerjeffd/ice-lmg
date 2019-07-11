@@ -67,9 +67,12 @@ load_variables <- function(theme) {
     cfg <- map(1:nrow(df), ~ list(
       id = df$id[.],
       label = df$label[.],
+      description = df$description[.],
       units = df$units[.],
       type = df$type[.],
-      description = df$description[.],
+      map = df$map[.],
+      filter = df$filter[.],
+      group = df$group[.],
       scale = list(
         domain = c(df$scale_domain_min[.], df$scale_domain_max[.]),
         transform = df$scale_transform[.]

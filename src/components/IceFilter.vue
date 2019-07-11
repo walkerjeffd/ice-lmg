@@ -5,7 +5,7 @@
       <strong>{{ variable.label }} <span v-if="variable.units">({{variable.units}})</span></strong>
       <v-tooltip right max-width="600">
         <template v-slot:activator="{ on }">
-          <v-icon right v-on="on" small>mdi-help-circle</v-icon>
+          <v-icon class="pl-2" v-on="on" small>mdi-information</v-icon>
         </template>
         {{ variable.description }}
       </v-tooltip>

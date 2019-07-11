@@ -1,5 +1,5 @@
 <template>
-  <v-card class="mt-2">
+  <v-card class="mt-3">
     <v-toolbar dense height="32" color="grey lighten-2" flat>
       <h4>
         <slot name="title"></slot>
