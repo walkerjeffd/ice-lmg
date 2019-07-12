@@ -7,15 +7,25 @@
     <div v-if="dataset">
       <ice-gage-properties-box :properties="dataset.properties"></ice-gage-properties-box>
       <ice-feature-box>
-        <template v-slot:title>Seasonal Trends</template>
+        <template v-slot:title>Options</template>
+        <v-card-text class="py-0">
+          <v-radio-group v-model="maxPVal" row label="Significance Level:">
+            <v-radio label="p <= 0.05" value="0.05"></v-radio>
+            <v-radio label="p <= 0.10" value="0.10"></v-radio>
+            <v-radio label="Any p-value" value="1"></v-radio>
+          </v-radio-group>
+        </v-card-text>
+      </ice-feature-box>
+      <ice-feature-box>
+        <template v-slot:title>Mann-Kendall: Seasonal</template>
         <highcharts class="chart" :options="charts.season"></highcharts>
       </ice-feature-box>
       <ice-feature-box>
-        <template v-slot:title>Month Trends</template>
+        <template v-slot:title>Mann-Kendall: Monthly</template>
         <highcharts class="chart" :options="charts.month"></highcharts>
       </ice-feature-box>
       <ice-feature-box>
-        <template v-slot:title>Quantile Trends</template>
+        <template v-slot:title>Mann-Kendall: By Quantile</template>
         <highcharts class="chart" :options="charts.quantile"></highcharts>
       </ice-feature-box>
     </div>
@@ -48,6 +58,7 @@ export default {
   data () {
     return {
       dataset: null,
+      maxPVal: '1',
       charts: {
         season: {
           chart: {
@@ -58,17 +69,16 @@ export default {
           title: {
             text: null
           },
-          // legend: {
-          //   enabled: false
-          // },
           tooltip: {
             shared: true,
             headerFormat: '<span style="font-size: 10px">Season: {point.key}</span><br/>'
           },
           xAxis: {
             type: 'category',
+            categories: seasons,
+            max: seasons.length - 1,
             title: {
-              text: 'Decade'
+              text: 'Season'
             }
           },
           yAxis: [
@@ -95,6 +105,7 @@ export default {
           },
           xAxis: {
             type: 'category',
+            categories: months,
             title: {
               text: 'Month'
             }
@@ -123,6 +134,7 @@ export default {
           },
           xAxis: {
             type: 'category',
+            categories: quantiles,
             title: {
               text: 'Quantile'
             }
@@ -148,6 +160,12 @@ export default {
   watch: {
     selected () {
       this.fetchData()
+    },
+    dataset () {
+      this.updateCharts()
+    },
+    maxPVal () {
+      this.updateCharts()
     }
   },
   methods: {
@@ -159,72 +177,88 @@ export default {
       this.$http.get(`/${this.theme.id}/features/${this.selected.id}.json`)
         .then((response) => {
           this.dataset = response.data
-
-          this.charts.season.xAxis.categories = this.dataset.values.map(d => d.decade)
-          this.charts.season.series = this.dataset.values.map(d => ({
-            name: `${d.decade}s`,
-            data: seasons.map(season => ({ y: d.season[season].mk_slope, pval: d.season[season].mk_pval })),
-            type: 'line',
-            marker: {
-              enabled: true,
-              fillColor: '#FFFFFF',
-              lineWidth: 1,
-              lineColor: null,
-              symbol: 'circle',
-              radius: 3
-            },
-            tooltip: {
-              pointFormatter: function () {
-                return `<span style="color:${this.color}">●</span> ${this.series.name}: <b>${highcharts.numberFormat(this.y, 1, '.', ',')}</b> m3/s/yr (p = <b>${highcharts.numberFormat(this.pval, 3, '.', ',')}</b>)<br/>`
-              }
-            }
-          }))
-
-          this.charts.month.xAxis.categories = months
-          this.charts.month.series = this.dataset.values.map(d => ({
-            name: `${d.decade}s`,
-            data: months.map(month => ({ y: d.month[month].mk_slope, pval: d.month[month].mk_pval })),
-            type: 'line',
-            marker: {
-              enabled: true,
-              fillColor: '#FFFFFF',
-              lineWidth: 1,
-              lineColor: null,
-              symbol: 'circle',
-              radius: 3
-            },
-            tooltip: {
-              pointFormatter: function () {
-                return `<span style="color:${this.color}">●</span> ${this.series.name}: <b>${highcharts.numberFormat(this.y, 1, '.', ',')}</b> m3/s/yr (p = <b>${highcharts.numberFormat(this.pval, 3, '.', ',')}</b>)<br/>`
-              }
-            }
-          }))
-
-          this.charts.quantile.xAxis.categories = quantiles
-          this.charts.quantile.series = this.dataset.values.map(d => ({
-            name: `${d.decade}s`,
-            data: quantiles.map(quantile => ({ y: d.quantile[quantile].mk_slope, pval: d.quantile[quantile].mk_pval })),
-            type: 'line',
-            marker: {
-              enabled: true,
-              fillColor: '#FFFFFF',
-              lineWidth: 1,
-              lineColor: null,
-              symbol: 'circle',
-              radius: 3
-            },
-            tooltip: {
-              pointFormatter: function () {
-                return `<span style="color:${this.color}">●</span> ${this.series.name}: <b>${highcharts.numberFormat(this.y, 1, '.', ',')}</b> m3/s/yr (p = <b>${highcharts.numberFormat(this.pval, 3, '.', ',')}</b>)<br/>`
-              }
-            }
-          }))
         })
         .catch((err) => {
           console.log('GageQtrend: error', err)
           this.dataset = null
           this.loading = false
         })
+    },
+    clearCharts () {
+      this.charts.season.series = []
+      this.charts.month.series = []
+      this.charts.quantile.series = []
+    },
+    updateCharts () {
+      if (!this.dataset) this.clearCharts()
+      this.charts.season.series = this.dataset.values.map(d => ({
+        name: `${d.decade}s`,
+        data: seasons.map(season => ({
+          y: d.season[season].mk_pval <= +this.maxPVal ? d.season[season].mk_slope : null,
+          pval: d.season[season].mk_pval
+        })),
+        type: 'line',
+        connectNulls: true,
+        marker: {
+          enabled: true,
+          fillColor: '#FFFFFF',
+          lineWidth: 1,
+          lineColor: null,
+          symbol: 'circle',
+          radius: 3
+        },
+        tooltip: {
+          pointFormatter: function () {
+            return `<span style="color:${this.color}">●</span> ${this.series.name}: <b>${highcharts.numberFormat(this.y, 1, '.', ',')}</b> m3/s/yr (p = <b>${highcharts.numberFormat(this.pval, 3, '.', ',')}</b>)<br/>`
+          }
+        }
+      }))
+
+      this.charts.month.series = this.dataset.values.map(d => ({
+        name: `${d.decade}s`,
+        data: months.map(month => ({
+          y: d.month[month].mk_pval <= +this.maxPVal ? d.month[month].mk_slope : null,
+          pval: d.month[month].mk_pval
+        })),
+        type: 'line',
+        connectNulls: true,
+        marker: {
+          enabled: true,
+          fillColor: '#FFFFFF',
+          lineWidth: 1,
+          lineColor: null,
+          symbol: 'circle',
+          radius: 3
+        },
+        tooltip: {
+          pointFormatter: function () {
+            return `<span style="color:${this.color}">●</span> ${this.series.name}: <b>${highcharts.numberFormat(this.y, 1, '.', ',')}</b> m3/s/yr (p = <b>${highcharts.numberFormat(this.pval, 3, '.', ',')}</b>)<br/>`
+          }
+        }
+      }))
+
+      this.charts.quantile.series = this.dataset.values.map(d => ({
+        name: `${d.decade}s`,
+        data: quantiles.map(quantile => ({
+          y: d.quantile[quantile].mk_pval <= +this.maxPVal ? d.quantile[quantile].mk_slope : null,
+          pval: d.quantile[quantile].mk_pval
+        })),
+        type: 'line',
+        connectNulls: true,
+        marker: {
+          enabled: true,
+          fillColor: '#FFFFFF',
+          lineWidth: 1,
+          lineColor: null,
+          symbol: 'circle',
+          radius: 3
+        },
+        tooltip: {
+          pointFormatter: function () {
+            return `<span style="color:${this.color}">●</span> ${this.series.name}: <b>${highcharts.numberFormat(this.y, 1, '.', ',')}</b> m3/s/yr (p = <b>${highcharts.numberFormat(this.pval, 3, '.', ',')}</b>)<br/>`
+          }
+        }
+      }))
     }
   }
 }
