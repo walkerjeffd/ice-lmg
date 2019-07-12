@@ -7,6 +7,8 @@ load_theme <- function(id) {
       as.list()
   )
   
+  theme$config$meta_file_index <- as.numeric(str_split(theme$config$meta_file_index, ",")[[1]])
+  
   if (!dir.exists(theme$path)) {
     cat(glue::glue("Creating theme directory: {theme$path}"), "\n")
     dir.create(theme$path)
@@ -48,13 +50,15 @@ extract_meta_variables <- function(theme) {
   # > xml2::xml_find_all(xml2::read_xml(meta_xml_path), './eainfo/detailed')
   meta_xml_path <- file.path(config::get("data_dir"), "sciencebase", theme$id, theme$config$meta_file)
   meta_xml <- xml2::read_xml(meta_xml_path)
-  meta_xml_attrs <- xml2::xml_find_all(meta_xml, glue::glue('./eainfo/detailed[{theme$config$meta_file_index}]/attr'))
-  meta_vars <- parse_xml_attrs(meta_xml_attrs)
-  meta_vars
+  map(theme$config$meta_file_index, function (index) {
+    meta_xml_attrs <- xml2::xml_find_all(meta_xml, glue::glue('./eainfo/detailed[{index}]/attr'))
+    parse_xml_attrs(meta_xml_attrs)
+  }) %>% 
+    bind_rows(.id = "index")
 }
 
 
-load_variables <- function(theme) {
+load_variables <- function(theme, index_names = NULL) {
   meta <- extract_meta_variables(theme)
   meta %>%
     write_csv(file.path(theme$path, "meta-variables.csv"))
@@ -81,8 +85,9 @@ load_variables <- function(theme) {
         text = df$formats_text[.],
         axis = df$formats_axis[.]
       ),
-      dims = list(
-        decade = df$dims_decade[.]
+      dimensions = list(
+        decade = df$dims_decade[.],
+        mklevel = df$dims_mklevel[.]
       )
     )) 
   }
@@ -154,10 +159,11 @@ export_theme <- function (theme, variables, dataset, layer) {
         by = "id"
       )
     ),
-    variables = variables$config,
     dimensions = list(
-      decade = theme$config$dims_decade
-    )
+      decade = theme$config$dims_decade,
+      mklevel = theme$config$dims_mklevel
+    ),
+    variables = variables$config
   ) %>% 
     jsonlite::write_json(path = file.path(theme$path, "theme.json"), auto_unbox = TRUE, pretty = TRUE)
 }
@@ -181,7 +187,6 @@ write_feature_json <- function(theme, df) {
     )
   }
 }
-
 
 append_feature_properties <- function(df, layer) {
   df %>% 

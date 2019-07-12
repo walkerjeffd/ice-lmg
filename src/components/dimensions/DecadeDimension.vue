@@ -1,13 +1,13 @@
 <template>
   <div>
-    <v-subheader class="pl-0">Select Decade</v-subheader>
+    <v-subheader class="pl-0">Select decade...</v-subheader>
     <v-slider
       v-model="value"
       :tick-labels="labels"
       :max="labels.length - 1"
       step="1"
       ticks="always"
-      tick-size="7">
+      tick-size="3">
     </v-slider>
   </div>
 </template>
@@ -17,6 +17,7 @@ import { getCrossfilter } from '@/lib/crossfilter'
 import evt from '@/lib/events'
 
 export default {
+  name: 'DecadeDimension',
   data () {
     return {
       value: 5,
@@ -36,6 +37,7 @@ export default {
   mounted () {
     const xf = getCrossfilter()
     this.dim = xf.dimension(d => d.decade)
+    evt.$on('theme:set', this.update)
   },
   beforeDestroy () {
     this.dim.dispose()

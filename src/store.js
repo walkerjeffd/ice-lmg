@@ -10,7 +10,14 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
     theme: null,
-    variable: null
+    variable: null,
+    settings: {
+      color: {
+        scheme: 'Viridis',
+        type: 'continuous',
+        invert: false
+      }
+    }
   },
   getters: {
     theme: state => state.theme,
@@ -19,7 +26,10 @@ export default new Vuex.Store({
     variableById: state => id => {
       return state.theme.variables.find(v => v.id === id)
     },
-    layer: state => (state.theme ? state.theme.layer : null)
+    layer: state => (state.theme ? state.theme.layer : null),
+    colorScheme: state => state.settings.color.scheme,
+    colorType: state => state.settings.color.type,
+    colorInvert: state => state.settings.color.invert
   },
   mutations: {
     SET_THEME (state, theme) {
@@ -27,6 +37,15 @@ export default new Vuex.Store({
     },
     SET_VARIABLE (state, variable) {
       state.variable = variable
+    },
+    SET_COLOR_SCHEME (state, scheme) {
+      state.settings.color.scheme = scheme
+    },
+    SET_COLOR_TYPE (state, type) {
+      state.settings.color.type = type
+    },
+    SET_COLOR_INVERT (state, invert) {
+      state.settings.color.invert = invert
     }
   },
   actions: {
@@ -57,6 +76,10 @@ export default new Vuex.Store({
                   x.decade = d.decade
                 }
 
+                if (theme.dimensions.mklevel) {
+                  x.mklevel = d.mklevel
+                }
+
                 theme.variables.forEach(v => {
                   x[v.id] = v.type === 'num' ? +d[v.id] : d[v.id]
                 })
@@ -78,6 +101,15 @@ export default new Vuex.Store({
       variable.extent = extent(values)
       return setVariable(variable)
         .then(() => commit('SET_VARIABLE', variable))
+    },
+    setColorScheme ({ commit }, scheme) {
+      return commit('SET_COLOR_SCHEME', scheme)
+    },
+    setColorType ({ commit }, type) {
+      return commit('SET_COLOR_TYPE', type)
+    },
+    setColorInvert ({ commit }, invert) {
+      return commit('SET_COLOR_INVERT', invert)
     }
   }
 })

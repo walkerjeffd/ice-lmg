@@ -109,6 +109,7 @@
                           </v-tooltip>
                         </template>
                       </v-autocomplete>
+                      <mklevel-dimension v-if="theme.dimensions.mklevel"></mklevel-dimension>
                       <decade-dimension v-if="theme.dimensions.decade"></decade-dimension>
                     </v-card-text>
                   </v-card>
@@ -150,31 +151,10 @@
                 </v-tab-item>
               </v-tabs>
             </v-card>
-            <v-card class="ice-card elevation-10 mt-2">
-              <v-toolbar dense dark color="primary">
-                <h4>Legend</h4>
-                <v-spacer></v-spacer>
-                <v-btn icon small outline @click="legend.hide = !legend.hide" class="mt-2 grey lighten-2 elevation-2" light>
-                  <v-icon v-if="!legend.hide">mdi-menu-up</v-icon>
-                  <v-icon v-else>mdi-menu-down</v-icon>
-                </v-btn>
-              </v-toolbar>
-              <v-card-text v-if="!legend.hide">
-                <ice-legend id="legend" :colorScale="colorScale" :variable="variable" class="pt-3" v-if="variable"></ice-legend>
-                <div class="text-xs-center grey--text text--darken-2 font-weight-medium" v-if="variable">
-                  {{ variable.label }}<span v-if="variable.units">&nbsp;({{ variable.units }})</span>
-                  <v-tooltip right max-width="600">
-                    <template v-slot:activator="{ on }">
-                      <v-icon right v-on="on" small>mdi-help-circle</v-icon>
-                    </template>
-                    {{ variable.description }}
-                  </v-tooltip>
-                </div>
-              </v-card-text>
-            </v-card>
+            <ice-legend-box></ice-legend-box>
             <v-card class="ice-card elevation-10 mt-2" v-if="debug.visible">
               <v-toolbar dense dark color="red darken-4">
-                <h4>Debug</h4>
+                <h3>Debug</h3>
                 <v-spacer></v-spacer>
                 <v-btn icon small light @click="debug.hide = !debug.hide" class="mt-2 grey lighten-2 elevation-2">
                   <v-icon v-if="!debug.hide">mdi-menu-up</v-icon>
@@ -317,9 +297,10 @@ import { mapGetters } from 'vuex'
 import IceMap from '@/components/IceMap'
 import IceMapLayer from '@/components/IceMapLayer'
 import IceFilter from '@/components/IceFilter'
-import IceLegend from '@/components/IceLegend'
+import IceLegendBox from '@/components/IceLegendBox'
 
 import DecadeDimension from '@/components/dimensions/DecadeDimension'
+import MklevelDimension from '@/components/dimensions/MklevelDimension'
 
 import GageCov from '@/components/themes/GageCov'
 import GageQstat from '@/components/themes/GageQstat'
@@ -330,23 +311,23 @@ import Huc12Cov from '@/components/themes/Huc12Cov'
 import Huc12Qquantile from '@/components/themes/Huc12Qquantile'
 import Huc12Solar from '@/components/themes/Huc12Solar'
 
-import * as d3 from 'd3'
-
 import { getValueById, getFilteredCount, getTotalCount } from '@/lib/crossfilter'
 import themes from '@/assets/themes'
 import evt from '@/lib/events'
 import { groupVariables } from '@/lib/utils'
-import variableMixin from '@/mixins/variable'
+import VariableMixin from '@/mixins/variable'
+import ColorMixin from '@/mixins/color'
 
 export default {
   name: 'App',
-  mixins: [variableMixin],
+  mixins: [VariableMixin, ColorMixin],
   components: {
     IceMap,
     IceMapLayer,
     IceFilter,
-    IceLegend,
+    IceLegendBox,
     DecadeDimension,
+    MklevelDimension,
     GageCov,
     GageQstat,
     GageQts,
@@ -429,7 +410,7 @@ export default {
     }
   }),
   computed: {
-    ...mapGetters(['theme', 'variables', 'layer']),
+    ...mapGetters(['theme', 'variables', 'layer', 'colorScheme', 'colorInvert']),
     variable: {
       get () {
         return this.$store.getters.variable
@@ -443,9 +424,6 @@ export default {
     },
     filterVariables () {
       return groupVariables(this.variables.filter(d => d.filter))
-    },
-    colorScale () {
-      return d3.scaleSequential(d3.interpolateViridis)
     }
   },
   mounted () {
@@ -481,6 +459,7 @@ export default {
           this.error.theme = 'Failed to load theme'
         })
         .finally(() => {
+          evt.$emit('theme:set')
           this.loading.theme = false
           this.dialogs.theme = false
         })

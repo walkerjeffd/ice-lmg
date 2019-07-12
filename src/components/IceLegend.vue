@@ -4,14 +4,16 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import * as d3 from 'd3'
 
 import VariableMixin from '../mixins/variable'
+import ColorMixin from '../mixins/color'
 
 export default {
   name: 'IceLegend',
-  mixins: [VariableMixin],
-  props: ['id', 'colorScale', 'variable'],
+  mixins: [VariableMixin, ColorMixin],
+  props: ['id'],
   data () {
     return {
       svg: null,
@@ -23,6 +25,9 @@ export default {
       height: 30,
       axisHeight: 20
     }
+  },
+  computed: {
+    ...mapGetters(['colorScheme', 'colorType', 'colorInvert', 'variable'])
   },
   mounted () {
     this.svg = d3.select(this.$el)
