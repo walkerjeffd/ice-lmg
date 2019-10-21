@@ -146,9 +146,9 @@ export_theme <- function (theme, variables, dataset, layer) {
       theme$config$name
     ),
     description = theme$config$description,
-    source = list(
-      title = theme$config$sciencebase_title,
-      url = theme$config$sciencebase_url
+    citation = list(
+      text = theme$config$citation_text,
+      url = theme$config$citation_url
     ),
     layer = list(
       url = glue::glue("{theme$id}/layer.json")

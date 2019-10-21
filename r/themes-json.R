@@ -8,9 +8,9 @@ config <- config::get()
 
 themes <- read_xlsx(file.path(config$data_dir, "themes.xlsx"), sheet = "themes") %>% 
   mutate(
-    sciencebase = map2(sciencebase_title, sciencebase_url, ~ list(title = .x, url = .y))
+    citation = map2(citation_text, citation_url, ~ list(text = .x, url = .y))
   ) %>% 
-  select(group, id, name, description, sciencebase)
+  select(group, id, name, description, citation)
 
 list(
   list(

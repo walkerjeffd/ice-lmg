@@ -10,9 +10,9 @@
     <v-card-text>
       <slot></slot>
       <ice-feature-box>
-        <template v-slot:title>Data Source</template>
+        <template v-slot:title>Citation</template>
         <v-card-text>
-          <a :href="theme.source.url" target="_blank">{{ theme.source.title }}</a>
+          <a :href="theme.citation.url" target="_blank">{{ theme.citation.text }}</a>
           <span class="px-2"><v-icon small>mdi-open-in-new</v-icon></span>
           <span>[<em class="px-1">Sciencebase</em>]</span>
         </v-card-text>

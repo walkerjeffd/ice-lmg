@@ -82,7 +82,7 @@
                   <v-icon small class="mr-1">mdi-chart-bar</v-icon> Crossfilters
                 </v-tab>
                 <v-spacer></v-spacer>
-                <v-btn icon small outline @click="tabs.hide = !tabs.hide" class="mt-2 grey lighten-2 elevation-2" light>
+                <v-btn icon small @click="tabs.hide = !tabs.hide" class="mt-2 grey lighten-2 elevation-2" light>
                   <v-icon v-if="!tabs.hide">mdi-menu-up</v-icon>
                   <v-icon v-else>mdi-menu-down</v-icon>
                 </v-btn>
@@ -264,10 +264,10 @@
               <div v-for="theme in themes.active" :key="theme.id">
                 <h2 class="mb-2">{{theme.title}}</h2>
                 <p>{{theme.description}}</p>
-                <div v-if="theme.sciencebase" class="my-2 subheading">
+                <div v-if="theme.citation" class="my-2 subheading">
                   <p>
-                    <strong>ScienceBase: </strong>
-                    <a :href="theme.sciencebase.url" target="_blank">{{theme.sciencebase.title}}</a>
+                    <strong>Citation: </strong>
+                    <a :href="theme.citation.url" target="_blank">{{theme.citation.text}}</a>
                   </p>
                 </div>
                 <div class="text-xs-center mt-4">
