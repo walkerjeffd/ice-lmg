@@ -190,7 +190,7 @@ export default {
       this.charts.quantile.series = []
     },
     updateCharts () {
-      if (!this.dataset) this.clearCharts()
+      if (!this.dataset) return this.clearCharts()
       this.charts.season.series = this.dataset.values.map(d => ({
         name: `${d.decade}s`,
         data: seasons.map(season => ({

@@ -5,7 +5,7 @@
       <v-spacer></v-spacer>
       <v-menu v-model="settings" offset-x :close-on-content-click="false" nudge-right="10">
         <template v-slot:activator="{ on }">
-          <v-btn icon small outline class="mt-2 grey lighten-2 elevation-2" light v-on="on">
+          <v-btn icon small class="mt-2 grey lighten-2 elevation-2" light v-on="on">
             <v-icon>mdi-settings-outline</v-icon>
           </v-btn>
         </template>
@@ -13,7 +13,7 @@
           <v-toolbar color="grey" dense dark>
             <h3>Legend Settings</h3>
             <v-spacer></v-spacer>
-            <v-btn icon small outline @click="settings = false" class="mt-2 grey lighten-2 elevation-2" light>
+            <v-btn icon small @click="settings = false" class="mt-2 grey lighten-2 elevation-2" light>
               <v-icon>mdi-close</v-icon>
             </v-btn>
           </v-toolbar>
@@ -59,7 +59,7 @@
           </v-card-actions>
         </v-card>
       </v-menu>
-      <v-btn icon small outline @click="hide = !hide" class="mt-2 grey lighten-2 elevation-2" light>
+      <v-btn icon small @click="hide = !hide" class="mt-2 grey lighten-2 elevation-2" light>
         <v-icon v-if="!hide">mdi-menu-up</v-icon>
         <v-icon v-else>mdi-menu-down</v-icon>
       </v-btn>
