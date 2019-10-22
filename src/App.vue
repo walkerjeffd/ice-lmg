@@ -227,7 +227,7 @@
     </v-dialog>
     <v-dialog
       v-model="dialogs.theme"
-      max-width="1000"
+      max-width="1200"
       scrollable>
       <v-card>
         <v-toolbar dark color="primary">
@@ -240,7 +240,7 @@
 
         <v-card-text>
           <v-layout row wrap justify-space-between>
-            <v-flex xs4 style="border-right: 1px solid #CCC;">
+            <v-flex xs5 style="border-right: 1px solid #CCC;">
               <v-treeview
                 v-model="themes.selected"
                 :active.sync="themes.active"
@@ -260,20 +260,24 @@
                 </template>
               </v-treeview>
             </v-flex>
-            <v-flex xs8 class="pl-4">
+            <v-flex xs7 class="pl-4">
               <div v-for="theme in themes.active" :key="theme.id">
                 <h2 class="mb-2">{{theme.title}}</h2>
                 <p>{{theme.description}}</p>
-                <div v-if="theme.citation" class="my-2 subheading">
-                  <p>
-                    <strong>Citation: </strong>
-                    <a :href="theme.citation.url" target="_blank">{{theme.citation.text}}</a>
-                  </p>
-                </div>
                 <div class="text-xs-center mt-4">
                   <v-btn large color="green" dark @click="selectTheme(theme)">
                     Load Theme
                     <v-icon right>mdi-chevron-double-right</v-icon>
+                  </v-btn>
+                </div>
+                <hr class="my-4" height="1">
+                <div v-if="theme.citation" class="my-2">
+                  <p>
+                    <strong>Citation: </strong>
+                    {{theme.citation.text}}
+                  </p>
+                  <v-btn color="primary" small text outline :href="theme.citation.url" target="_blank" class="text-capitalize mt-0 ml-0">
+                    Sciencebase <v-icon small right>mdi-open-in-new</v-icon>
                   </v-btn>
                 </div>
               </div>

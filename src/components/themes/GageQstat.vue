@@ -47,7 +47,7 @@ export default {
             text: null
           },
           legend: {
-            enabled: false
+            // enabled: false
           },
           tooltip: {
             valueDecimals: 1,

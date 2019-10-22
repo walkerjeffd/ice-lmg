@@ -11,11 +11,14 @@
       <slot></slot>
       <ice-feature-box>
         <template v-slot:title>Citation</template>
-        <v-card-text>
-          <a :href="theme.citation.url" target="_blank">{{ theme.citation.text }}</a>
-          <span class="px-2"><v-icon small>mdi-open-in-new</v-icon></span>
-          <span>[<em class="px-1">Sciencebase</em>]</span>
+        <v-card-text class="pb-0">
+          {{ theme.citation.text }}
         </v-card-text>
+        <v-card-actions>
+          <v-btn small text outline color="primary" :href="theme.citation.url" target="_blank" class="text-capitalize ml-1">
+            Sciencebase <v-icon small right>mdi-open-in-new</v-icon>
+          </v-btn>
+        </v-card-actions>
       </ice-feature-box>
     </v-card-text>
   </div>
