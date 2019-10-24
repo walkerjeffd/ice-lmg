@@ -4,6 +4,9 @@ load_theme <- function(id) {
     path = file.path("../data/", id),
     config = readxl::read_xlsx(file.path(config::get("data_dir"), "themes.xlsx"), sheet = "themes") %>% 
       filter(id == !!id) %>% 
+      mutate(
+        citations = map2(citation_text, citation_url, ~ list(text = .x, url = .y))
+      ) %>% 
       as.list()
   )
   
@@ -66,6 +69,16 @@ load_variables <- function(theme, index_names = NULL) {
   df <- readxl::read_xlsx(file.path(config::get("data_dir"), "themes.xlsx"), sheet = "variables") %>% 
     filter(theme == !!theme$id)
   
+  cfg <- transform_variables(df)
+  
+  list(
+    df = df,
+    config = cfg,
+    meta = meta
+  )
+}
+
+transform_variables <- function(df) {
   cfg <- list()
   if (nrow(df) > 0) {
     cfg <- map(1:nrow(df), ~ list(
@@ -91,12 +104,7 @@ load_variables <- function(theme, index_names = NULL) {
       )
     )) 
   }
-  
-  list(
-    df = df,
-    config = cfg,
-    meta = meta
-  )
+  cfg
 }
 
 load_dataset <- function (theme, col_types) {
@@ -120,6 +128,7 @@ create_layer <- function (df, coords = c("dec_long_va", "dec_lat_va")) {
 export_theme <- function (theme, variables, dataset, layer) {
   cat("saving theme data to ", glue::glue("rds/{theme$id}.rds"), "\n", sep = "")
   list(
+    theme = theme,
     variables = variables,
     layer = layer,
     dataset = dataset
@@ -132,7 +141,7 @@ export_theme <- function (theme, variables, dataset, layer) {
   
   cat("saving dataset to ", file.path(theme$path, "data.csv"), "\n", sep = "")
   dataset$out %>% 
-    write_csv(file.path(theme$path, "data.csv"))
+    write_csv(file.path(theme$path, "data.csv"), na = "")
   
   cat("saving config to ", file.path(theme$path, "theme.json"), "\n", sep = "")
   list(
@@ -140,16 +149,13 @@ export_theme <- function (theme, variables, dataset, layer) {
     title = str_c(
       case_when(
         theme$config$group == "gage" ~ "Gages > ",
-        theme$config$group == "gage" ~ "HUC12s > ",
+        theme$config$group == "huc12" ~ "HUC12s > ",
         TRUE ~ ""
       ),
       theme$config$name
     ),
     description = theme$config$description,
-    citation = list(
-      text = theme$config$citation_text,
-      url = theme$config$citation_url
-    ),
+    citations = theme$config$citations,
     layer = list(
       url = glue::glue("{theme$id}/layer.json")
     ),
@@ -192,8 +198,7 @@ append_feature_properties <- function(df, layer) {
   df %>% 
     left_join(
       layer$df %>% 
-        group_by(id) %>% 
-        nest(.key = "properties") %>% 
+        nest(properties = -id) %>% 
         mutate(
           properties = map(properties, ~ as.list(.))
         ),

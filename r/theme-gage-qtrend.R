@@ -86,8 +86,7 @@ df_feature <- dataset$out %>%
     mklevel = ordered(mklevel, levels = c(months, seasons, quantiles))
   ) %>%
   arrange(id, mklevel, decade) %>% 
-  group_by(id) %>% 
-  nest(.key = "values") %>% 
+  nest(values = -id) %>% 
   mutate(
     values = map(values, function (x) {
       x %>% 

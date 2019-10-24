@@ -9,24 +9,38 @@ config <- config::get()
 themes <- read_xlsx(file.path(config$data_dir, "themes.xlsx"), sheet = "themes") %>% 
   filter(!skip) %>% 
   mutate(
-    citation = map2(citation_text, citation_url, ~ list(text = .x, url = .y))
+    citations = map2(citation_text, citation_url, ~ list(list(text = .x, url = .y)))
   ) %>% 
-  select(group, id, name, description, citation)
+  select(group, id, name, description, citations)
+
+gage_themes <- themes %>% 
+  filter(group == "gage") %>% 
+  select(-group)
+
+gage_themes$citations[[1]] <- gage_themes %>% 
+  filter(id %in% c("gage-cov", "gage-qstat", "gage-qtrend")) %>% 
+  pull(citations) %>% 
+  map(~ .[[1]])
+
+huc12_themes <- themes %>% 
+  filter(group == "huc12") %>% 
+  select(-group)
+
+huc12_themes$citations[[1]] <- huc12_themes %>% 
+  filter(id %in% c("huc12-cov", "huc12-qquantile")) %>% 
+  pull(citations) %>% 
+  map(~ .[[1]])
 
 list(
   list(
     id = "gage",
     name = "Streamflow Gages",
-    children = themes %>% 
-      filter(group == "gage") %>% 
-      select(-group)
+    children = gage_themes
   ),
   list(
     id = "huc12",
     name = "HUC12 Basins",
-    children = themes %>% 
-      filter(group == "huc12") %>% 
-      select(-group)
+    children = huc12_themes
   )
 ) %>% 
   # toJSON(auto_unbox = TRUE, pretty = TRUE)
