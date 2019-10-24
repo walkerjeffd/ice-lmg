@@ -1,4 +1,5 @@
 import dc from 'dc'
+import 'dc/dc.css'
 import { schemeSet1 } from 'd3'
 
 dc.config.defaultColors(schemeSet1)
