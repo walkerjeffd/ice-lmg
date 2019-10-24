@@ -5,7 +5,7 @@
         <slot name="title"></slot>
       </h4>
       <v-spacer></v-spacer>
-      <v-btn icon small @click="hide = !hide" class="mt-2">
+      <v-btn icon @click="hide = !hide">
         <v-icon v-if="!hide">mdi-menu-up</v-icon>
         <v-icon v-else>mdi-menu-down</v-icon>
       </v-btn>

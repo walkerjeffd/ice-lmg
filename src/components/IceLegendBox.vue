@@ -3,17 +3,17 @@
     <v-toolbar dense dark color="primary">
       <h3>Legend</h3>
       <v-spacer></v-spacer>
-      <v-menu v-model="settings" offset-x :close-on-content-click="false" nudge-right="10">
+      <v-menu v-model="settings" offset-x :close-on-content-click="false" nudge-right="60px">
         <template v-slot:activator="{ on }">
-          <v-btn icon small class="mt-2 grey lighten-2 elevation-2" light v-on="on">
+          <v-btn icon v-on="on">
             <v-icon>mdi-settings-outline</v-icon>
           </v-btn>
         </template>
         <v-card width="400">
           <v-toolbar color="grey" dense dark>
-            <h3>Legend Settings</h3>
+            <h4>Legend Settings</h4>
             <v-spacer></v-spacer>
-            <v-btn icon small @click="settings = false" class="mt-2 grey lighten-2 elevation-2" light>
+            <v-btn icon small @click="settings = false">
               <v-icon>mdi-close</v-icon>
             </v-btn>
           </v-toolbar>
@@ -21,7 +21,7 @@
             :items="schemes"
             v-model="colorScheme"
             full-width
-            box
+            filled
             hide-details
             class="pt-3 pb-0"
             label="Select color scheme...">
@@ -36,37 +36,28 @@
           </v-autocomplete>
 
           <v-list>
-            <v-list-tile>
-              <v-list-tile-action>
+            <v-list-item>
+              <v-list-item-action>
                 <v-switch v-model="colorInvert" color="orange"></v-switch>
-              </v-list-tile-action>
-              <v-list-tile-title>Invert Color Scheme</v-list-tile-title>
-            </v-list-tile>
+              </v-list-item-action>
+              <v-list-item-content>Invert Color Scheme</v-list-item-content>
+            </v-list-item>
           </v-list>
-          <!-- <v-autocomplete
-            :items="types.options"
-            v-model="types.selected"
-            full-width
-            box
-            hide-details
-            class="py-3"
-            label="Select scale type...">
-          </v-autocomplete> -->
           <v-divider></v-divider>
           <v-card-actions class="">
             <v-spacer></v-spacer>
-            <v-btn flat color="primary" @click="settings = false">Close</v-btn>
+            <v-btn text color="primary" @click="settings = false">Close</v-btn>
           </v-card-actions>
         </v-card>
       </v-menu>
-      <v-btn icon small @click="hide = !hide" class="mt-2 grey lighten-2 elevation-2" light>
+      <v-btn icon @click="hide = !hide">
         <v-icon v-if="!hide">mdi-menu-up</v-icon>
         <v-icon v-else>mdi-menu-down</v-icon>
       </v-btn>
     </v-toolbar>
     <v-card-text v-if="!hide && variable">
       <ice-legend id="legend" class="pt-3" v-if="variable"></ice-legend>
-      <div class="text-xs-center grey--text text--darken-2 font-weight-medium" v-if="variable">
+      <div class="text-center grey--text text--darken-2 font-weight-medium" v-if="variable">
         {{ variable.label }}<span v-if="variable.units">&nbsp;({{ variable.units }})</span>
         <v-tooltip right max-width="600">
           <template v-slot:activator="{ on }">

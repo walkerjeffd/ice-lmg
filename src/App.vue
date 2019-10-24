@@ -1,47 +1,36 @@
 <template>
   <v-app>
-    <v-toolbar app dark height="64">
+    <v-app-bar app dark clipped-left height="64">
       <v-toolbar-title class="headline text-uppercase">
-        <span>ICE</span>
+        <span>Interactive Data Explorer</span>
         <span class="font-weight-light px-2">|</span>
         <span class="font-weight-light">Lower Mississippi Gulf Region</span>
       </v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-btn flat small href="http://ice.ecosheds.org">
-        <span class="mr-2">ICE Home</span>
+      <v-btn text href="http://ecosheds.org">
+        <v-icon small left>mdi-home</v-icon> SHEDS
       </v-btn>
-      <v-btn flat small href="http://ecosheds.org">
-        <span class="mr-2">SHEDS Home</span>
-      </v-btn>
-    </v-toolbar>
+    </v-app-bar>
     <v-content v-if="$vuetify.breakpoint.smAndUp">
-      <v-hover>
-        <v-navigation-drawer
-          v-model="leftSidebar.open"
-          dark
-          app
-          :mini-variant="!hover"
-          hide-overlay
-          stateless
-          temporary
-          slot-scope="{ hover }"
-          class="mr-2 left-drawer">
-          <v-list class="pt-0">
-            <v-divider></v-divider>
-            <v-list-tile
-              v-for="item in leftSidebar.items"
-              :key="item.title"
-              @click.stop="dialogs[item.dialog] = true">
-              <v-list-tile-action>
-                <v-icon>{{ item.icon }}</v-icon>
-              </v-list-tile-action>
-              <v-list-tile-content>
-                <v-list-tile-title>{{ item.title }}</v-list-tile-title>
-              </v-list-tile-content>
-            </v-list-tile>
-          </v-list>
-        </v-navigation-drawer>
-      </v-hover>
+      <v-navigation-drawer
+        expand-on-hover
+        dark
+        app
+        permanent>
+        <v-list nav>
+          <v-list-item
+            v-for="item in leftSidebar.items"
+            :key="item.title"
+            @click.stop="dialogs[item.dialog] = true">
+            <v-list-item-icon>
+              <v-icon>{{ item.icon }}</v-icon>
+            </v-list-item-icon>
+            <v-list-item-title>
+              {{ item.title }}
+            </v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-navigation-drawer>
       <ice-map :basemaps="map.basemaps" :center="[31.5, -89]" :zoom="6">
         <ice-map-layer
           name="points"
@@ -56,7 +45,7 @@
       <v-container fluid fill-height class="ice-container">
         <v-layout>
           <v-flex>
-            <v-card class="ice-card elevation-10" v-if="theme">
+            <v-card class="ice-card">
               <v-toolbar dark dense color="primary" class="subheading ma-0 theme-toolbar">
                 <span class="pr-2"><v-icon size="20" class="mr-1">mdi-database</v-icon> <strong>Theme</strong>: </span>
                 <span v-if="loading.theme">Loading... <v-progress-circular indeterminate color="primary" :size="20" class="ml-2"></v-progress-circular></span>
@@ -64,7 +53,7 @@
                 <span v-else-if="theme">{{ theme.title }}</span>
                 <span v-else>None</span>
                 <v-spacer></v-spacer>
-                <v-btn round small color="grey lighten-2 elevation-2" light @click="dialogs.theme = true">
+                <v-btn rounded small color="grey lighten-2 elevation-2" light @click="dialogs.theme = true">
                   <v-icon small class="mr-2">mdi-folder-open</v-icon> Browse
                 </v-btn>
               </v-toolbar>
@@ -72,7 +61,8 @@
             <v-card class="ice-card elevation-10 mt-2" v-if="theme">
               <v-tabs
                 v-model="tabs.active"
-                color="primary"
+                background-color="primary"
+                color="white"
                 dark
                 slider-color="white">
                 <v-tab ripple>
@@ -82,7 +72,7 @@
                   <v-icon small class="mr-1">mdi-chart-bar</v-icon> Crossfilters
                 </v-tab>
                 <v-spacer></v-spacer>
-                <v-btn icon small @click="tabs.hide = !tabs.hide" class="mt-2 grey lighten-2 elevation-2" light>
+                <v-btn icon @click="tabs.hide = !tabs.hide" class="align-self-center mr-2">
                   <v-icon v-if="!tabs.hide">mdi-menu-up</v-icon>
                   <v-icon v-else>mdi-menu-down</v-icon>
                 </v-btn>
@@ -90,6 +80,7 @@
                   <v-card v-show="!tabs.hide">
                     <v-card-text>
                       <v-autocomplete
+                        label="Select variable..."
                         :items="mapVariables"
                         v-model="variable"
                         return-object
@@ -97,9 +88,9 @@
                         item-value="id"
                         item-text="label"
                         :menu-props="{ closeOnClick: false, closeOnContentClick: false, openOnClick: false, maxHeight: 400 }"
-                        label="Select variable...">
+                        class="mt-2">
                         <template v-slot:item="data">
-                          <v-list-tile-title class="pl-3" v-html="data.item.label"></v-list-tile-title>
+                          <v-list-item-content class="pl-3" v-html="data.item.label"></v-list-item-content>
                           <v-spacer></v-spacer>
                           <v-tooltip right max-width="600">
                             <template v-slot:activator="{ on }">
@@ -130,17 +121,17 @@
                         clearable
                         label="Select crossfilter variable(s)...">
                         <template v-slot:item="data">
-                          <v-list-tile-action>
-                            <v-checkbox :value="data.tile.props.value"></v-checkbox>
-                          </v-list-tile-action>
-                          <v-list-tile-title class="pl-3" v-html="data.item.label"></v-list-tile-title>
+                          <v-list-item-action>
+                            <v-checkbox :value="data.attrs.inputValue"></v-checkbox>
+                          </v-list-item-action>
+                          <v-list-item-content class="pl-3" v-html="data.item.label"></v-list-item-content>
                           <v-spacer></v-spacer>
-                          <v-tooltip right max-width="600">
+                          <!-- <v-tooltip right max-width="600">
                             <template v-slot:activator="{ on }">
                               <v-icon v-on="on" color="grey lighten-1">mdi-information</v-icon>
                             </template>
                             {{ data.item.description }}
-                          </v-tooltip>
+                          </v-tooltip> -->
                           <br>
                         </template>
                       </v-autocomplete>
@@ -156,7 +147,7 @@
               <v-toolbar dense dark color="red darken-4">
                 <h3>Debug</h3>
                 <v-spacer></v-spacer>
-                <v-btn icon small light @click="debug.hide = !debug.hide" class="mt-2 grey lighten-2 elevation-2">
+                <v-btn icon @click="debug.hide = !debug.hide">
                   <v-icon v-if="!debug.hide">mdi-menu-up</v-icon>
                   <v-icon v-else>mdi-menu-down</v-icon>
                 </v-btn>
@@ -192,9 +183,9 @@
           <v-flex xs12>
             <v-card>
               <v-card-text>
-                <h2 class="text-xs-center mb-4">:(</h2>
-                <p class="text-xs-center">
-                  Sorry, ICE is only designed for desktop computers, and does not support mobile.
+                <h2 class="text-center mb-4">:(</h2>
+                <p class="text-center">
+                  ICE is only designed for desktop computers, and does not support mobile devices.
                 </p>
               </v-card-text>
             </v-card>
@@ -217,8 +208,8 @@
           <v-spacer></v-spacer>
 
           <v-btn
-            color="green darken-1"
-            flat="flat"
+            color="primary"
+            text
             @click="dialogs.welcome = false">
             Close
           </v-btn>
@@ -247,7 +238,6 @@
                 :open.sync="themes.open"
                 :items="themes.options"
                 activatable
-                light
                 return-object
                 open-on-click>
                 <template v-slot:prepend="{ item, open }">
@@ -261,28 +251,29 @@
               </v-treeview>
             </v-flex>
             <v-flex xs7 class="pl-4">
-              <div v-for="theme in themes.active" :key="theme.id">
-                <h2 class="mb-2">{{theme.title}}</h2>
+              <div v-for="theme in themes.active" :key="theme.id" class="pt-4 black--text">
+                <h2 class="mb-2">{{theme.name}}</h2>
                 <p>{{theme.description}}</p>
-                <div class="text-xs-center mt-4">
+                <div class="text-center my-8">
                   <v-btn large color="green" dark @click="selectTheme(theme)">
                     Load Theme
                     <v-icon right>mdi-chevron-double-right</v-icon>
                   </v-btn>
                 </div>
                 <hr class="my-4" height="1">
-                <div v-if="theme.citation" class="my-2">
-                  <p>
-                    <strong>Citation: </strong>
-                    {{theme.citation.text}}
-                  </p>
-                  <v-btn color="primary" small text outline :href="theme.citation.url" target="_blank" class="text-capitalize mt-0 ml-0">
-                    Sciencebase <v-icon small right>mdi-open-in-new</v-icon>
-                  </v-btn>
+                <div v-if="theme.citations">
+                  <h3 v-if="theme.citations.length > 1">Citations: </h3>
+                  <h3 v-else>Citation: </h3>
+                  <div v-for="citation in theme.citations" :key="citation.text" class="mt-4">
+                    {{citation.text}} <br />
+                    <v-btn color="primary" small outlined :href="citation.url" target="_blank" class="text-capitalize mt-0">
+                      Sciencebase <v-icon small right>mdi-open-in-new</v-icon>
+                    </v-btn>
+                  </div>
                 </div>
               </div>
 
-              <div>
+              <div class="pt-4">
                 <p v-if="themes.active.length === 0">
                   Select a theme from the list above.
                 </p>
@@ -306,6 +297,7 @@ import IceLegendBox from '@/components/IceLegendBox'
 import DecadeDimension from '@/components/dimensions/DecadeDimension'
 import MklevelDimension from '@/components/dimensions/MklevelDimension'
 
+import GagePrimary from '@/components/themes/GagePrimary'
 import GageCov from '@/components/themes/GageCov'
 import GageQstat from '@/components/themes/GageQstat'
 import GageQtrend from '@/components/themes/GageQtrend'
@@ -332,6 +324,7 @@ export default {
     IceLegendBox,
     DecadeDimension,
     MklevelDimension,
+    GagePrimary,
     GageCov,
     GageQstat,
     GageQts,
@@ -369,7 +362,7 @@ export default {
       open: true
     },
     dialogs: {
-      theme: false,
+      theme: true,
       welcome: false,
       download: false,
       settings: false,
@@ -431,7 +424,7 @@ export default {
     }
   },
   mounted () {
-    this.selectTheme(themes[0].children[0]).then(this.updateCounts)
+    // this.selectTheme(themes[0].children[0]).then(this.updateCounts)
     evt.$on('xf:filter', this.updateCounts)
   },
   beforeDestroy () {
@@ -515,7 +508,7 @@ export default {
 }
 
 .ice-container {
-  padding-left: 100px;
+  padding-left: 20px;
 }
 .ice-card {
   width: 600px;

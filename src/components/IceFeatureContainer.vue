@@ -3,22 +3,22 @@
     <v-toolbar dense dark color="primary">
       <h3 class="headline mb-0"><slot name="title"></slot></h3>
       <v-spacer></v-spacer>
-      <v-btn flat icon color="white" @click="$emit('close')">
+      <v-btn icon color="white" @click="$emit('close')">
         <v-icon>mdi-close</v-icon>
       </v-btn>
     </v-toolbar>
     <v-card-text>
       <slot></slot>
       <ice-feature-box>
-        <template v-slot:title>Citation</template>
+        <template v-slot:title><span v-if="theme.citations.length > 1">Citations</span><span v-else>Citation</span></template>
         <v-card-text class="pb-0">
-          {{ theme.citation.text }}
+          <div v-for="citation in theme.citations" :key="citation.text">
+            {{ citation.text }} <br />
+            <v-btn small text outlined color="primary" :href="citation.url" target="_blank" class="text-capitalize mt-2 mb-4">
+              Sciencebase <v-icon small right>mdi-open-in-new</v-icon>
+            </v-btn>
+          </div>
         </v-card-text>
-        <v-card-actions>
-          <v-btn small text outline color="primary" :href="theme.citation.url" target="_blank" class="text-capitalize ml-1">
-            Sciencebase <v-icon small right>mdi-open-in-new</v-icon>
-          </v-btn>
-        </v-card-actions>
       </ice-feature-box>
     </v-card-text>
   </div>

@@ -9,10 +9,10 @@
       <ice-feature-box>
         <template v-slot:title>Basin Characteristics</template>
         <v-list dense>
-          <v-list-tile v-for="variableId in tables.constants.fields" :key="variableId">
-            <v-list-tile-content class="align-start" width="20">{{ variableById(variableId).label }}:</v-list-tile-content>
-            <v-list-tile-content class="align-end">{{ dataset.values[0][variableId] }} {{ variableById(variableId).units }}</v-list-tile-content>
-          </v-list-tile>
+          <v-list-item v-for="variableId in tables.constants.fields" :key="variableId">
+            <v-list-item-content class="align-start" width="20">{{ variableById(variableId).label }}:</v-list-item-content>
+            <v-list-item-content class="align-end">{{ dataset.values[0][variableId] }} {{ variableById(variableId).units }}</v-list-item-content>
+          </v-list-item>
         </v-list>
       </ice-feature-box>
       <ice-feature-box>

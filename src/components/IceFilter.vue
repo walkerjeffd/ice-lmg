@@ -10,11 +10,11 @@
         {{ variable.description }}
       </v-tooltip>
       <v-spacer></v-spacer>
-      <v-btn icon small @click="hide = !hide" class="mt-2">
+      <v-btn small icon @click="hide = !hide">
         <v-icon v-if="!hide">mdi-menu-up</v-icon>
         <v-icon v-else>mdi-menu-down</v-icon>
       </v-btn>
-      <v-btn icon small @click="close"><v-icon small>mdi-close</v-icon></v-btn>
+      <v-btn small icon @click="close"><v-icon small>mdi-close</v-icon></v-btn>
     </v-toolbar>
     <v-card-text v-if="!hide">
       Filter Range:
