@@ -81,7 +81,7 @@ export default new Vuex.Store({
                 }
 
                 theme.variables.forEach(v => {
-                  x[v.id] = v.type === 'num' ? +d[v.id] : d[v.id]
+                  x[v.id] = v.type === 'num' ? (d[v.id] === '' ? null : +d[v.id]) : d[v.id]
                 })
 
                 return x
