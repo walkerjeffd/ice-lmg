@@ -473,7 +473,8 @@ export default {
       this.selectFeature()
       this.clearFilters()
 
-      return this.$store.dispatch('loadTheme', theme)
+      return this.$store.dispatch('clearTheme')
+        .then(() => this.$store.dispatch('loadTheme', theme))
         .then((theme) => {
           this.error.theme = null
           this.updateCounts()

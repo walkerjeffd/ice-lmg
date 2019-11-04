@@ -24,7 +24,7 @@ export default new Vuex.Store({
     variables: state => (state.theme ? state.theme.variables : []),
     variable: state => state.variable,
     variableById: state => id => {
-      return state.theme.variables.find(v => v.id === id)
+      return state.theme ? state.theme.variables.find(v => v.id === id) : null
     },
     layer: state => (state.theme ? state.theme.layer : null),
     colorScheme: state => state.settings.color.scheme,
@@ -49,10 +49,14 @@ export default new Vuex.Store({
     }
   },
   actions: {
+    clearTheme ({ commit }) {
+      commit('SET_THEME', null)
+      commit('SET_VARIABLE', null)
+      return Promise.resolve(null)
+    },
     loadTheme ({ commit, dispatch }, theme) {
       if (!theme) {
-        commit('SET_THEME', null)
-        return
+        return dispatch('clearTheme')
       }
 
       return axios.get(`/${theme.id}/theme.json`)
