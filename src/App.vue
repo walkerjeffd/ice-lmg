@@ -1,10 +1,11 @@
 <template>
   <v-app>
     <v-app-bar app dark clipped-left height="64">
-      <v-toolbar-title class="headline text-uppercase">
-        <span>Interactive Data Explorer</span>
-        <span class="font-weight-light px-2">|</span>
-        <span class="font-weight-light">Lower Mississippi Gulf Region</span>
+      <a href="https://www.usgs.gov/centers/lmg-water" target="_blank" class="mr-4 ml-1">
+        <v-img src="./assets/lmg-logo.png" alt="USGS LMGWSC Logo" height="42" width="42"></v-img>
+      </a>
+      <v-toolbar-title class="headline">
+        USGS LMGWSC | <span class="font-weight-light">Data Visualization Tool</span>
       </v-toolbar-title>
       <v-spacer></v-spacer>
       <v-btn text href="http://ecosheds.org">
@@ -273,9 +274,35 @@
                 </div>
               </div>
 
-              <div class="pt-4">
-                <p v-if="themes.active.length === 0">
-                  Select a theme from the list above.
+              <div class="pt-4 black--text" v-if="themes.active.length === 0">
+                <h2>Welcome!</h2>
+                <p>
+                  Welcome to the USGS Lower Mississippi Gulf Water Science Center's Data Visualization Tool.
+                </p>
+
+                <v-divider class="my-4"></v-divider>
+                <h3 class="my-4">Contact</h3>
+                <h4>USGS Contact</h4>
+                <p class="ml-4">
+                  Kirk D. Rodgers, PhD<br>
+                  Hydrologist, and Eastern Region Diversity Subcouncil Chairman<br>
+                  U.S. Geological Survey Lower Mississippi-Gulf Water Science Center<br>
+                  401 Hardin Road, Little Rock, Arkansas 72211<br>
+                  Phone: 501-228-3625<br>
+                  E-mail: <a href="mailto:krodgers@usgs.gov">krodgers@usgs.gov</a>
+                </p>
+                <h4>Site Administrator</h4>
+                <p class="ml-4">
+                  Jeffrey D. Walker, PhD<br>
+                  Environmental Data Scientist<br>
+                  <a href="https://ecosheds.org" target="_blank">Spatial Hydro-Ecological Decision System (SHEDS)</a><br>
+                  <a href="https://walkerenvres.com" target="_blank">Walker Environmental Research, LLC</a><br>
+                  E-mail: <a href="mailto:jeff@walkerenvres.com">jeff@walkerenvres.com</a>
+                </p>
+                <v-divider class="my-4"></v-divider>
+                <h3><v-icon>mdi-alert</v-icon> Disclaimer</h3>
+                <p>
+                  This information is preliminary and is subject to revision. It is being provided to meet the need for timely best science. The information is provided on the condition that neither the U.S. Geological Survey nor the U.S. Government may be held liable for any damages resulting from the authorized or unauthorized use of the information.
                 </p>
               </div>
             </v-flex>
