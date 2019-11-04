@@ -137,7 +137,7 @@ export default {
     },
     resize () {
       // console.log(`map-layer(${this.name}):resize`)
-      if (this.setBounds) {
+      if (this.setBounds && this.data) {
         const bounds = this.path.bounds(this.data)
         this.$parent.$emit('resize', bounds)
       }

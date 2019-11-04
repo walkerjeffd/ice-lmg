@@ -12,7 +12,6 @@
         :attribution="tile.attribution"
         layer-type="base">
       </l-tile-layer>
-      <!-- <l-tile-layer :url="tile.url" /> -->
     </l-map>
     <slot v-if="ready"></slot>
   </div>
@@ -23,11 +22,9 @@ import { LMap, LTileLayer, LControlZoom, LControlLayers } from 'vue2-leaflet'
 import * as d3 from 'd3'
 
 import evt from '@/lib/events'
-// import * as L from 'leaflet'
 
 export default {
   name: 'IceMap',
-  // props: ['getFill', 'layer'],
   props: {
     options: {
       type: Object,
@@ -60,38 +57,9 @@ export default {
     ready: false,
     map: null,
     disableClick: false,
-    // initial: {
-    //   zoom: 6,
-    //   center: [31.5, -89]
-    // },
     bounds: null,
     zoomLevel: null
-    // tile: {
-    //   url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
-    // }
   }),
-  computed: {
-    // path () {
-    //   const map = this.map
-    //   function projectPoint (x, y) {
-    //     const point = map.latLngToLayerPoint(new L.LatLng(y, x))
-    //     this.stream.point(point.x, point.y)
-    //   }
-    //   const geoTransform = d3.geoTransform({ point: projectPoint })
-    //   return d3.geoPath().projection(geoTransform).pointRadius(this.pointRadius)
-    // },
-    // pointRadius () {
-    //   return this.zoomLevel - 2
-    // }
-  },
-  watch: {
-    // layer () {
-    //   if (this.layer) {
-    //     this.map.fitBounds(L.geoJson(this.layer).getBounds())
-    //     this.render()
-    //   }
-    // }
-  },
   mounted () {
     this.map = this.$refs.map.mapObject
     this.zoomLevel = this.map.getZoom()
@@ -136,73 +104,6 @@ export default {
       this.svg.select('g')
         .attr('transform', `translate(${-(topLeft[0] - (padding / 2))},${-(topLeft[1] - (padding / 2))})`)
     }
-    // render () {
-    //   this.resizeSvg()
-    //   this.renderFeatures()
-    // },
-    // projectPoint (d) {
-    //   const latLng = new L.LatLng(d.geometry.coordinates[1], d.geometry.coordinates[0])
-    //   return this.map.latLngToLayerPoint(latLng)
-    // },
-    // renderFeatures () {
-    //   const vm = this;
-    //   const features = this.layer.features || []
-
-    //   this.svg
-    //     .select('g')
-    //     .selectAll('circles')
-    //     .remove()
-
-    //   const circles = this.svg
-    //     .select('g')
-    //     .selectAll('circle')
-    //     .data(features, d => d.properties.id)
-
-    //   // const size = this.pointRadius * 20
-    //   // const circle = d3.symbol().type(d3.symbolCircle).size(size)
-
-    //   circles.enter()
-    //     .append('circle')
-    //     .on('click', function (d) {
-    //       // !vm.$parent.disableClick && vm.$emit('click', d)
-    //       // this.parentNode.appendChild(this) // move to front
-    //       if (vm.disableClick) return
-    //       this.$emit('click', d)
-    //     })
-    //     .on('mouseenter', function (d) {
-    //       // if (!vm.selected) {
-    //       //   // move to front if nothing selected
-    //       //   this.parentNode.appendChild(this)
-    //       // } else {
-    //       //   // move to 2nd from front, behind selected
-    //       //   const lastChild = this.parentNode.lastChild
-    //       //   this.parentNode.insertBefore(this, lastChild)
-    //       // }
-
-    //       d3.select(this)
-    //         .style('stroke', 'white')
-    //         .style('stroke-width', '1')
-    //         .attr('r', 10)
-    //     })
-    //     .on('mouseout', function (d) {
-    //       d3.select(this)
-    //         .style('stroke', null)
-    //         .style('stroke-width', null)
-    //         .attr('r', 5)
-    //     })
-    //     .merge(circles)
-    //     // .attr('transform', (d) => {
-    //     //   const point = this.map.latLngToLayerPoint(new L.LatLng(d.geometry.coordinates[1], d.geometry.coordinates[0]))
-    //     //   return `translate(${point.x},${point.y})`
-    //     // })
-    //     // .attr('d', circle)
-    //     .attr('r', 5)
-    //     .attr('cx', d => this.projectPoint(d).x)
-    //     .attr('cy', d => this.projectPoint(d).y)
-    //     .style('fill', this.getFill)
-
-    //   circles.exit().remove()
-    // }
   }
 }
 </script>

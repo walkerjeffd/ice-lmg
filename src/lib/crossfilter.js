@@ -1,7 +1,7 @@
 import * as crossfilter from 'crossfilter2'
 
 const xf = crossfilter()
-const all = xf.groupAll()
+// const all = xf.groupAll()
 
 const byFeature = {
   map: new Map()
@@ -14,6 +14,7 @@ export function setData (data, key) {
   if (byFeature.dim) byFeature.dim.dispose()
 
   byFeature.dim = xf.dimension(d => d[key])
+  byFeature.map.clear()
 }
 
 export function setVariable (variable) {
@@ -65,9 +66,11 @@ export function getCrossfilter () {
 }
 
 export function getFilteredCount () {
-  return all.value()
+  // return all.value()
+  return byFeature.group.all().filter(d => d.value.count > 0).length
 }
 
 export function getTotalCount () {
-  return xf.size()
+  return byFeature.map.size
+  // return xf.size()
 }
