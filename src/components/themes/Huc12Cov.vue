@@ -1,7 +1,7 @@
 <template>
   <ice-feature-container v-if="selected" @close="$emit('close')">
     <template v-slot:title>
-      HUC12 Basin: {{selected.id}}
+      HUC12: {{selected.properties.huc12}}
     </template>
 
     <div v-if="dataset">

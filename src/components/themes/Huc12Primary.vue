@@ -1,28 +1,11 @@
 <template>
   <ice-feature-container v-if="selected" @close="$emit('close')">
     <template v-slot:title>
-      Gage: {{selected.id}}
+      HUC12: {{selected.properties.huc12}}
     </template>
 
     <div v-if="dataset">
-      <ice-gage-properties-box :properties="dataset.properties"></ice-gage-properties-box>
-      <!-- <ice-feature-box>
-        <template v-slot:title>Basin Characteristics</template>
-        <v-list dense>
-          <v-list-item v-for="variableId in tables.constants.fields" :key="variableId">
-            <v-list-item-content class="align-start" width="20">{{ variableById(variableId).label }}:</v-list-item-content>
-            <v-list-item-content class="align-end">{{ dataset.values[0][variableId] }} {{ variableById(variableId).units }}</v-list-item-content>
-          </v-list-item>
-        </v-list>
-      </ice-feature-box>
-      <ice-feature-box>
-        <template v-slot:title>Annual Precipitation</template>
-        <highcharts class="chart" :options="charts.ppt"></highcharts>
-      </ice-feature-box>
-      <ice-feature-box>
-        <template v-slot:title>Annual Air Temperature</template>
-        <highcharts class="chart" :options="charts.temp"></highcharts>
-      </ice-feature-box> -->
+      <ice-huc12-properties-box :properties="dataset.properties"></ice-huc12-properties-box>
     </div>
     <div v-else>
       Loading...
@@ -36,7 +19,7 @@ import { mapGetters } from 'vuex'
 
 import IceFeatureContainer from '@/components/IceFeatureContainer'
 // import IceFeatureBox from '@/components/IceFeatureBox'
-import IceGagePropertiesBox from '@/components/IceGagePropertiesBox'
+import IceHuc12PropertiesBox from '@/components/IceHuc12PropertiesBox'
 
 export default {
   name: 'GagePrimary',
@@ -44,7 +27,7 @@ export default {
   components: {
     IceFeatureContainer,
     // IceFeatureBox,
-    IceGagePropertiesBox
+    IceHuc12PropertiesBox
   },
   data () {
     return {
@@ -73,7 +56,7 @@ export default {
           this.dataset = response.data
         })
         .catch((err) => {
-          console.log('GagePrimary: error', err)
+          console.log('Huc12Primary: error', err)
           this.dataset = null
           this.loading = false
         })

@@ -328,6 +328,7 @@ import GageQstat from '@/components/themes/GageQstat'
 import GageQtrend from '@/components/themes/GageQtrend'
 import GageQts from '@/components/themes/GageQts'
 import GageSolar from '@/components/themes/GageSolar'
+import Huc12Primary from '@/components/themes/Huc12Primary'
 import Huc12Cov from '@/components/themes/Huc12Cov'
 import Huc12Qquantile from '@/components/themes/Huc12Qquantile'
 import Huc12Solar from '@/components/themes/Huc12Solar'
@@ -355,6 +356,7 @@ export default {
     GageQts,
     GageQtrend,
     GageSolar,
+    Huc12Primary,
     Huc12Cov,
     Huc12Qquantile,
     Huc12Solar

@@ -117,30 +117,3 @@ df_feature <- dataset$out %>%
 
 write_feature_json(theme, df_feature)
 
-
-
-
-
-z <- x %>% 
-  mutate(
-    group = case_when(
-      mklevel %in% seasons ~ "season",
-      mklevel %in% months ~ "month",
-      mklevel %in% quantiles ~ "quantile"
-    )
-  ) %>% 
-  group_by(decade, group) %>% 
-  nest() %>% 
-  # converts group: {mklevel:{}} to group [{mklevel}, {mklevel}]
-  mutate(
-    data = map(data, function (y) {
-      y %>%
-        group_by(mklevel) %>%
-        nest() %>%
-        mutate(data = map(data, ~ as.list(.))) %>%
-        spread(mklevel, data) %>%
-        flatten()
-    })
-  ) %>%
-  spread(group, data)
-
