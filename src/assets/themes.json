@@ -9,16 +9,16 @@
         "description": "A combination of the primary variables from the various streamflow gage datasets.",
         "citations": [
           {
-            "text": "Crowley-Ornelas, E.R., Worland, S.C., Wieczorek, M.E., Asquith, W.H., Knight, R.R., 2019, Summary of basin characteristics for National Hydrography Dataset, version 2 catchments in the Southeastern United States, 1950 - 2010: U.S. Geological Survey data release, https://doi.org/10.5066/P9KXTDU4.",
-            "url": "https://www.sciencebase.gov/catalog/item/5c588080e4b0708288ff283c"
+            "text": "Crowley-Ornelas, E.R., Worland, S.C., Wieczorek, M.E., Asquith, W.H., Knight, R.R., 2019, Summary of basin characteristics for National Hydrography Dataset, version 2 catchments in the Southeastern United States, 1950 - 2010: U.S. Geological Survey data release.",
+            "url": "https://doi.org/10.5066/P9KXTDU4"
           },
           {
-            "text": "Crowley-Ornelas, E.R., Asquith, W.H., Worland, S.C., and Knight, R.R., 2019, Summary of streamflow statistics for USGS streamgages in the southeastern United States, 1950–2010: U.S. Geological Survey data release, https://doi.org/10.5066/P91DOYCJ.",
-            "url": "https://www.sciencebase.gov/catalog/item/5b218db8e4b092d9652874c7"
+            "text": "Crowley-Ornelas, E.R., Asquith, W.H., Worland, S.C., and Knight, R.R., 2019, Summary of streamflow statistics for USGS streamgages in the southeastern United States, 1950–2010: U.S. Geological Survey data release.",
+            "url": "https://doi.org/10.5066/P91DOYCJ"
           },
           {
-            "text": "Rodgers, K.D., Hoos, A.B., Roland, V.L., and Knight, R.R., 2018, Trend analysis results for sites used in RESTORE Streamflow alteration assessments: U.S. Geological Survey data release, https://doi.org/10.5066/P9YSE754.",
-            "url": "https://www.sciencebase.gov/catalog/item/5b218df6e4b092d9652874cd"
+            "text": "Rodgers, K.D., Hoos, A.B., Roland, V.L., and Knight, R.R., 2018, Trend analysis results for sites used in RESTORE Streamflow alteration assessments: U.S. Geological Survey data release.",
+            "url": "https://doi.org/10.5066/P9YSE754"
           }
         ]
       },
@@ -28,8 +28,8 @@
         "description": "Basin boundaries were delineated for 1,320 USGS streamgages located on tributaries and streams flowing to the Gulf of Mexico. Basins ranged in size from less than 1 to approximately 67,500 square miles. Physical and climatic basin characteristics were calculated using these boundaries. Data presented here will be used as independent variables to estimate streamflow characteristics and provide a numerical foundation supporting the: (1) development of statistical models of streamflow characteristics; (2) evaluation of spatial and temporal trends in streamflow characteristics; and (3) development of network optimization analysis.",
         "citations": [
           {
-            "text": "Crowley-Ornelas, E.R., Worland, S.C., Wieczorek, M.E., Asquith, W.H., Knight, R.R., 2019, Summary of basin characteristics for National Hydrography Dataset, version 2 catchments in the Southeastern United States, 1950 - 2010: U.S. Geological Survey data release, https://doi.org/10.5066/P9KXTDU4.",
-            "url": "https://www.sciencebase.gov/catalog/item/5c588080e4b0708288ff283c"
+            "text": "Crowley-Ornelas, E.R., Worland, S.C., Wieczorek, M.E., Asquith, W.H., Knight, R.R., 2019, Summary of basin characteristics for National Hydrography Dataset, version 2 catchments in the Southeastern United States, 1950 - 2010: U.S. Geological Survey data release.",
+            "url": "https://doi.org/10.5066/P9KXTDU4"
           }
         ]
       },
@@ -39,8 +39,8 @@
         "description": "This dataset contains statistical descriptions of observed daily-mean streamflow for 956 sites in the southeast United States.  For each site, statistical descriptions are provided according to decade for up to six decades, beginning in 1950 (1950-59 calendar years) and ending with 2000 (2000 - 2009 calendar years) with no more than 7 missing values per year in total (continuous or noncontinuous).   There are 40 statistical descriptions including 28 flow-duration curve values,  8 L-moments, and 4 describing the minimum, maximum, median flow for days not equal to zero, and number of zero-flow days.  Site information is provided by decade - the number of rows per site varies from 1 to 6 depending on the number of decades with observed record available.  This information was used as the response variable(s) for statistical models for estimating the same characteristics at nearly 10,000 ungaged locations throughout the southeast United States. The dataset has been provided as a shapefile and a comma-delimited file. The comma-delimited file is an exact copy of the attribute table of the shapefile.",
         "citations": [
           {
-            "text": "Crowley-Ornelas, E.R., Asquith, W.H., Worland, S.C., and Knight, R.R., 2019, Summary of streamflow statistics for USGS streamgages in the southeastern United States, 1950–2010: U.S. Geological Survey data release, https://doi.org/10.5066/P91DOYCJ.",
-            "url": "https://www.sciencebase.gov/catalog/item/5b218db8e4b092d9652874c7"
+            "text": "Crowley-Ornelas, E.R., Asquith, W.H., Worland, S.C., and Knight, R.R., 2019, Summary of streamflow statistics for USGS streamgages in the southeastern United States, 1950–2010: U.S. Geological Survey data release.",
+            "url": "https://doi.org/10.5066/P91DOYCJ"
           }
         ]
       },
@@ -50,8 +50,8 @@
         "description": "Daily streamflow discharge data from 139 streamgages located on tributaries and streams flowing to the Gulf of Mexico were used to calculate mean monthly, mean seasonal, and decile values. Streamgages used to calculate trends required a minimum of 65 years of continuous daily streamflow data. These values were used to analyze trends in streamflow using the Mann-Kendall trend test in the R package entitled “Trends” and a new methodology created by Robert M. Hirsch known as a “Quantile-Kendall” plot. Data were analyzed based on water year using the Mann-Kendall trend test and by climate year using the Quantile-Kendall methodology to: (1) identify regions which are statistically similar for estimating streamflow characteristics; (2) identify trends related to changing streamflow and streamflow alteration over time; and (3) to identify possible correlations with estuary health in the Gulf of Mexico.",
         "citations": [
           {
-            "text": "Rodgers, K.D., Hoos, A.B., Roland, V.L., and Knight, R.R., 2018, Trend analysis results for sites used in RESTORE Streamflow alteration assessments: U.S. Geological Survey data release, https://doi.org/10.5066/P9YSE754.",
-            "url": "https://www.sciencebase.gov/catalog/item/5b218df6e4b092d9652874cd"
+            "text": "Rodgers, K.D., Hoos, A.B., Roland, V.L., and Knight, R.R., 2018, Trend analysis results for sites used in RESTORE Streamflow alteration assessments: U.S. Geological Survey data release.",
+            "url": "https://doi.org/10.5066/P9YSE754"
           }
         ]
       },
@@ -61,8 +61,8 @@
         "description": "This study is based on contiguous direct normal irradiance information from the National Renewable Energy Laboratory. Specifically, these data represent both 12-month specific average and annual average daily total solar resource averaged over surface cells of 0.1 degrees in both latitude and longitude. Spacing is about 10 kilometers in size. Direct normal irradiance is the amount of solar radiation received per unit area. For more information on direct normal irradiance see Introduction to Micrometeorology (Arya, 2001) or Fundamentals of Atmospheric Physics (Salby, 1996). Following the metadata description by the National Renewable Energy Laboratory, these modeled data are based on hourly radiance images from geostationary weather satellites; daily snow cover data; and monthly averages of atmospheric water vapor, trace gases, and the amount of aerosols in the atmosphere to calculate the hourly total insolation (sun and sky) falling on a horizontal surface. Atmospheric water vapor, trace gases, and aerosols were derived from a variety of sources. It is important to note that, where possible, existing ground measurement stations were used by the National Renewable Energy Laboratory to validate the data. Modeled values are suggested to be accurate to approximately 15 percent of a true measured value within the grid cell. For this study, a simple overlay of the location of a streamgage onto the gridded solar radiation data was made to assign January through December direct normal irradiance values, and average annual values at each streamgage. No polygon representing whole or part of the watershed of the streamgage was intersected with the gridded solar radiation data.",
         "citations": [
           {
-            "text": "Crowley-Ornelas, E.R., Asquith, W.H., Knight, R.R., and Worland, S.C., 2019, Solar radiation for National Hydrography Dataset, version 2 catchments in the southeastern United States, 1950 - 2010 at USGS streamflow-gaging stations:U.S. Geological Survey data release, https://doi.org/10.5066/P9OD7FAL.",
-            "url": "https://www.sciencebase.gov/catalog/item/5c6ef0b8e4b0fe48cb41e958"
+            "text": "Crowley-Ornelas, E.R., Asquith, W.H., Knight, R.R., and Worland, S.C., 2019, Solar radiation for National Hydrography Dataset, version 2 catchments in the southeastern United States, 1950 - 2010 at USGS streamflow-gaging stations:U.S. Geological Survey data release.",
+            "url": "https://doi.org/10.5066/P9OD7FAL"
           }
         ]
       }
@@ -78,12 +78,12 @@
         "description": "A combination of the primary variables from the various HUC12 dataset.",
         "citations": [
           {
-            "text": "Summary of basin characteristics for National Hydrography Dataset, version 2 catchments in the southeastern United States, 1950 - 2010 at 12-digit hydrologic unit code (HUC12) pour Crowley-Ornelas, E.R., Worland, S.C., Wieczorek, M.E., Asquith, W.H., Knight, R.R., 2019, Summary of basin characteristics for National Hydrography Dataset, version 2 catchments in the Southeastern United States, 1950 - 2010: U.S. Geological Survey data release, https://doi.org/10.5066/P9KXTDU4.",
-            "url": "https://www.sciencebase.gov/catalog/item/5c5892cbe4b0708288ff29c7"
+            "text": "Summary of basin characteristics for National Hydrography Dataset, version 2 catchments in the southeastern United States, 1950 - 2010 at 12-digit hydrologic unit code (HUC12) pour Crowley-Ornelas, E.R., Worland, S.C., Wieczorek, M.E., Asquith, W.H., Knight, R.R., 2019, Summary of basin characteristics for National Hydrography Dataset, version 2 catchments in the Southeastern United States, 1950 - 2010: U.S. Geological Survey data release.",
+            "url": "https://doi.org/10.5066/P9KXTDU4"
           },
           {
-            "text": "Worland, S.C., Knight, R.R., and Asquith, W.H., 2019, Estimated quantiles for the pour points of 9,203 level-12 hydrologic unit codes in the southeastern United States, 1950--2009: U.S. Geological Survey data release, https://doi.org/10.5066/P9YGKZZV.",
-            "url": "https://www.sciencebase.gov/catalog/item/5c98bb40e4b0b8a7f6288b6f"
+            "text": "Worland, S.C., Knight, R.R., and Asquith, W.H., 2019, Estimated quantiles for the pour points of 9,203 level-12 hydrologic unit codes in the southeastern United States, 1950--2009: U.S. Geological Survey data release.",
+            "url": "https://doi.org/10.5066/P9YGKZZV"
           }
         ]
       },
@@ -93,8 +93,8 @@
         "description": "This dataset provides numerical and categorical descriptions of 48 basin characteristics for 9,314 ungaged basins coinciding with 12-digit hydrologic unit code (HUC12) pour points that drain to the Gulf of Mexico. Characteristics are indexed by National Hydrography Dataset (NHD) version 2 COMID (integer that uniquely identifies each feature in the NHD) and HUC12 identifying number. The variables represent mutable and immutable basin characteristics and are organized by characteristic type: physical (5), hydrologic (6), categorical (12), climate (6), landscape alteration (7), and land cover (12). Mutable characteristics such as climate, land cover, and landscape alteration variables are reported in decadal increments (for example, average percent forest for the decade 1950-1959, 1960-1969, etc). The majority of basin characteristics in this dataset were calculated using divergence-routing methods and are often referred to as “network-accumulated”. This method uses a modified routing database to navigate the NHDPlus reach network to aggregate (accumulate) the values derived from the reach catchment scale (Schwarz, G.E., and Wieczorek, M.E., 2018, Database of modified routing for NHDPlus version 2.1 flowlines: ENHDPlusV2_us: U.S. Geological Survey data release, https://doi.org/10.5066/P9PA63SM ). In four instances, values are also provided for the entire catchment above a site and area designated using the “CAT_” prefix.",
         "citations": [
           {
-            "text": "Summary of basin characteristics for National Hydrography Dataset, version 2 catchments in the southeastern United States, 1950 - 2010 at 12-digit hydrologic unit code (HUC12) pour Crowley-Ornelas, E.R., Worland, S.C., Wieczorek, M.E., Asquith, W.H., Knight, R.R., 2019, Summary of basin characteristics for National Hydrography Dataset, version 2 catchments in the Southeastern United States, 1950 - 2010: U.S. Geological Survey data release, https://doi.org/10.5066/P9KXTDU4.",
-            "url": "https://www.sciencebase.gov/catalog/item/5c5892cbe4b0708288ff29c7"
+            "text": "Summary of basin characteristics for National Hydrography Dataset, version 2 catchments in the southeastern United States, 1950 - 2010 at 12-digit hydrologic unit code (HUC12) pour Crowley-Ornelas, E.R., Worland, S.C., Wieczorek, M.E., Asquith, W.H., Knight, R.R., 2019, Summary of basin characteristics for National Hydrography Dataset, version 2 catchments in the Southeastern United States, 1950 - 2010: U.S. Geological Survey data release.",
+            "url": "https://doi.org/10.5066/P9KXTDU4"
           }
         ]
       },
@@ -104,8 +104,8 @@
         "description": "This page contains 15 estimated quantiles for 9,203 level-12 Hydrologic Unit Code in the Southeastern United States for the decades 1950-1959, 1960-1969, 1970-1979, 1980-1989, 1990-1999, and 2000-2009. A multi-output neural network was used to generate the estimated quantiles (Worland and others, 2019). The R scripts that generated the predictions are also included along with a README file. The 15 quantiles are associated with the following 15 non-exceedance probabilities (NEPs): 0.0003, 0.0050, 0.0500, 0.1000, 0.2000, 0.3000, 0.4000, 0.5000, 0.6000, 0.7000, 0.8000, 0.9000, 0.9500, 0.9950, and 0.9997. The quantiles were calculated using the Weibull plotting position (more details can be found in the accompanying manuscript). In addition to the median estimate of the quantiles, 68th, 95th, and 99.7th percentile intervals are also included in .csv file. The percentile intervals were estimated using Monte-Carlo dropout for 500 forward passes of the neural network. The intervals are represented in the .csv file as p0.0015, p0.0250, p0.1600, p0.5000, p0.8400, p0.975, and p0.9985 which indicates the 68th, 95th, and 99.7th percentile intervals. The median (p0.5000) and the mean estimate should be used if only a single realization of the estimated quantiles is needed. The neural network was trained using streamflow data at sites with records that contained only non-zero streamflow values. However, the model was used to make predictions for every HUC12 pour point. Some of these predictions are likely for sites that have streamflow values equal to zero.",
         "citations": [
           {
-            "text": "Worland, S.C., Knight, R.R., and Asquith, W.H., 2019, Estimated quantiles for the pour points of 9,203 level-12 hydrologic unit codes in the southeastern United States, 1950--2009: U.S. Geological Survey data release, https://doi.org/10.5066/P9YGKZZV.",
-            "url": "https://www.sciencebase.gov/catalog/item/5c98bb40e4b0b8a7f6288b6f"
+            "text": "Worland, S.C., Knight, R.R., and Asquith, W.H., 2019, Estimated quantiles for the pour points of 9,203 level-12 hydrologic unit codes in the southeastern United States, 1950--2009: U.S. Geological Survey data release.",
+            "url": "https://doi.org/10.5066/P9YGKZZV"
           }
         ]
       },
@@ -115,8 +115,8 @@
         "description": "This study is based on contiguous direct normal irradiance information from the National Renewable Energy Laboratory. Specifically, these data represent both 12-month specific average and annual average daily total solar resource averaged over surface cells of 0.1 degrees in both latitude and longitude. Spacing is about 10 kilometers in size. Direct normal irradiance is the amount of solar radiation received per unit area. For more information on direct normal irradiance see Introduction to Micrometeorology (Arya, 2001) or Fundamentals of Atmospheric Physics (Salby, 1996). Following the metadata description by the National Renewable Energy Laboratory, these modeled data are based on hourly radiance images from geostationary weather satellites; daily snow cover data; and monthly averages of atmospheric water vapor, trace gases, and the amount of aerosols in the atmosphere to calculate the hourly total insolation (sun and sky) falling on a horizontal surface. Atmospheric water vapor, trace gases, and aerosols were derived from a variety of sources. It is important to note that, where possible, existing ground measurement stations were used by the National Renewable Energy Laboratory to validate the data. Modeled values are suggested to be accurate to approximately 15 percent of a true measured value within the grid cell. For this study, a simple overlay of the location of a streamgage onto the gridded solar radiation data was made to assign January through December direct normal irradiance values, and average annual values at each streamgage. No polygon representing whole or part of the watershed of the streamgage was intersected with the gridded solar radiation data.",
         "citations": [
           {
-            "text": "Crowley-Ornelas, E.R., Asquith, W.H., Knight, R.R., and Worland, S.C., 2019, Solar radiation for National Hydrography Dataset, version 2 catchments in the southeastern United States, 1950 - 2010 at 12-digit hydrologic unit code (HUC12) pour points: U.S. Geological Survey data release, https://doi.org/10.5066/P9OD7FAL.",
-            "url": "https://www.sciencebase.gov/catalog/item/5c6dddb5e4b0fe48cb402821"
+            "text": "Crowley-Ornelas, E.R., Asquith, W.H., Knight, R.R., and Worland, S.C., 2019, Solar radiation for National Hydrography Dataset, version 2 catchments in the southeastern United States, 1950 - 2010 at 12-digit hydrologic unit code (HUC12) pour points: U.S. Geological Survey data release.",
+            "url": "https://doi.org/10.5066/P9OD7FAL"
           }
         ]
       }

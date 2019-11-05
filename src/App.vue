@@ -240,7 +240,8 @@
                 :items="themes.options"
                 activatable
                 return-object
-                open-on-click>
+                open-on-click
+                dense>
                 <template v-slot:prepend="{ item, open }">
                   <v-icon v-if="item.children">
                     {{ open ? 'mdi-folder-open' : 'mdi-folder' }}
@@ -266,10 +267,7 @@
                   <h3 v-if="theme.citations.length > 1">Citations: </h3>
                   <h3 v-else>Citation: </h3>
                   <div v-for="citation in theme.citations" :key="citation.text" class="mt-4">
-                    {{citation.text}} <br />
-                    <v-btn color="primary" small outlined :href="citation.url" target="_blank" class="text-capitalize mt-0">
-                      Sciencebase <v-icon small right>mdi-open-in-new</v-icon>
-                    </v-btn>
+                    {{citation.text}} <a :href="citation.url" target="_blank">{{ citation.url }}</a>.
                   </div>
                 </div>
               </div>
