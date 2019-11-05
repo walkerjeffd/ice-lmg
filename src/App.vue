@@ -43,9 +43,9 @@
           @click="selectFeature">
         </ice-map-layer>
       </ice-map>
-      <v-container fluid fill-height class="ice-container">
-        <v-layout>
-          <v-flex>
+      <v-container fluid>
+        <v-row>
+          <v-col>
             <v-card class="ice-card">
               <v-toolbar dark dense color="primary" class="subheading ma-0 theme-toolbar">
                 <span class="pr-2"><v-icon size="20" class="mr-1">mdi-database</v-icon> <strong>Theme</strong>: </span>
@@ -162,8 +162,8 @@
                 <pre>feature: {{ feature.selected }}</pre> -->
               </v-card-text>
             </v-card>
-          </v-flex>
-        </v-layout>
+          </v-col>
+        </v-row>
       </v-container>
       <v-navigation-drawer
         :value="!!feature.selected"
@@ -179,19 +179,19 @@
       </v-navigation-drawer>
     </v-content>
     <v-content v-else>
-      <v-container fill-height fluid grid-list-xs class="px-2">
-        <v-layout row justify-space-around>
-          <v-flex xs12>
+      <v-container fluid>
+        <v-row >
+          <v-col>
             <v-card>
               <v-card-text>
-                <h2 class="text-center mb-4">:(</h2>
+                <h2 class="text-center mb-4"><v-icon large>mdi-alert</v-icon></h2>
                 <p class="text-center">
-                  ICE is only designed for desktop computers, and does not support mobile devices.
+                  This application is only designed for desktop computers, and does not support mobile devices.
                 </p>
               </v-card-text>
             </v-card>
-          </v-flex>
-        </v-layout>
+          </v-col>
+        </v-row>
       </v-container>
     </v-content>
     <v-dialog
@@ -231,8 +231,8 @@
         </v-toolbar>
 
         <v-card-text>
-          <v-layout row wrap justify-space-between>
-            <v-flex xs5 style="border-right: 1px solid #CCC;">
+          <v-row>
+            <v-col xs5 style="border-right: 1px solid #CCC;">
               <v-treeview
                 v-model="themes.selected"
                 :active.sync="themes.active"
@@ -250,8 +250,8 @@
                   </v-icon>
                 </template>
               </v-treeview>
-            </v-flex>
-            <v-flex xs7 class="pl-4">
+            </v-col>
+            <v-col xs7 class="pl-4">
               <div v-for="theme in themes.active" :key="theme.id" class="pt-4 black--text">
                 <h2 class="mb-2">{{theme.name}}</h2>
                 <p>{{theme.description}}</p>
@@ -305,8 +305,8 @@
                   This information is preliminary and is subject to revision. It is being provided to meet the need for timely best science. The information is provided on the condition that neither the U.S. Geological Survey nor the U.S. Government may be held liable for any damages resulting from the authorized or unauthorized use of the information.
                 </p>
               </div>
-            </v-flex>
-          </v-layout>
+            </v-col>
+          </v-row>
         </v-card-text>
       </v-card>
     </v-dialog>
