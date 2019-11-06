@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-app-bar app dark clipped-left height="64">
+    <v-app-bar app dark>
       <a href="https://www.usgs.gov/centers/lmg-water" target="_blank" class="mr-4 ml-1">
         <v-img src="./assets/lmg-logo.png" alt="USGS LMGWSC Logo" height="42" width="42"></v-img>
       </a>
@@ -13,25 +13,6 @@
       </v-btn>
     </v-app-bar>
     <v-content v-if="$vuetify.breakpoint.smAndUp">
-      <v-navigation-drawer
-        expand-on-hover
-        dark
-        app
-        permanent>
-        <v-list nav>
-          <v-list-item
-            v-for="item in leftSidebar.items"
-            :key="item.title"
-            @click.stop="dialogs[item.dialog] = true">
-            <v-list-item-icon>
-              <v-icon>{{ item.icon }}</v-icon>
-            </v-list-item-icon>
-            <v-list-item-title>
-              {{ item.title }}
-            </v-list-item-title>
-          </v-list-item>
-        </v-list>
-      </v-navigation-drawer>
       <ice-map :basemaps="map.basemaps" :center="[31.5, -89]" :zoom="6">
         <ice-map-layer
           name="points"
@@ -44,20 +25,56 @@
         </ice-map-layer>
       </ice-map>
       <v-container fluid>
-        <v-row>
+        <v-row no-gutters>
           <v-col>
-            <v-card class="ice-card">
-              <v-toolbar dark dense color="primary" class="subheading ma-0 theme-toolbar">
-                <span class="pr-2"><v-icon size="20" class="mr-1">mdi-database</v-icon> <strong>Theme</strong>: </span>
+            <v-card class="ice-card elevation-10">
+              <v-container class="pa-0">
+                <v-row no-gutters>
+                  <v-col class="text-center">
+                    <v-btn block tile medium color="secondary">
+                      <v-icon medium left>mdi-home</v-icon> Welcome
+                    </v-btn>
+                  </v-col>
+                  <v-col class="text-center">
+                    <v-btn block tile medium color="secondary">
+                      <v-icon medium left>mdi-email</v-icon> Contact
+                    </v-btn>
+                  </v-col>
+                  <v-col class="text-center">
+                    <v-btn block tile medium color="secondary">
+                      <v-icon medium left>mdi-help</v-icon> Help
+                    </v-btn>
+                  </v-col>
+                </v-row>
+              </v-container>
+            </v-card>
+            <v-card class="ice-card elevation-10 mt-2">
+              <v-toolbar dark dense color="primary">
+                <h4>Dataset: <span v-if="theme">{{ theme.title }}</span><span v-else>None</span></h4>
+              </v-toolbar>
+              <!-- <v-card-text v-if="theme"> -->
+
+                <!-- <strong>Current Dataset</strong>:
                 <span v-if="loading.theme">Loading... <v-progress-circular indeterminate color="primary" :size="20" class="ml-2"></v-progress-circular></span>
                 <span v-else-if="error.theme"><v-icon color="error" size="19">mdi-alert</v-icon> {{error.theme}}</span>
                 <span v-else-if="theme">{{ theme.title }}</span>
-                <span v-else>None</span>
-                <v-spacer></v-spacer>
-                <v-btn rounded small color="grey lighten-2 elevation-2" light @click="dialogs.theme = true">
-                  <v-icon small class="mr-2">mdi-folder-open</v-icon> Browse
+                <span v-else>None</span> -->
+                <!-- <decade-dimension v-if="theme.dimensions.decade"></decade-dimension> -->
+              <!-- </v-card-text> -->
+              <!-- <v-divider></v-divider> -->
+              <v-card-actions>
+                <!-- <v-btn small outlined text color="primary">
+                  <v-icon left small>mdi-information</v-icon> About Dataset
                 </v-btn>
-              </v-toolbar>
+                <v-spacer></v-spacer> -->
+                <v-btn small outlined text color="primary" @click="dialogs.theme = true">
+                  <v-icon left small>mdi-folder-open</v-icon> Open Dataset Browser
+                </v-btn>
+                <v-spacer></v-spacer>
+                <v-btn small outlined text color="primary" v-if="theme">
+                  <v-icon left small>mdi-download</v-icon> Download
+                </v-btn>
+              </v-card-actions>
             </v-card>
             <v-card class="ice-card elevation-10 mt-2" v-if="theme">
               <v-tabs
@@ -67,15 +84,15 @@
                 dark
                 slider-color="white">
                 <v-tab ripple>
-                  <v-icon small class="mr-1">mdi-table</v-icon> Variable
+                  Variable
                 </v-tab>
                 <v-tab ripple>
-                  <v-icon small class="mr-1">mdi-chart-bar</v-icon> Crossfilters
+                  Crossfilters
                 </v-tab>
                 <v-spacer></v-spacer>
-                <v-btn icon @click="tabs.hide = !tabs.hide" class="align-self-center mr-2">
-                  <v-icon v-if="!tabs.hide">mdi-menu-up</v-icon>
-                  <v-icon v-else>mdi-menu-down</v-icon>
+                <v-btn icon small @click="tabs.hide = !tabs.hide" class="align-self-center mr-1">
+                  <v-icon small v-if="!tabs.hide">mdi-menu-up</v-icon>
+                  <v-icon small v-else>mdi-menu-down</v-icon>
                 </v-btn>
                 <v-tab-item :transition="false" :reverse-transition="false">
                   <v-card v-show="!tabs.hide">
@@ -101,13 +118,11 @@
                           </v-tooltip>
                         </template>
                       </v-autocomplete>
-                      <mklevel-dimension v-if="theme.dimensions.mklevel"></mklevel-dimension>
-                      <decade-dimension v-if="theme.dimensions.decade"></decade-dimension>
                     </v-card-text>
                   </v-card>
                 </v-tab-item>
                 <v-tab-item :transition="false" :reverse-transition="false">
-                  <v-card v-show="!tabs.hide" :max-height="$vuetify.breakpoint.height - 450" style="overflow-y: auto">
+                  <v-card v-show="!tabs.hide" :max-height="$vuetify.breakpoint.height - 550" style="overflow-y: auto">
                     <v-card-text>
                       <v-autocomplete
                         :items="filterVariables"
@@ -123,17 +138,9 @@
                         label="Select crossfilter variable(s)...">
                         <template v-slot:item="data">
                           <v-list-item-action>
-                            <v-checkbox :value="data.attrs.inputValue"></v-checkbox>
+                            <v-checkbox small :value="data.attrs.inputValue"></v-checkbox>
                           </v-list-item-action>
-                          <v-list-item-content class="pl-3" v-html="data.item.label"></v-list-item-content>
-                          <v-spacer></v-spacer>
-                          <!-- <v-tooltip right max-width="600">
-                            <template v-slot:activator="{ on }">
-                              <v-icon v-on="on" color="grey lighten-1">mdi-information</v-icon>
-                            </template>
-                            {{ data.item.description }}
-                          </v-tooltip> -->
-                          <br>
+                          <v-list-item-content class="body-2" v-html="data.item.label"></v-list-item-content>
                         </template>
                       </v-autocomplete>
                       <p>Filtered: {{ counts.filtered }} of {{ counts.total }}</p>
@@ -143,23 +150,18 @@
                 </v-tab-item>
               </v-tabs>
             </v-card>
-            <ice-legend-box></ice-legend-box>
+            <ice-legend-box v-if="theme"></ice-legend-box>
             <v-card class="ice-card elevation-10 mt-2" v-if="debug.visible">
               <v-toolbar dense dark color="red darken-4">
-                <h3>Debug</h3>
+                <h4>Debug</h4>
                 <v-spacer></v-spacer>
-                <v-btn icon @click="debug.hide = !debug.hide">
-                  <v-icon v-if="!debug.hide">mdi-menu-up</v-icon>
-                  <v-icon v-else>mdi-menu-down</v-icon>
+                <v-btn icon small @click="debug.hide = !debug.hide">
+                  <v-icon small v-if="!debug.hide">mdi-menu-up</v-icon>
+                  <v-icon small v-else>mdi-menu-down</v-icon>
                 </v-btn>
               </v-toolbar>
               <v-card-text v-if="!debug.hide">
-                <pre>feature.selected: {{ !!feature.selected }}</pre>
-                <!-- <pre>counts: {{ counts }}</pre>
-                <pre>filters: {{ filters }}</pre>
-                <pre>variable: {{ variable }}</pre>
-                <pre>layer: {{ layer }}</pre>
-                <pre>feature: {{ feature.selected }}</pre> -->
+                <pre>{{ $vuetify.application.top }}</pre>
               </v-card-text>
             </v-card>
           </v-col>
@@ -223,7 +225,7 @@
       scrollable>
       <v-card>
         <v-toolbar dark color="primary">
-          <v-toolbar-title>Select a Theme</v-toolbar-title>
+          <v-toolbar-title>Dataset Browser</v-toolbar-title>
           <v-spacer></v-spacer>
           <v-btn icon @click="dialogs.theme = false">
             <v-icon>mdi-close</v-icon>
@@ -231,8 +233,8 @@
         </v-toolbar>
 
         <v-card-text>
-          <v-row>
-            <v-col xs5 style="border-right: 1px solid #CCC;">
+          <v-row justify="space-between">
+            <v-col sm="4">
               <v-treeview
                 v-model="themes.selected"
                 :active.sync="themes.active"
@@ -252,7 +254,8 @@
                 </template>
               </v-treeview>
             </v-col>
-            <v-col xs7 class="pl-4">
+            <v-divider vertical></v-divider>
+            <v-col class="d-flex">
               <div v-for="theme in themes.active" :key="theme.id" class="pt-4 black--text">
                 <h2 class="mb-2">{{theme.name}}</h2>
                 <p>{{theme.description}}</p>
@@ -326,7 +329,6 @@ import GagePrimary from '@/components/themes/GagePrimary'
 import GageCov from '@/components/themes/GageCov'
 import GageQstat from '@/components/themes/GageQstat'
 import GageQtrend from '@/components/themes/GageQtrend'
-import GageQts from '@/components/themes/GageQts'
 import GageSolar from '@/components/themes/GageSolar'
 import Huc12Primary from '@/components/themes/Huc12Primary'
 import Huc12Cov from '@/components/themes/Huc12Cov'
@@ -353,7 +355,6 @@ export default {
     GagePrimary,
     GageCov,
     GageQstat,
-    GageQts,
     GageQtrend,
     GageSolar,
     Huc12Primary,
@@ -389,7 +390,7 @@ export default {
       open: true
     },
     dialogs: {
-      theme: true,
+      theme: false,
       welcome: false,
       download: false,
       settings: false,
@@ -515,16 +516,9 @@ export default {
 </script>
 
 <style>
-.v-toolbar {
-  background: rgba(0, 0, 0, 0.8) !important;
-}
-.left-drawer {
-  background: rgba(50, 50, 50, 0.6) !important;
-}
 .v-navigation-drawer {
   margin-top: 64px !important;
 }
-
 .v-list {
   background: none !important;
 }
@@ -535,10 +529,7 @@ export default {
   margin-top: 64px !important;
 }
 
-.ice-container {
-  padding-left: 20px;
-}
 .ice-card {
-  width: 600px;
+  width: 500px;
 }
 </style>

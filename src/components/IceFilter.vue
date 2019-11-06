@@ -18,7 +18,7 @@
     </v-toolbar>
     <v-card-text v-if="!hide">
       Filter Range:
-      <span v-if="filter">{{textFormatter(inverseTransform(filter[0]))}} - {{textFormatter(inverseTransform(filter[1]))}} (<span @click="resetFilter">reset</span>)</span>
+      <span v-if="filter">{{textFormatter(inverseTransform(filter[0]))}} to {{textFormatter(inverseTransform(filter[1]))}}</span>
       <span v-else>None</span>
     </v-card-text>
     <div class="ice-filter-chart" v-show="!hide"></div>

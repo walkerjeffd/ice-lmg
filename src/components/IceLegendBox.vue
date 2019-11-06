@@ -1,12 +1,12 @@
 <template>
   <v-card class="ice-card elevation-10 mt-2">
     <v-toolbar dense dark color="primary">
-      <h3>Legend</h3>
+      <h4>Legend</h4>
       <v-spacer></v-spacer>
       <v-menu v-model="settings" offset-x :close-on-content-click="false" nudge-right="60px">
         <template v-slot:activator="{ on }">
-          <v-btn icon v-on="on">
-            <v-icon>mdi-settings-outline</v-icon>
+          <v-btn icon small v-on="on">
+            <v-icon small>mdi-settings-outline</v-icon>
           </v-btn>
         </template>
         <v-card width="400">
@@ -50,9 +50,9 @@
           </v-card-actions>
         </v-card>
       </v-menu>
-      <v-btn icon @click="hide = !hide">
-        <v-icon v-if="!hide">mdi-menu-up</v-icon>
-        <v-icon v-else>mdi-menu-down</v-icon>
+      <v-btn icon small @click="hide = !hide">
+        <v-icon small v-if="!hide">mdi-menu-up</v-icon>
+        <v-icon small v-else>mdi-menu-down</v-icon>
       </v-btn>
     </v-toolbar>
     <v-card-text v-if="!hide && variable">
