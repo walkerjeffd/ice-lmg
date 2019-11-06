@@ -51,17 +51,16 @@
             <v-card class="ice-card elevation-10 mt-2">
               <v-toolbar dark dense color="primary">
                 <h4>Dataset: <span v-if="theme">{{ theme.title }}</span><span v-else>None</span></h4>
-              </v-toolbar>
-              <!-- <v-card-text v-if="theme"> -->
-
                 <!-- <strong>Current Dataset</strong>:
                 <span v-if="loading.theme">Loading... <v-progress-circular indeterminate color="primary" :size="20" class="ml-2"></v-progress-circular></span>
                 <span v-else-if="error.theme"><v-icon color="error" size="19">mdi-alert</v-icon> {{error.theme}}</span>
                 <span v-else-if="theme">{{ theme.title }}</span>
                 <span v-else>None</span> -->
-                <!-- <decade-dimension v-if="theme.dimensions.decade"></decade-dimension> -->
-              <!-- </v-card-text> -->
-              <!-- <v-divider></v-divider> -->
+              </v-toolbar>
+              <v-card-text v-if="theme" class="pb-0">
+                <decade-dimension v-if="theme.dimensions.decade"></decade-dimension>
+              </v-card-text>
+              <v-divider></v-divider>
               <v-card-actions>
                 <!-- <v-btn small outlined text color="primary">
                   <v-icon left small>mdi-information</v-icon> About Dataset
@@ -96,7 +95,7 @@
                 </v-btn>
                 <v-tab-item :transition="false" :reverse-transition="false">
                   <v-card v-show="!tabs.hide">
-                    <v-card-text>
+                    <v-card-text v-if="theme.id !== 'gage-qtrend'">
                       <v-autocomplete
                         label="Select variable..."
                         :items="mapVariables"
@@ -118,6 +117,9 @@
                           </v-tooltip>
                         </template>
                       </v-autocomplete>
+                    </v-card-text>
+                    <v-card-text v-else>
+                      <trend-variable @update="setVariableById"></trend-variable>
                     </v-card-text>
                   </v-card>
                 </v-tab-item>
@@ -325,6 +327,8 @@ import IceLegendBox from '@/components/IceLegendBox'
 import DecadeDimension from '@/components/dimensions/DecadeDimension'
 import MklevelDimension from '@/components/dimensions/MklevelDimension'
 
+import TrendVariable from '@/components/TrendVariable'
+
 import GagePrimary from '@/components/themes/GagePrimary'
 import GageCov from '@/components/themes/GageCov'
 import GageQstat from '@/components/themes/GageQstat'
@@ -352,6 +356,7 @@ export default {
     IceLegendBox,
     DecadeDimension,
     MklevelDimension,
+    TrendVariable,
     GagePrimary,
     GageCov,
     GageQstat,
@@ -510,6 +515,11 @@ export default {
     },
     clearFilters () {
       this.filters = []
+    },
+    setVariableById (id) {
+      const variable = this.$store.getters.variableById(id)
+      if (!variable) return
+      this.variable = variable
     }
   }
 }

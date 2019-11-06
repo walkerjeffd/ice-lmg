@@ -1,6 +1,7 @@
 <template>
   <div>
-    <v-subheader class="pl-0">Select decade...</v-subheader>
+    <!-- <v-subheader class="pa-0 ma-0"></v-subheader> -->
+    Select decade...
     <v-slider
       v-model="value"
       :tick-labels="labels"
