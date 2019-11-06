@@ -1,7 +1,7 @@
 <template>
   <ice-feature-container v-if="selected" @close="$emit('close')">
     <template v-slot:title>
-      Gage: {{selected.id}}
+      Selected Gage: {{selected.id}}
     </template>
 
     <div v-if="dataset">
