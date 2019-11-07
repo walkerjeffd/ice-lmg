@@ -71,7 +71,7 @@ export default {
       this.update()
     },
     'group.selected' () {
-      console.log(this.selectedGroupOptions)
+      // console.log(this.selectedGroupOptions)
       this.level.value = Math.floor(this.selectedGroupOptions.length / 2)
     }
   },

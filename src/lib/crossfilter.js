@@ -6,18 +6,21 @@ const byFeature = {
   map: new Map()
 }
 
-export function setData (data, key) {
+export function clearCrossfilter () {
   xf.remove(() => true)
-  xf.add(data)
-
+  if (byFeature.group) byFeature.group.dispose()
   if (byFeature.dim) byFeature.dim.dispose()
-
-  byFeature.dim = xf.dimension(d => d[key])
   byFeature.map.clear()
 }
 
+export function setData (data, key) {
+  clearCrossfilter()
+  xf.add(data)
+  byFeature.dim = xf.dimension(d => d[key])
+}
+
 export function setVariable (variable) {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     if (byFeature.group) byFeature.group.dispose()
 
     byFeature.group = byFeature.dim.group().reduce(
@@ -65,7 +68,7 @@ export function getCrossfilter () {
 }
 
 export function getFilteredCount () {
-  return byFeature.group.all().filter(d => d.value.count > 0).length
+  return byFeature.group ? byFeature.group.all().filter(d => d.value.count > 0).length : 0
 }
 
 export function getTotalCount () {

@@ -96,7 +96,7 @@ export default {
   },
   methods: {
     render () {
-      console.log('filter:render')
+      // console.log('filter:render')
       this.chart.render()
     },
     resetFilter () {

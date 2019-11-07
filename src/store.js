@@ -3,7 +3,7 @@ import Vuex from 'vuex'
 import axios from 'axios'
 import { csvParse, extent } from 'd3'
 
-import { setData, getData, setVariable } from '@/lib/crossfilter'
+import { setData, getData, clearCrossfilter, setVariable } from '@/lib/crossfilter'
 
 Vue.use(Vuex)
 
@@ -52,6 +52,7 @@ export default new Vuex.Store({
     clearTheme ({ commit }) {
       commit('SET_THEME', null)
       commit('SET_VARIABLE', null)
+      clearCrossfilter()
       return Promise.resolve(null)
     },
     loadTheme ({ commit, dispatch }, theme) {
@@ -59,8 +60,7 @@ export default new Vuex.Store({
         return dispatch('clearTheme')
       }
 
-      return dispatch('clearTheme')
-        .then(() => axios.get(`/${theme.id}/theme.json`))
+      return axios.get(`/${theme.id}/theme.json`)
         .then((response) => {
           const theme = response.data
           const variable = theme.variables[0]

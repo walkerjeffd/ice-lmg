@@ -105,7 +105,7 @@ export default {
     },
     layer () {
       // console.log(`map-layer(${this.name}):watch layer`)
-      if (!this.layer) return
+      if (!this.layer) return this.clearLayer()
       return this.loadLayer(this.layer)
     },
     selected () {
@@ -134,6 +134,11 @@ export default {
           this.data = Object.freeze(data)
           this.resize()
         })
+    },
+    clearLayer () {
+      this.container
+        .selectAll('circle')
+        .remove()
     },
     resize () {
       // console.log(`map-layer(${this.name}):resize`)

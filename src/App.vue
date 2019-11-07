@@ -69,6 +69,9 @@
                 <v-btn small outlined text color="primary" @click="dialogs.theme = true">
                   <v-icon left small>mdi-folder-open</v-icon> Open Dataset Browser
                 </v-btn>
+                <v-btn small outlined text color="primary" @click="clearTheme" v-if="theme">
+                  <v-icon left small>mdi-close</v-icon> Close
+                </v-btn>
                 <v-spacer></v-spacer>
                 <v-btn small outlined text color="primary" v-if="theme">
                   <v-icon left small>mdi-download</v-icon> Download
@@ -261,7 +264,7 @@
                 <h2 class="mb-2">{{theme.name}}</h2>
                 <p>{{theme.description}}</p>
                 <div class="text-center my-8">
-                  <v-btn large color="green" dark @click="selectTheme(theme)">
+                  <v-btn large color="green" dark @click="selectTheme(theme)" :loading="loading.theme">
                     Load Theme
                     <v-icon right>mdi-chevron-double-right</v-icon>
                   </v-btn>
@@ -460,7 +463,7 @@ export default {
   },
   watch: {
     variable () {
-      evt.$emit('map:render')
+      this.variable && evt.$emit('map:render')
     }
   },
   methods: {
@@ -472,10 +475,8 @@ export default {
       this.loading.theme = true
       this.error.theme = null
 
-      this.selectFeature()
-      this.clearFilters()
-
-      return this.$store.dispatch('loadTheme', theme)
+      return this.clearTheme()
+        .then(() => this.$store.dispatch('loadTheme', theme))
         .then((theme) => {
           this.error.theme = null
           this.updateCounts()
@@ -489,6 +490,12 @@ export default {
           this.loading.theme = false
           this.dialogs.theme = false
         })
+    },
+    clearTheme () {
+      this.selectFeature()
+      this.clearFilters()
+      return this.$store.dispatch('clearTheme')
+        .then(() => this.updateCounts())
     },
     selectFeature (feature) {
       if (!feature || this.feature.selected === feature) {
