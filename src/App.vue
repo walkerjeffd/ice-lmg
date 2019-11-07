@@ -31,17 +31,17 @@
               <v-container class="pa-0">
                 <v-row no-gutters>
                   <v-col class="text-center">
-                    <v-btn block tile medium color="secondary">
+                    <v-btn block tile medium color="secondary" @click="dialogs.welcome = true">
                       <v-icon medium left>mdi-home</v-icon> Welcome
                     </v-btn>
                   </v-col>
                   <v-col class="text-center">
-                    <v-btn block tile medium color="secondary">
+                    <v-btn block tile medium color="secondary" @click="dialogs.contact = true">
                       <v-icon medium left>mdi-email</v-icon> Contact
                     </v-btn>
                   </v-col>
                   <v-col class="text-center">
-                    <v-btn block tile medium color="secondary">
+                    <v-btn block tile medium color="secondary" @click="dialogs.help = true">
                       <v-icon medium left>mdi-help</v-icon> Help
                     </v-btn>
                   </v-col>
@@ -73,7 +73,7 @@
                   <v-icon left small>mdi-close</v-icon> Close
                 </v-btn> -->
                 <v-spacer></v-spacer>
-                <v-btn small outlined text color="primary" v-if="theme">
+                <v-btn small outlined text color="primary" v-if="theme" @click="dialogs.download = true">
                   <v-icon left small>mdi-download</v-icon> Download
                 </v-btn>
               </v-card-actions>
@@ -205,19 +205,204 @@
       max-width="1000"
       scrollable>
       <v-card>
-        <v-card-title class="headline">Welcome to ICE</v-card-title>
+        <v-toolbar dark dense color="primary">
+          <v-toolbar-title><v-icon left>mdi-home</v-icon> Welcome</v-toolbar-title>
+          <v-spacer></v-spacer>
+          <v-btn icon @click="dialogs.welcome = false">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </v-toolbar>
+
+        <v-card-text class="mt-4">
+          <div class="text-center mb-8">
+            <h2>Welcome to the USGS Lower Mississippi Gulf Water Science Center's Data Visualization Tool</h2>
+          </div>
+          <p>
+            Lorem ipsum dolor sit amet consectetur, adipisicing elit. Hic dicta repellat molestiae. Odio rem laboriosam esse vel nisi sed rerum dolorem, deleniti eligendi fuga! Obcaecati voluptatem recusandae id quasi molestiae?
+          </p>
+          <p>
+            Lorem ipsum dolor sit amet consectetur, adipisicing elit. Hic dicta repellat molestiae. Odio rem laboriosam esse vel nisi sed rerum dolorem, deleniti eligendi fuga! Obcaecati voluptatem recusandae id quasi molestiae?
+          </p>
+
+          <div class="text-center mt-8 mb-4">
+            <v-btn
+              color="success"
+              large
+              @click="dialogs.welcome = false; dialogs.theme = true">
+              Get Started <v-icon>mdi-chevron-double-right</v-icon>
+            </v-btn>
+          </div>
+        </v-card-text>
+
+        <v-divider class="mb-8"></v-divider>
 
         <v-card-text>
-          Lorem ipsum, dolor sit amet consectetur adipisicing elit. Obcaecati id molestias tempora commodi inventore aliquid voluptas perspiciatis non, quis dignissimos, veritatis ut quia vero, tempore dolorem praesentium excepturi. Quos, id?
+          <v-alert type="warning" outlined prominent icon="mdi-alert">
+            <h2>Disclaimer</h2>
+            This information is preliminary and is subject to revision. It is being provided to meet the need for timely best science. The information is provided on the condition that neither the U.S. Geological Survey nor the U.S. Government may be held liable for any damages resulting from the authorized or unauthorized use of the information.
+          </v-alert>
         </v-card-text>
+      </v-card>
+    </v-dialog>
+    <v-dialog
+      v-model="dialogs.contact"
+      max-width="1000"
+      scrollable>
+      <v-card>
+        <v-toolbar dark color="primary">
+          <v-toolbar-title><v-icon left>mdi-email</v-icon> Contact Information</v-toolbar-title>
+          <v-spacer></v-spacer>
+          <v-btn icon @click="dialogs.contact = false">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </v-toolbar>
+
+        <v-card-text class="mt-8">
+          <p class="body-1">Questions, comments, problems? Please contact one of the team members listed below.</p>
+          <h4>USGS Contact</h4>
+          <p class="ml-4">
+            Kirk D. Rodgers, PhD<br>
+            Hydrologist, and Eastern Region Diversity Subcouncil Chairman<br>
+            U.S. Geological Survey Lower Mississippi-Gulf Water Science Center<br>
+            E-mail: <a href="mailto:krodgers@usgs.gov">krodgers@usgs.gov</a>
+          </p>
+          <h4>Site Administrator</h4>
+          <p class="ml-4">
+            Jeffrey D. Walker, PhD<br>
+            Environmental Data Scientist<br>
+            <a href="https://ecosheds.org" target="_blank">Spatial Hydro-Ecological Decision System (SHEDS)</a><br>
+            <a href="https://walkerenvres.com" target="_blank">Walker Environmental Research, LLC</a><br>
+            E-mail: <a href="mailto:jeff@walkerenvres.com">jeff@walkerenvres.com</a>
+          </p>
+        </v-card-text>
+
+        <v-divider></v-divider>
 
         <v-card-actions>
           <v-spacer></v-spacer>
-
           <v-btn
             color="primary"
             text
-            @click="dialogs.welcome = false">
+            @click="dialogs.contact = false">
+            Close
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <v-dialog
+      v-model="dialogs.help"
+      max-width="1000"
+      scrollable>
+      <v-card>
+        <v-toolbar dark color="primary">
+          <v-toolbar-title><v-icon left>mdi-help</v-icon> User Guide</v-toolbar-title>
+          <v-spacer></v-spacer>
+          <v-btn icon @click="dialogs.help = false">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </v-toolbar>
+
+        <v-card-text class="mt-4">
+          <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Temporibus iste quae dolores quibusdam numquam, ut soluta rerum earum doloremque officia culpa laudantium esse amet mollitia voluptas exercitationem commodi magni natus.</p>
+        </v-card-text>
+
+        <v-divider></v-divider>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="primary"
+            text
+            @click="dialogs.help = false">
+            Close
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <v-dialog
+      v-model="dialogs.download"
+      max-width="1000"
+      scrollable>
+      <v-card>
+        <v-toolbar dark color="primary">
+          <v-toolbar-title><v-icon left>mdi-download</v-icon> Download</v-toolbar-title>
+          <v-spacer></v-spacer>
+          <v-btn icon @click="dialogs.download = false">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </v-toolbar>
+
+        <v-card-text class="mt-4">
+          <h2>Instructions</h2>
+          <p class="body-1">
+            The current dataset can be downloaded using the buttons below.
+          </p>
+          <p class="body-1">
+            Clicking on either button will trigger the application to download two files:
+          </p>
+          <ol class="body-1">
+            <li>Dataset file in comma separate values (CSV) format.</li>
+            <li>Metadata file describing each column in the dataset</li>
+          </ol>
+        </v-card-text>
+
+        <v-divider></v-divider>
+
+        <v-card-text class="mt-4">
+          <v-container>
+            <v-row>
+              <v-col>
+                <div class="text-center mb-4">
+                  <h2>Complete Dataset</h2>
+                </div>
+                <p>Download the complete dataset, which includes all gages or HUC12s for all decades regardless of any filters that are currently set.</p>
+                <div class="text-center mt-8">
+                  <v-btn color="success" @click="downloadDataset(false)">
+                    <v-icon>mdi-download</v-icon> Download Complete Dataset (CSV)
+                  </v-btn>
+                </div>
+              </v-col>
+              <v-divider vertical></v-divider>
+              <v-col>
+                <div class="text-center mb-4">
+                  <h2>Filtered Dataset</h2>
+                </div>
+                <p>Download only the data for the current decade and including only gages or HUC12s that meet any existing filters.</p>
+                <div class="text-center mt-8">
+                  <v-btn color="success" @click="downloadDataset(true)">
+                    <v-icon>mdi-download</v-icon> Download Filtered Dataset (CSV)
+                  </v-btn>
+                </div>
+              </v-col>
+            </v-row>
+          </v-container>
+        </v-card-text>
+
+        <v-divider></v-divider>
+
+        <v-card-text class="mt-4" v-if="theme && theme.citations">
+          <h2 v-if="theme.citations.length > 1">Citations </h2>
+          <h2 v-else>Citation </h2>
+          <p v-for="citation in theme.citations" :key="citation.text">
+            {{citation.text}} <a :href="citation.url" target="_blank">{{ citation.url }}</a>.
+          </p>
+        </v-card-text>
+
+        <v-card-text>
+          <v-alert color="warning" outlined prominent icon="mdi-alert">
+            <h2>Disclaimer</h2>
+            This information is preliminary and is subject to revision. It is being provided to meet the need for timely best science. The information is provided on the condition that neither the U.S. Geological Survey nor the U.S. Government may be held liable for any damages resulting from the authorized or unauthorized use of the information.
+          </v-alert>
+        </v-card-text>
+
+        <v-divider></v-divider>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="primary"
+            text
+            @click="dialogs.download = false">
             Close
           </v-btn>
         </v-card-actions>
@@ -280,39 +465,31 @@
               </div>
 
               <div class="pt-4 black--text" v-if="themes.active.length === 0">
-                <h2>Welcome!</h2>
-                <p>
-                  Welcome to the USGS Lower Mississippi Gulf Water Science Center's Data Visualization Tool.
-                </p>
+                <v-alert color="success" prominent outlined icon="mdi-chevron-left">
+                  Select a dataset from the list.
+                </v-alert>
 
                 <v-divider class="my-4"></v-divider>
-                <h3 class="my-4">Contact</h3>
-                <h4>USGS Contact</h4>
-                <p class="ml-4">
-                  Kirk D. Rodgers, PhD<br>
-                  Hydrologist, and Eastern Region Diversity Subcouncil Chairman<br>
-                  U.S. Geological Survey Lower Mississippi-Gulf Water Science Center<br>
-                  401 Hardin Road, Little Rock, Arkansas 72211<br>
-                  Phone: 501-228-3625<br>
-                  E-mail: <a href="mailto:krodgers@usgs.gov">krodgers@usgs.gov</a>
-                </p>
-                <h4>Site Administrator</h4>
-                <p class="ml-4">
-                  Jeffrey D. Walker, PhD<br>
-                  Environmental Data Scientist<br>
-                  <a href="https://ecosheds.org" target="_blank">Spatial Hydro-Ecological Decision System (SHEDS)</a><br>
-                  <a href="https://walkerenvres.com" target="_blank">Walker Environmental Research, LLC</a><br>
-                  E-mail: <a href="mailto:jeff@walkerenvres.com">jeff@walkerenvres.com</a>
-                </p>
-                <v-divider class="my-4"></v-divider>
-                <h3><v-icon>mdi-alert</v-icon> Disclaimer</h3>
-                <p>
+                <v-alert color="warning" outlined prominent icon="mdi-alert">
+                  <h2>Disclaimer</h2>
                   This information is preliminary and is subject to revision. It is being provided to meet the need for timely best science. The information is provided on the condition that neither the U.S. Geological Survey nor the U.S. Government may be held liable for any damages resulting from the authorized or unauthorized use of the information.
-                </p>
+                </v-alert>
               </div>
             </v-col>
           </v-row>
         </v-card-text>
+
+        <v-divider></v-divider>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="primary"
+            text
+            @click="dialogs.theme = false">
+            Close
+          </v-btn>
+        </v-card-actions>
       </v-card>
     </v-dialog>
   </v-app>
@@ -320,6 +497,9 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import { timeFormat } from 'd3'
+
+import download from 'downloadjs'
 
 import IceMap from '@/components/IceMap'
 import IceMapLayer from '@/components/IceMapLayer'
@@ -340,12 +520,14 @@ import Huc12Cov from '@/components/themes/Huc12Cov'
 import Huc12Qquantile from '@/components/themes/Huc12Qquantile'
 import Huc12Solar from '@/components/themes/Huc12Solar'
 
-import { getValueById, getFilteredCount, getTotalCount } from '@/lib/crossfilter'
+import { getValueById, getFilteredCount, getTotalCount, getCrossfilter } from '@/lib/crossfilter'
 import themes from '@/assets/themes'
 import evt from '@/lib/events'
 import { groupVariables } from '@/lib/utils'
 import VariableMixin from '@/mixins/variable'
 import ColorMixin from '@/mixins/color'
+
+const json2csv = require('json2csv')
 
 export default {
   name: 'App',
@@ -397,11 +579,9 @@ export default {
     dialogs: {
       theme: false,
       welcome: false,
-      download: false,
-      settings: false,
-      tutorial: false,
       contact: false,
-      about: false
+      help: false,
+      download: false
     },
     loading: {
       theme: false
@@ -457,6 +637,7 @@ export default {
     }
   },
   mounted () {
+    if (!this.theme) this.dialogs.welcome = true
     evt.$on('xf:filter', this.updateCounts)
   },
   beforeDestroy () {
@@ -522,6 +703,42 @@ export default {
       const variable = this.$store.getters.variableById(id)
       if (!variable) return
       this.variable = variable
+    },
+    downloadCompleteDataset () {
+      const xf = getCrossfilter()
+      const data = xf.all()
+      return this.downloadDataset(data)
+    },
+    downloadFilteredDataset () {
+      const xf = getCrossfilter()
+      const data = xf.allFiltered()
+      return this.downloadDataset(data)
+    },
+    downloadDataset (filtered) {
+      const xf = getCrossfilter()
+      const data = xf.allFiltered()
+
+      if (!data || data.length === 0) {
+        alert('No data available to download')
+        return
+      }
+
+      const f = timeFormat('%Y%m%d-%H%M')
+      const timestamp = f(new Date())
+
+      let dataFields = Object.keys(data[0])
+      dataFields.splice(dataFields.findIndex(d => d === '$index'), 1) // remove '$index' column
+
+      const dataCsv = json2csv.parse(data, { fields: dataFields })
+      download(dataCsv, `usgs-lmgwsc-dataset-${timestamp}.csv`, 'text/csv')
+
+      let variables = [{ id: 'id', label: 'Unique gage or HUC12 ID' }]
+      if (this.theme.dimensions.decade) {
+        variables.push({ id: 'decade', label: 'Decade' })
+      }
+      variables = [...variables, ...this.variables]
+      const metadataCsv = json2csv.parse(variables, { fields: ['id', 'label', 'description'] })
+      download(metadataCsv, `usgs-lmgwsc-metadata-${timestamp}.csv`, 'text/csv')
     }
   }
 }
