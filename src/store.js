@@ -59,7 +59,8 @@ export default new Vuex.Store({
         return dispatch('clearTheme')
       }
 
-      return axios.get(`/${theme.id}/theme.json`)
+      return dispatch('clearTheme')
+        .then(() => axios.get(`/${theme.id}/theme.json`))
         .then((response) => {
           const theme = response.data
           const variable = theme.variables[0]

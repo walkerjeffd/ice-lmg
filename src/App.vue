@@ -107,11 +107,10 @@
                         :menu-props="{ closeOnClick: false, closeOnContentClick: false, openOnClick: false, maxHeight: 400 }"
                         class="mt-2">
                         <template v-slot:item="data">
-                          <v-list-item-content class="pl-3" v-html="data.item.label"></v-list-item-content>
-                          <v-spacer></v-spacer>
+                          <v-list-item-content class="pl-3 body-2" v-html="data.item.label"></v-list-item-content>
                           <v-tooltip right max-width="600">
                             <template v-slot:activator="{ on }">
-                              <v-icon v-on="on" color="grey lighten-1">mdi-information</v-icon>
+                              <v-icon v-on="on" small color="grey lighten-1">mdi-information</v-icon>
                             </template>
                             {{ data.item.description }}
                           </v-tooltip>
@@ -325,7 +324,6 @@ import IceFilter from '@/components/IceFilter'
 import IceLegendBox from '@/components/IceLegendBox'
 
 import DecadeDimension from '@/components/dimensions/DecadeDimension'
-import MklevelDimension from '@/components/dimensions/MklevelDimension'
 
 import TrendVariable from '@/components/TrendVariable'
 
@@ -355,7 +353,6 @@ export default {
     IceFilter,
     IceLegendBox,
     DecadeDimension,
-    MklevelDimension,
     TrendVariable,
     GagePrimary,
     GageCov,
@@ -457,7 +454,6 @@ export default {
     }
   },
   mounted () {
-    // this.selectTheme(themes[0].children[0]).then(this.updateCounts)
     evt.$on('xf:filter', this.updateCounts)
   },
   beforeDestroy () {
@@ -479,8 +475,7 @@ export default {
       this.selectFeature()
       this.clearFilters()
 
-      return this.$store.dispatch('clearTheme')
-        .then(() => this.$store.dispatch('loadTheme', theme))
+      return this.$store.dispatch('loadTheme', theme)
         .then((theme) => {
           this.error.theme = null
           this.updateCounts()

@@ -1,7 +1,6 @@
 import * as crossfilter from 'crossfilter2'
 
 const xf = crossfilter()
-// const all = xf.groupAll()
 
 const byFeature = {
   map: new Map()
@@ -66,11 +65,9 @@ export function getCrossfilter () {
 }
 
 export function getFilteredCount () {
-  // return all.value()
   return byFeature.group.all().filter(d => d.value.count > 0).length
 }
 
 export function getTotalCount () {
   return byFeature.map.size
-  // return xf.size()
 }

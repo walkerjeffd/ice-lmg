@@ -58,7 +58,7 @@ export default {
     const group = dim.group(d => Math.floor(d / interval) * interval).reduceCount()
 
     this.chart = dc.barChart(this.$el.getElementsByClassName('ice-filter-chart').item(0))
-      .width(550)
+      .width(475)
       .height(200)
       .margins({ top: 10, right: 50, bottom: 30, left: 40 })
       .dimension(dim)
