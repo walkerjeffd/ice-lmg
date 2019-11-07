@@ -69,9 +69,9 @@
                 <v-btn small outlined text color="primary" @click="dialogs.theme = true">
                   <v-icon left small>mdi-folder-open</v-icon> Open Dataset Browser
                 </v-btn>
-                <v-btn small outlined text color="primary" @click="clearTheme" v-if="theme">
+                <!-- <v-btn small outlined text color="primary" @click="clearTheme" v-if="theme">
                   <v-icon left small>mdi-close</v-icon> Close
-                </v-btn>
+                </v-btn> -->
                 <v-spacer></v-spacer>
                 <v-btn small outlined text color="primary" v-if="theme">
                   <v-icon left small>mdi-download</v-icon> Download
@@ -265,7 +265,7 @@
                 <p>{{theme.description}}</p>
                 <div class="text-center my-8">
                   <v-btn large color="green" dark @click="selectTheme(theme)" :loading="loading.theme">
-                    Load Theme
+                    Load Dataset
                     <v-icon right>mdi-chevron-double-right</v-icon>
                   </v-btn>
                 </div>
@@ -509,8 +509,8 @@ export default {
       return getValueById(feature.id)
     },
     getFeatureFill (feature) {
-      const value = this.getFeatureValue(feature).mean
-      return this.colorScale(this.variableScale(value))
+      const value = this.getFeatureValue(feature)
+      return value ? this.colorScale(this.variableScale(value.mean)) : null
     },
     removeFilter (variable) {
       this.filters.splice(this.filters.findIndex(v => v === variable), 1)

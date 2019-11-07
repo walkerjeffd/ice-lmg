@@ -213,7 +213,7 @@ export default {
       this.container
         .selectAll('circle')
         .style('fill', this.getFill)
-        .style('display', d => this.getValue(d).count > 0 ? 'inline' : 'none')
+        .style('display', d => this.getValue(d) && this.getValue(d).count > 0 ? 'inline' : 'none')
     },
     renderSelected () {
       // console.log(`map-layer(${this.name}):renderSelected`)
