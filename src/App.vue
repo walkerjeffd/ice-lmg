@@ -242,6 +242,18 @@
             This information is preliminary and is subject to revision. It is being provided to meet the need for timely best science. The information is provided on the condition that neither the U.S. Geological Survey nor the U.S. Government may be held liable for any damages resulting from the authorized or unauthorized use of the information.
           </v-alert>
         </v-card-text>
+
+        <v-divider></v-divider>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="primary"
+            text
+            @click="dialogs.welcome = false">
+            Close
+          </v-btn>
+        </v-card-actions>
       </v-card>
     </v-dialog>
     <v-dialog
@@ -464,15 +476,9 @@
                 </div>
               </div>
 
-              <div class="pt-4 black--text" v-if="themes.active.length === 0">
+              <div class="pt-4" style="width:100%" v-if="themes.active.length === 0">
                 <v-alert color="success" prominent outlined icon="mdi-chevron-left">
                   Select a dataset from the list.
-                </v-alert>
-
-                <v-divider class="my-4"></v-divider>
-                <v-alert color="warning" outlined prominent icon="mdi-alert">
-                  <h2>Disclaimer</h2>
-                  This information is preliminary and is subject to revision. It is being provided to meet the need for timely best science. The information is provided on the condition that neither the U.S. Geological Survey nor the U.S. Government may be held liable for any damages resulting from the authorized or unauthorized use of the information.
                 </v-alert>
               </div>
             </v-col>
@@ -552,7 +558,8 @@ export default {
   data: () => ({
     filters: [],
     debug: {
-      visible: process.env.NODE_ENV === 'development',
+      // visible: process.env.NODE_ENV === 'development',
+      visible: false,
       hide: true
     },
     tabs: {
