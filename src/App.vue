@@ -344,7 +344,7 @@
           </v-btn>
         </v-toolbar>
 
-        <v-card-text class="mt-4">
+        <!-- <v-card-text class="mt-4">
           <h2>Instructions</h2>
           <p class="body-1">
             The current dataset can be downloaded using the buttons below.
@@ -358,50 +358,38 @@
           </ol>
         </v-card-text>
 
-        <v-divider></v-divider>
+        <v-divider></v-divider> -->
 
-        <v-card-text class="mt-4">
+        <v-card-text class="my-4" v-if="theme">
           <v-container>
             <v-row>
-              <v-col>
-                <div class="text-center mb-4">
-                  <h2>Complete Dataset</h2>
-                </div>
-                <p>Download the complete dataset, which includes all gages or HUC12s for all decades regardless of any filters that are currently set.</p>
-                <div class="text-center mt-8">
-                  <v-btn color="success" @click="downloadDataset(false)">
-                    <v-icon>mdi-download</v-icon> Download Complete Dataset (CSV)
-                  </v-btn>
-                </div>
+              <v-col class="text-center">
+                <h2>Complete Dataset</h2>
+                <p class="font-italic my-8">Includes all gages or HUC12s regardless of any filters that are currently set, and data for all decades.</p>
+                <v-btn color="success" @click="downloadDataset(false)">
+                  <v-icon>mdi-download</v-icon> Complete Dataset (CSV)
+                </v-btn>
               </v-col>
               <v-divider vertical></v-divider>
-              <v-col>
-                <div class="text-center mb-4">
-                  <h2>Filtered Dataset</h2>
-                </div>
-                <p>Download only the data for the current decade and including only gages or HUC12s that meet any existing filters.</p>
-                <div class="text-center mt-8">
-                  <v-btn color="success" @click="downloadDataset(true)">
-                    <v-icon>mdi-download</v-icon> Download Filtered Dataset (CSV)
-                  </v-btn>
-                </div>
+              <v-col class="text-center">
+                <h2>Filtered Dataset</h2>
+                <p class="font-italic my-8">Includes only gages or HUC12s that meet any existing filters, and only data for the current decade.</p>
+                <v-btn color="success" @click="downloadDataset(true)">
+                  <v-icon>mdi-download</v-icon> Filtered Dataset (CSV)
+                </v-btn>
               </v-col>
             </v-row>
           </v-container>
-        </v-card-text>
 
-        <v-divider></v-divider>
+          <v-divider class="my-4"></v-divider>
 
-        <v-card-text class="mt-4" v-if="theme && theme.citations">
           <h2 v-if="theme.citations.length > 1">Citations </h2>
           <h2 v-else>Citation </h2>
           <p v-for="citation in theme.citations" :key="citation.text">
             {{citation.text}} <a :href="citation.url" target="_blank">{{ citation.url }}</a>.
           </p>
-        </v-card-text>
 
-        <v-card-text>
-          <v-alert color="warning" outlined prominent icon="mdi-alert">
+          <v-alert color="warning" outlined prominent icon="mdi-alert" class="mb-0">
             <h2>Disclaimer</h2>
             This information is preliminary and is subject to revision. It is being provided to meet the need for timely best science. The information is provided on the condition that neither the U.S. Geological Survey nor the U.S. Government may be held liable for any damages resulting from the authorized or unauthorized use of the information.
           </v-alert>
@@ -503,9 +491,6 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { timeFormat } from 'd3'
-
-import download from 'downloadjs'
 
 import IceMap from '@/components/IceMap'
 import IceMapLayer from '@/components/IceMapLayer'
@@ -526,14 +511,13 @@ import Huc12Cov from '@/components/themes/Huc12Cov'
 import Huc12Qquantile from '@/components/themes/Huc12Qquantile'
 import Huc12Solar from '@/components/themes/Huc12Solar'
 
-import { getValueById, getFilteredCount, getTotalCount, getCrossfilter } from '@/lib/crossfilter'
+import { getValueById, getFilteredCount, getTotalCount } from '@/lib/crossfilter'
 import themes from '@/assets/themes'
 import evt from '@/lib/events'
 import { groupVariables } from '@/lib/utils'
+import { downloadDataset } from '@/lib/download'
 import VariableMixin from '@/mixins/variable'
 import ColorMixin from '@/mixins/color'
-
-const json2csv = require('json2csv')
 
 export default {
   name: 'App',
@@ -711,41 +695,9 @@ export default {
       if (!variable) return
       this.variable = variable
     },
-    downloadCompleteDataset () {
-      const xf = getCrossfilter()
-      const data = xf.all()
-      return this.downloadDataset(data)
-    },
-    downloadFilteredDataset () {
-      const xf = getCrossfilter()
-      const data = xf.allFiltered()
-      return this.downloadDataset(data)
-    },
     downloadDataset (filtered) {
-      const xf = getCrossfilter()
-      const data = xf.allFiltered()
-
-      if (!data || data.length === 0) {
-        alert('No data available to download')
-        return
-      }
-
-      const f = timeFormat('%Y%m%d-%H%M')
-      const timestamp = f(new Date())
-
-      let dataFields = Object.keys(data[0])
-      dataFields.splice(dataFields.findIndex(d => d === '$index'), 1) // remove '$index' column
-
-      const dataCsv = json2csv.parse(data, { fields: dataFields })
-      download(dataCsv, `usgs-lmgwsc-dataset-${timestamp}.csv`, 'text/csv')
-
-      let variables = [{ id: 'id', label: 'Unique gage or HUC12 ID' }]
-      if (this.theme.dimensions.decade) {
-        variables.push({ id: 'decade', label: 'Decade' })
-      }
-      variables = [...variables, ...this.variables]
-      const metadataCsv = json2csv.parse(variables, { fields: ['id', 'label', 'description'] })
-      download(metadataCsv, `usgs-lmgwsc-metadata-${timestamp}.csv`, 'text/csv')
+      downloadDataset(filtered, this.theme)
+        .catch((err) => alert(`Failed to download dataset\n\n${err}`))
     }
   }
 }
