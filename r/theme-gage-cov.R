@@ -30,10 +30,15 @@ df_dataset <- load_dataset(theme, col_types = cols(
 )) %>% 
   mutate(id = site_no) %>% 
   select(id, everything()) %>% 
-  arrange(id, decade)
+  arrange(id, decade) %>% 
+  mutate(
+    total_forest = deciduous_forest + evergreen_forest + mixed_forest,
+    total_wetland = herbaceous_wetland + woody_wetland
+  )
 
 out_dataset <- df_dataset %>% 
   select(id, decade, variables$df$id)
+
 
 dataset <- list(
   df = df_dataset,
@@ -68,7 +73,7 @@ export_theme(theme, variables, dataset, layer)
 
 df_feature <- dataset$out %>% 
   group_by(id) %>% 
-  nest(.key = "values") %>% 
+  nest(values = -id) %>% 
   mutate(
     values = map(values, function (x) {
       x %>% 
@@ -78,3 +83,52 @@ df_feature <- dataset$out %>%
   append_feature_properties(layer)
 
 write_feature_json(theme, df_feature)
+
+
+
+
+
+# variable ranges ---------------------------------------------------------
+
+
+summary(out_dataset)
+
+# => use max(pretty(values)) for domain ranges
+out_dataset %>% 
+  select(-id, -decade) %>% 
+  select_if(is.numeric) %>% 
+  pivot_longer(everything(), "var", "value") %>% 
+  mutate(var = ordered(var, levels = variables$df$id)) %>% 
+  group_by(var) %>% 
+  summarise(
+    min = min(pretty(value)),
+    max = max(pretty(value))
+  ) %>% 
+  # write_csv("~/vars.csv")
+  print(n = Inf)
+
+out_dataset %>% 
+  select(-id, -decade) %>% 
+  select_if(is.numeric) %>% 
+  pivot_longer(everything(), "var", "value") %>% 
+  mutate(var = ordered(var, levels = variables$df$id)) %>% 
+  group_by(var) %>% 
+  summarise(
+    min = min(value),
+    q01 = quantile(value, probs = 0.01),
+    q10 = quantile(value, probs = 0.10),
+    median = median(value),
+    q90 = quantile(value, probs = 0.90),
+    q99 = quantile(value, probs = 0.99),
+    max = max(value)
+  ) %>% 
+  print(n = Inf)
+
+out_dataset %>% 
+  select(-id, -decade) %>% 
+  select_if(is.numeric) %>% 
+  pivot_longer(everything(), "var", "value") %>% 
+  mutate(var = ordered(var, levels = variables$df$id)) %>% 
+  ggplot(aes(value)) +
+  geom_histogram() +
+  facet_wrap(vars(var), scales = "free")

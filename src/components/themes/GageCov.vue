@@ -11,9 +11,13 @@
         <v-list dense>
           <v-list-item v-for="variableId in tables.constants.fields" :key="variableId">
             <v-list-item-content class="align-start" width="20">{{ variableById(variableId).label }}:</v-list-item-content>
-            <v-list-item-content class="align-end">{{ dataset.values[0][variableId] }} {{ variableById(variableId).units }}</v-list-item-content>
+            <v-list-item-content class="align-end">{{ variableFormatter(variableId)(dataset.values[0][variableId]) }} {{ variableById(variableId).units }}</v-list-item-content>
           </v-list-item>
         </v-list>
+      </ice-feature-box>
+      <ice-feature-box>
+        <template v-slot:title>Land Use</template>
+        <highcharts class="chart" :options="charts.landUse"></highcharts>
       </ice-feature-box>
       <ice-feature-box>
         <template v-slot:title>Annual Precipitation</template>
@@ -32,6 +36,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import { format } from 'd3'
 import highcharts from 'highcharts'
 
 import IceFeatureContainer from '@/components/IceFeatureContainer'
@@ -65,6 +70,39 @@ export default {
         }
       },
       charts: {
+        landUse: {
+          chart: {
+            height: 400,
+            marginTop: 20,
+            marginLeft: 70
+          },
+          title: {
+            text: null
+          },
+          legend: {
+            enabled: true
+          },
+          tooltip: {
+            valueDecimals: 0,
+            valueSuffix: ' %',
+            shared: true
+          },
+          xAxis: {
+            type: 'category',
+            categories: ['1950s', '1960s', '1970s', '1980s', '1990s', '2000s'],
+            title: {
+              text: 'Decade'
+            }
+          },
+          yAxis: [
+            {
+              title: {
+                text: '%'
+              }
+            }
+          ],
+          series: []
+        },
         ppt: {
           chart: {
             height: 200,
@@ -146,6 +184,10 @@ export default {
     }
   },
   methods: {
+    variableFormatter (id) {
+      const variable = this.variableById(id)
+      return format(variable.formats.text)
+    },
     fetchData () {
       if (!this.selected) {
         this.dataset = null
@@ -154,6 +196,49 @@ export default {
       this.$http.get(`/${this.theme.id}/features/${this.selected.id}.json`)
         .then((response) => {
           this.dataset = response.data
+
+          this.charts.landUse.series = [
+            {
+              name: 'Developed',
+              data: this.dataset.values.map(d => d.developed),
+              type: 'line'
+            },
+            {
+              name: 'Hay/Pasture',
+              data: this.dataset.values.map(d => d.hay_pasture),
+              type: 'line'
+            },
+            {
+              name: 'Cultivated Cropland',
+              data: this.dataset.values.map(d => d.cultivated_cropland),
+              type: 'line'
+            },
+            {
+              name: 'Grassland',
+              data: this.dataset.values.map(d => d.grassland),
+              type: 'line'
+            },
+            {
+              name: 'Shrubland',
+              data: this.dataset.values.map(d => d.shrubland),
+              type: 'line'
+            },
+            {
+              name: 'Total Forest',
+              data: this.dataset.values.map(d => d.total_forest),
+              type: 'line'
+            },
+            {
+              name: 'Total Wetland',
+              data: this.dataset.values.map(d => d.total_wetland),
+              type: 'line'
+            },
+            {
+              name: 'Open Water',
+              data: this.dataset.values.map(d => d.water),
+              type: 'line'
+            }
+          ]
           const pptData = this.dataset.values.map((d, i) => ({
             mean: d.ppt_mean,
             sd: d.ppt_sd,
