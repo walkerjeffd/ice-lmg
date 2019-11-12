@@ -95,9 +95,7 @@ out_dataset %>%
   group_by(var) %>% 
   summarise(
     min = min(pretty(value)),
-    max = max(pretty(value)),
-    min_log = map_dbl(value, function (x) { scales::log_breaks()(x)[1] })
-    # max_log = max(scales::log_breaks()(value))
+    max = max(pretty(value))
   ) %>% 
   # write_csv("~/vars.csv")
   print(n = Inf)

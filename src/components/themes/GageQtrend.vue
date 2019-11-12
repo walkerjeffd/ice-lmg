@@ -7,26 +7,20 @@
     <div v-if="dataset">
       <ice-gage-properties-box :properties="dataset.properties"></ice-gage-properties-box>
       <ice-feature-box>
-        <template v-slot:title>Options</template>
-        <v-card-text class="py-0">
-          <v-radio-group v-model="maxPVal" row label="Significance Level:">
-            <v-radio label="p <= 0.05" value="0.05"></v-radio>
-            <v-radio label="p <= 0.10" value="0.10"></v-radio>
-            <v-radio label="Any p-value" value="1"></v-radio>
-          </v-radio-group>
-        </v-card-text>
+        <template v-slot:title>Mann-Kendall: Monthly</template>
+        <highcharts class="chart" :options="charts.month"></highcharts>
       </ice-feature-box>
       <ice-feature-box>
         <template v-slot:title>Mann-Kendall: Seasonal</template>
         <highcharts class="chart" :options="charts.season"></highcharts>
       </ice-feature-box>
       <ice-feature-box>
-        <template v-slot:title>Mann-Kendall: Monthly</template>
-        <highcharts class="chart" :options="charts.month"></highcharts>
-      </ice-feature-box>
-      <ice-feature-box>
         <template v-slot:title>Mann-Kendall: By Quantile</template>
         <highcharts class="chart" :options="charts.quantile"></highcharts>
+      </ice-feature-box>
+      <ice-feature-box>
+        <template v-slot:title>Quantile-Kendall: Annual</template>
+        <highcharts class="chart" :options="charts.qkAnnual"></highcharts>
       </ice-feature-box>
     </div>
     <div v-else>
@@ -37,7 +31,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import highcharts from 'highcharts'
+import { range, format } from 'd3'
 
 import IceFeatureContainer from '@/components/IceFeatureContainer'
 import IceFeatureBox from '@/components/IceFeatureBox'
@@ -45,7 +39,7 @@ import IceGagePropertiesBox from '@/components/IceGagePropertiesBox'
 
 const seasons = ['Spring', 'Summer', 'Fall', 'Winter']
 const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-const quantiles = ['Q00', 'Q10', 'Q20', 'Q30', 'Q40', 'Q50', 'Q60', 'Q70', 'Q80', 'Q90', 'Q100']
+const quantiles = range(0, 110, 10)
 
 export default {
   name: 'GageQtrend',
@@ -58,7 +52,6 @@ export default {
   data () {
     return {
       dataset: null,
-      maxPVal: '1',
       charts: {
         season: {
           chart: {
@@ -70,6 +63,8 @@ export default {
             text: null
           },
           tooltip: {
+            valueDecimals: 1,
+            valueSuffix: ' m3/s/yr',
             shared: true,
             headerFormat: '<span style="font-size: 10px">Season: {point.key}</span><br/>'
           },
@@ -84,7 +79,7 @@ export default {
           yAxis: [
             {
               title: {
-                text: 'm3/s/yr'
+                text: 'Trend Slope (m3/s/yr)'
               }
             }
           ],
@@ -100,6 +95,8 @@ export default {
             text: null
           },
           tooltip: {
+            valueDecimals: 1,
+            valueSuffix: ' m3/s/yr',
             shared: true,
             headerFormat: '<span style="font-size: 10px">Month: {point.key}</span><br/>'
           },
@@ -113,7 +110,7 @@ export default {
           yAxis: [
             {
               title: {
-                text: 'm3/s/yr'
+                text: 'Trend Slope (m3/s/yr)'
               }
             }
           ],
@@ -129,20 +126,49 @@ export default {
             text: null
           },
           tooltip: {
+            valueDecimals: 1,
+            valueSuffix: ' m3/s/yr',
             shared: true,
             headerFormat: '<span style="font-size: 10px">Quantile: {point.key}</span><br/>'
           },
           xAxis: {
-            type: 'category',
-            categories: quantiles,
             title: {
-              text: 'Quantile'
+              text: 'Quantile (%)'
             }
           },
           yAxis: [
             {
               title: {
-                text: 'm3/s/yr'
+                text: 'Trend Slope (m3/s/yr)'
+              }
+            }
+          ],
+          series: []
+        },
+        qkAnnual: {
+          chart: {
+            height: 300,
+            marginTop: 20,
+            marginLeft: 70
+          },
+          title: {
+            text: null
+          },
+          tooltip: {
+            valueDecimals: 1,
+            valueSuffix: ' %/yr',
+            shared: true,
+            headerFormat: '<span style="font-size: 10px">Rank: {point.x}</span><br/>'
+          },
+          xAxis: {
+            title: {
+              text: 'Rank'
+            }
+          },
+          yAxis: [
+            {
+              title: {
+                text: 'Trend Slope (%/yr)'
               }
             }
           ],
@@ -162,9 +188,6 @@ export default {
       this.fetchData()
     },
     dataset () {
-      this.updateCharts()
-    },
-    maxPVal () {
       this.updateCharts()
     }
   },
@@ -193,10 +216,7 @@ export default {
       if (!this.dataset) return this.clearCharts()
       this.charts.season.series = this.dataset.values.map(d => ({
         name: `${d.decade}s`,
-        data: seasons.map(season => ({
-          y: d.season[season].mk_pval <= +this.maxPVal ? d.season[season].mk_slope : null,
-          pval: d.season[season].mk_pval
-        })),
+        data: seasons.map(season => d[`mk_${season.toLowerCase()}_slope`]),
         type: 'line',
         connectNulls: true,
         marker: {
@@ -206,20 +226,12 @@ export default {
           lineColor: null,
           symbol: 'circle',
           radius: 3
-        },
-        tooltip: {
-          pointFormatter: function () {
-            return `<span style="color:${this.color}">●</span> ${this.series.name}: <b>${highcharts.numberFormat(this.y, 1, '.', ',')}</b> m3/s/yr (p = <b>${highcharts.numberFormat(this.pval, 3, '.', ',')}</b>)<br/>`
-          }
         }
       }))
 
       this.charts.month.series = this.dataset.values.map(d => ({
         name: `${d.decade}s`,
-        data: months.map(month => ({
-          y: d.month[month].mk_pval <= +this.maxPVal ? d.month[month].mk_slope : null,
-          pval: d.month[month].mk_pval
-        })),
+        data: months.map(month => d[`mk_${month.toLowerCase()}_slope`]),
         type: 'line',
         connectNulls: true,
         marker: {
@@ -229,20 +241,12 @@ export default {
           lineColor: null,
           symbol: 'circle',
           radius: 3
-        },
-        tooltip: {
-          pointFormatter: function () {
-            return `<span style="color:${this.color}">●</span> ${this.series.name}: <b>${highcharts.numberFormat(this.y, 1, '.', ',')}</b> m3/s/yr (p = <b>${highcharts.numberFormat(this.pval, 3, '.', ',')}</b>)<br/>`
-          }
         }
       }))
 
       this.charts.quantile.series = this.dataset.values.map(d => ({
         name: `${d.decade}s`,
-        data: quantiles.map(quantile => ({
-          y: d.quantile[quantile].mk_pval <= +this.maxPVal ? d.quantile[quantile].mk_slope : null,
-          pval: d.quantile[quantile].mk_pval
-        })),
+        data: quantiles.map(quantile => [quantile, d[`mk_q${format('02d')(quantile)}_slope`]]),
         type: 'line',
         connectNulls: true,
         marker: {
@@ -252,12 +256,22 @@ export default {
           lineColor: null,
           symbol: 'circle',
           radius: 3
-        },
-        tooltip: {
-          pointFormatter: function () {
-            return `<span style="color:${this.color}">●</span> ${this.series.name}: <b>${highcharts.numberFormat(this.y, 1, '.', ',')}</b> m3/s/yr (p = <b>${highcharts.numberFormat(this.pval, 3, '.', ',')}</b>)<br/>`
-          }
         }
+      }))
+
+      this.charts.qkAnnual.series = this.dataset.values.map(d => ({
+        name: `${d.decade}s`,
+        data: d.qk_annual_slopepct,
+        type: 'line',
+        connectNulls: true
+        // marker: {
+        //   enabled: true,
+        //   fillColor: '#FFFFFF',
+        //   lineWidth: 1,
+        //   lineColor: null,
+        //   symbol: 'circle',
+        //   radius: 3
+        // }
       }))
     }
   }

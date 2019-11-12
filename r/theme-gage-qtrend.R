@@ -11,6 +11,24 @@ variables <- load_variables(theme)
 # MANUAL: copy meta-variables.csv to themes.xlsx$variables
 
 
+# layer -------------------------------------------------------------------
+
+df_layer <- readxl::read_xlsx(
+  file.path(config::get("data_dir"), "sciencebase", theme$id, "Longitude and latitude of sites used in RESTORE Streamflow alteration assessments.xlsx"),
+  sheet = 1
+) %>% 
+  mutate(
+    id = site_no,
+    huc12 = sprintf("%012.0f", HUC_12)
+  ) %>% 
+  select(id, site_no, huc12, dec_long_va = Longitude, dec_lat_va = Latitude)
+
+layer <- df_layer %>% 
+  create_layer()
+
+ggplot(layer$sf) +
+  geom_sf()
+
 # load quantile kendall test ----------------------------------------------
 
 read_qk <- function(decade, season) {
@@ -182,8 +200,16 @@ df_dataset <- full_join(
   by = c("decade", "id")
 )
 
+stopifnot(all(df_layer$id %in% unique(df_dataset$id)))
+stopifnot(all(unique(df_dataset$id) %in% df_layer$id))
+
 out_dataset <- df_dataset %>% 
-  select(id, decade, variables$df$id)
+  left_join(
+    df_layer %>% 
+      select(id, lat = dec_lat_va, lon = dec_long_va),
+    by = "id"
+  ) %>% 
+  select(id, lat, lon, decade, variables$df$id)
 
 dataset <- list(
   df = df_dataset,
@@ -197,74 +223,130 @@ stopifnot(
     nrow() == 0
 )
 
-df_vars <- bind_rows(
-  qk_vars,
-  mk_vars
-)
-
-write_csv(df_vars, "../data/huc12-qquantile/r-vars.csv")
-
-# layer -------------------------------------------------------------------
-
-df_layer <- readxl::read_xlsx(
-  file.path(config::get("data_dir"), "sciencebase", theme$id, "Longitude and latitude of sites used in RESTORE Streamflow alteration assessments.xlsx"),
-  sheet = 1
-) %>% 
-  mutate(
-    id = site_no,
-    huc12 = sprintf("%012.0f", HUC_12)
-  ) %>% 
-  select(id, site_no, huc12, dec_long_va = Longitude, dec_lat_va = Latitude)
-
-stopifnot(all(df_layer$id %in% unique(dataset$out$id)))
-stopifnot(all(unique(dataset$out$id) %in% df_layer$id))
-
-layer <- df_layer %>% 
-  create_layer()
-
-ggplot(layer$sf) +
-  geom_sf()
+# df_vars <- bind_rows(
+#   qk_vars,
+#   mk_vars
+# )
+# 
+# write_csv(df_vars, "../data/huc12-qquantile/r-vars.csv")
 
 # export ------------------------------------------------------------------
 
 export_theme(theme, variables, dataset, layer)
 
 # feature data ------------------------------------------------------------
+# 
+# df_feature <- dataset$out %>% 
+#   mutate(
+#     mklevel = ordered(mklevel, levels = c(months, seasons, quantiles))
+#   ) %>%
+#   arrange(id, mklevel, decade) %>% 
+#   nest(values = -id) %>% 
+#   mutate(
+#     values = map(values, function (x) {
+#       x %>% 
+#         mutate(
+#           group = case_when(
+#             mklevel %in% seasons ~ "season",
+#             mklevel %in% months ~ "month",
+#             mklevel %in% quantiles ~ "quantile"
+#           )
+#         ) %>% 
+#         group_by(decade, group) %>% 
+#         nest() %>% 
+#         # converts group: {mklevel:{}} to group [{mklevel}, {mklevel}]
+#         mutate(
+#           data = map(data, function (y) {
+#             y %>%
+#               group_by(mklevel) %>%
+#               nest() %>%
+#               mutate(data = map(data, ~ as.list(.))) %>%
+#               spread(mklevel, data) %>%
+#               flatten()
+#           })
+#         ) %>%
+#         spread(group, data)
+#     })
+#   ) %>% 
+#   append_feature_properties(layer)
 
 df_feature <- dataset$out %>% 
-  mutate(
-    mklevel = ordered(mklevel, levels = c(months, seasons, quantiles))
-  ) %>%
-  arrange(id, mklevel, decade) %>% 
+  select(-lat, -lon) %>% 
+  group_by(id) %>% 
   nest(values = -id) %>% 
   mutate(
-    values = map(values, function (x) {
-      x %>% 
+    values = map2(id, values, function (i, v) {
+      v %>% 
+        arrange(decade) %>% 
         mutate(
-          group = case_when(
-            mklevel %in% seasons ~ "season",
-            mklevel %in% months ~ "month",
-            mklevel %in% quantiles ~ "quantile"
-          )
-        ) %>% 
-        group_by(decade, group) %>% 
-        nest() %>% 
-        # converts group: {mklevel:{}} to group [{mklevel}, {mklevel}]
-        mutate(
-          data = map(data, function (y) {
-            y %>%
-              group_by(mklevel) %>%
-              nest() %>%
-              mutate(data = map(data, ~ as.list(.))) %>%
-              spread(mklevel, data) %>%
-              flatten()
+          qk_annual_slopepct = map(decade, function (d) {
+            df_qk_all %>% 
+              filter(
+                gage == i,
+                season == "Annual",
+                decade == d
+              ) %>% 
+              arrange(quantile) %>% 
+              pull(slopePct)
           })
-        ) %>%
-        spread(group, data)
+        )
     })
   ) %>% 
   append_feature_properties(layer)
 
 write_feature_json(theme, df_feature)
 
+
+df_qk_all
+
+
+# variable ranges ---------------------------------------------------------
+
+summary(out_dataset)
+
+# => use max(pretty(values)) for domain ranges
+out_dataset %>% 
+  select(-id, -decade, -lat, -lon) %>% 
+  select_if(is.numeric) %>% 
+  pivot_longer(everything(), "var", "value") %>% 
+  mutate(var = ordered(var, levels = variables$df$id)) %>% 
+  group_by(var) %>% 
+  filter(
+    value >= quantile(value, probs = 0.1, na.rm = TRUE),
+    value <= quantile(value, probs = 0.9, na.rm = TRUE)
+  ) %>% 
+  summarise(
+    min = min(pretty(value)),
+    max = max(pretty(value)),
+    min = if_else(abs(min) > max, min, -max),
+    max = if_else(abs(min) > max, -min, max)
+  ) %>% 
+  # write_csv("~/vars.csv")
+  print(n = Inf)
+
+# pretty log breaks
+out_dataset %>% 
+  select(-id, -decade, -lat, -lon) %>% 
+  select_if(is.numeric) %>% 
+  pivot_longer(everything(), "var", "value") %>% 
+  mutate(var = ordered(var, levels = variables$df$id)) %>% 
+  filter(value > 0) %>%  # POSITIVE NON-ZERO VALUES ONLY
+  group_by(var) %>% 
+  summarise(
+    min_log = min(scales::log_breaks()(value)),
+    max_log = max(scales::log_breaks()(value))
+  ) %>% 
+  # write_csv("~/vars.csv")
+  print(n = Inf)
+
+
+out_dataset %>% 
+  select(-id, -decade, -lat, -lon) %>% 
+  select_if(is.numeric) %>% 
+  select(starts_with("mk_")) %>% 
+  pivot_longer(everything(), "var", "value") %>% 
+  mutate(var = ordered(var, levels = variables$df$id)) %>% 
+  ggplot(aes(value)) +
+  geom_histogram() +
+  facet_wrap(vars(var), scales = "free")
 
