@@ -19,10 +19,22 @@ df_dataset <- load_dataset(theme, col_types = cols(
 )) %>% 
   mutate(id = site_no) %>% 
   select(id, everything()) %>% 
-  arrange(id, decade)
+  arrange(id, decade) %>% 
+  rename(
+    L1_mean = L1,
+    L2_spread = L2,
+    T3_skew = T3,
+    T4_kurtosis = T4
+  ) %>% 
+  mutate(
+    pplo = pplo * 100
+  )
 
 out_dataset <- df_dataset %>% 
-  select(id, decade, variables$df$id)
+  select(id, decade, lat = dec_lat_va, lon = dec_long_va, str_replace(variables$df$id, "^q_", "")) %>% 
+  complete(nesting(id, lat, lon), decade)
+
+names(out_dataset)[-c(1:4)] <- str_c("q_", names(out_dataset)[-c(1:4)])
 
 dataset <- list(
   df = df_dataset,
@@ -36,6 +48,7 @@ stopifnot(
     nrow() == 0
 )
 
+
 # layer -------------------------------------------------------------------
 
 layer <- df_dataset %>% 
@@ -46,15 +59,17 @@ layer <- df_dataset %>%
 ggplot(layer$sf) +
   geom_sf()
 
+
 # export ------------------------------------------------------------------
 
 export_theme(theme, variables, dataset, layer)
+
 
 # feature data ------------------------------------------------------------
 
 df_feature <- dataset$out %>% 
   group_by(id) %>% 
-  nest(.key = "values") %>% 
+  nest(values = -id) %>% 
   mutate(
     values = map(values, function (x) {
       x %>% 
@@ -64,3 +79,66 @@ df_feature <- dataset$out %>%
   append_feature_properties(layer)
   
 write_feature_json(theme, df_feature)
+
+
+
+# variable ranges ---------------------------------------------------------
+
+summary(out_dataset)
+
+# => use max(pretty(values)) for domain ranges
+out_dataset %>% 
+  select(-id, -decade, -lat, -lon) %>% 
+  select_if(is.numeric) %>% 
+  pivot_longer(everything(), "var", "value") %>% 
+  mutate(var = ordered(var, levels = variables$df$id)) %>% 
+  group_by(var) %>% 
+  summarise(
+    min = min(pretty(value)),
+    max = max(pretty(value)),
+    min_log = map_dbl(value, function (x) { scales::log_breaks()(x)[1] })
+    # max_log = max(scales::log_breaks()(value))
+  ) %>% 
+  # write_csv("~/vars.csv")
+  print(n = Inf)
+
+# pretty log breaks
+out_dataset %>% 
+  select(-id, -decade, -lat, -lon) %>% 
+  select_if(is.numeric) %>% 
+  pivot_longer(everything(), "var", "value") %>% 
+  mutate(var = ordered(var, levels = variables$df$id)) %>% 
+  filter(value > 0) %>%  # POSITIVE NON-ZERO VALUES ONLY
+  group_by(var) %>% 
+  summarise(
+    min_log = min(scales::log_breaks()(value)),
+    max_log = max(scales::log_breaks()(value))
+  ) %>% 
+  # write_csv("~/vars.csv")
+  print(n = Inf)
+
+out_dataset %>% 
+  select(-id, -decade, -lat, -lon) %>% 
+  select_if(is.numeric) %>% 
+  pivot_longer(everything(), "var", "value") %>% 
+  mutate(var = ordered(var, levels = variables$df$id)) %>% 
+  group_by(var) %>% 
+  summarise(
+    min = min(value),
+    q01 = quantile(value, probs = 0.01),
+    q10 = quantile(value, probs = 0.10),
+    median = median(value),
+    q90 = quantile(value, probs = 0.90),
+    q99 = quantile(value, probs = 0.99),
+    max = max(value)
+  ) %>% 
+  print(n = Inf)
+
+out_dataset %>% 
+  select(-id, -decade, -lat, -lon) %>% 
+  select_if(is.numeric) %>% 
+  pivot_longer(everything(), "var", "value") %>% 
+  mutate(var = ordered(var, levels = variables$df$id)) %>% 
+  ggplot(aes(value)) +
+  geom_histogram() +
+  facet_wrap(vars(var), scales = "free")

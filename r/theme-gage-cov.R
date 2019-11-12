@@ -37,8 +37,7 @@ df_dataset <- load_dataset(theme, col_types = cols(
   )
 
 out_dataset <- df_dataset %>% 
-  select(id, decade, variables$df$id)
-
+  select(id, decade, lat = dec_lat_va, lon = dec_long_va, variables$df$id)
 
 dataset <- list(
   df = df_dataset,
@@ -51,6 +50,7 @@ stopifnot(
     filter(duplicated(id_decade)) %>% 
     nrow() == 0
 )
+
 
 # layer -------------------------------------------------------------------
 
@@ -65,9 +65,11 @@ layer$df %>%
 ggplot(layer$sf) +
   geom_sf()
 
+
 # export ------------------------------------------------------------------
 
 export_theme(theme, variables, dataset, layer)
+
 
 # feature data ------------------------------------------------------------
 
@@ -85,17 +87,13 @@ df_feature <- dataset$out %>%
 write_feature_json(theme, df_feature)
 
 
-
-
-
 # variable ranges ---------------------------------------------------------
-
 
 summary(out_dataset)
 
 # => use max(pretty(values)) for domain ranges
 out_dataset %>% 
-  select(-id, -decade) %>% 
+  select(-id, -decade, -lat, -lon) %>% 
   select_if(is.numeric) %>% 
   pivot_longer(everything(), "var", "value") %>% 
   mutate(var = ordered(var, levels = variables$df$id)) %>% 
@@ -108,7 +106,7 @@ out_dataset %>%
   print(n = Inf)
 
 out_dataset %>% 
-  select(-id, -decade) %>% 
+  select(-id, -decade, -lat, -lon) %>% 
   select_if(is.numeric) %>% 
   pivot_longer(everything(), "var", "value") %>% 
   mutate(var = ordered(var, levels = variables$df$id)) %>% 
@@ -125,7 +123,7 @@ out_dataset %>%
   print(n = Inf)
 
 out_dataset %>% 
-  select(-id, -decade) %>% 
+  select(-id, -decade, -lat, -lon) %>% 
   select_if(is.numeric) %>% 
   pivot_longer(everything(), "var", "value") %>% 
   mutate(var = ordered(var, levels = variables$df$id)) %>% 

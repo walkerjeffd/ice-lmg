@@ -8,6 +8,11 @@
       <ice-gage-properties-box :properties="dataset.properties"></ice-gage-properties-box>
 
       <ice-feature-box>
+        <template v-slot:title>Streamflow Statistics</template>
+        <highcharts class="chart" :options="charts.mean"></highcharts>
+      </ice-feature-box>
+
+      <ice-feature-box>
         <template v-slot:title>Streamflow Quantiles by Decade</template>
         <highcharts class="chart" :options="charts.quantiles"></highcharts>
       </ice-feature-box>
@@ -37,6 +42,35 @@ export default {
     return {
       dataset: null,
       charts: {
+        mean: {
+          chart: {
+            height: 300,
+            marginTop: 20,
+            type: 'line'
+          },
+          title: {
+            text: null
+          },
+          tooltip: {
+            valueDecimals: 2,
+            valueSuffix: ' m3/s',
+            shared: true
+          },
+          xAxis: {
+            type: 'category',
+            categories: ['1950s', '1960s', '1970s', '1980s', '1990s', '2000s'],
+            title: {
+              text: 'Decade'
+            }
+          },
+          yAxis: {
+            type: 'logarithmic',
+            title: {
+              text: 'Streamflow (m3/s)'
+            }
+          },
+          series: []
+        },
         quantiles: {
           chart: {
             height: 300,
@@ -46,11 +80,8 @@ export default {
           title: {
             text: null
           },
-          legend: {
-            // enabled: false
-          },
           tooltip: {
-            valueDecimals: 1,
+            valueDecimals: 2,
             valueSuffix: ' m3/s',
             shared: true,
             headerFormat: '<span style="font-size: 10px">Quantile: {point.key}</span><br/>'
@@ -105,9 +136,40 @@ export default {
     },
     updateCharts () {
       if (!this.dataset) {
+        this.charts.mean.series = []
         this.charts.quantiles.series = []
         return
       }
+
+      const values = this.dataset.values
+
+      this.charts.mean.series = [
+        {
+          name: 'Maximum',
+          data: values.map(d => d.q_max),
+          type: 'line'
+        },
+        {
+          name: 'Mean',
+          data: values.map(d => d.q_L1_mean),
+          type: 'line'
+        },
+        {
+          name: 'Median',
+          data: values.map(d => d.q_f50),
+          type: 'line'
+        },
+        {
+          name: 'Median (Non-Zero)',
+          data: values.map(d => d.q_median_nonzero),
+          type: 'line'
+        },
+        {
+          name: 'Minimum',
+          data: values.map(d => d.q_min),
+          type: 'line'
+        }
+      ]
 
       const quantiles = [
         '0.02',
@@ -139,12 +201,11 @@ export default {
         '99.98'
       ]
 
-      const values = this.dataset.values
       const quantileSeries = values.map(d => ({
         decade: d.decade,
         quantiles: quantiles.map(q => ({
           x: +q,
-          y: d[`f${q}`]
+          y: d[`q_f${q}`]
         }))
       }))
 

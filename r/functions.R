@@ -189,7 +189,8 @@ write_feature_json <- function(theme, df) {
       path = file.path(theme$path, "features", glue::glue("{id}.json")),
       auto_unbox = TRUE,
       pretty = TRUE,
-      dataframe = "rows"
+      dataframe = "rows",
+      na = "null"
     )
   }
 }
