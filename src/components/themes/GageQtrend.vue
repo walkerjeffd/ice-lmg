@@ -30,12 +30,9 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
 import { range, format } from 'd3'
 
-import IceFeatureContainer from '@/components/IceFeatureContainer'
-import IceFeatureBox from '@/components/IceFeatureBox'
-import IceGagePropertiesBox from '@/components/IceGagePropertiesBox'
+import themeSelect from '@/mixins/themeSelect'
 
 const seasons = ['Spring', 'Summer', 'Fall', 'Winter']
 const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
@@ -43,15 +40,9 @@ const quantiles = range(0, 110, 10)
 
 export default {
   name: 'GageQtrend',
-  props: ['selected'],
-  components: {
-    IceFeatureContainer,
-    IceFeatureBox,
-    IceGagePropertiesBox
-  },
+  mixins: [themeSelect],
   data () {
     return {
-      dataset: null,
       charts: {
         season: {
           chart: {
@@ -177,44 +168,11 @@ export default {
       }
     }
   },
-  computed: {
-    ...mapGetters(['theme', 'variableById'])
-  },
-  mounted () {
-    this.fetchData()
-  },
-  watch: {
-    selected () {
-      this.fetchData()
-    },
-    dataset () {
-      this.updateCharts()
-    }
-  },
   methods: {
-    fetchData () {
-      if (!this.selected) {
-        this.dataset = null
-        return
-      }
-      this.$http.get(`/${this.theme.id}/features/${this.selected.id}.json`)
-        .then((response) => {
-          this.dataset = response.data
-        })
-        .catch((err) => {
-          console.log('GageQtrend: error', err)
-          this.dataset = null
-          this.loading = false
-        })
-    },
-    clearCharts () {
-      this.charts.season.series = []
-      this.charts.month.series = []
-      this.charts.quantile.series = []
-    },
     updateCharts () {
-      if (!this.dataset) return this.clearCharts()
-      this.charts.season.series = this.dataset.values.map(d => ({
+      this.clearCharts()
+
+      this.charts.season.series = this.values.map(d => ({
         name: `${d.decade}s`,
         data: seasons.map(season => d[`mk_${season.toLowerCase()}_slope`]),
         type: 'line',
@@ -229,7 +187,7 @@ export default {
         }
       }))
 
-      this.charts.month.series = this.dataset.values.map(d => ({
+      this.charts.month.series = this.values.map(d => ({
         name: `${d.decade}s`,
         data: months.map(month => d[`mk_${month.toLowerCase()}_slope`]),
         type: 'line',
@@ -244,7 +202,7 @@ export default {
         }
       }))
 
-      this.charts.quantile.series = this.dataset.values.map(d => ({
+      this.charts.quantile.series = this.values.map(d => ({
         name: `${d.decade}s`,
         data: quantiles.map(quantile => [quantile, d[`mk_q${format('02d')(quantile)}_slope`]]),
         type: 'line',
@@ -259,19 +217,11 @@ export default {
         }
       }))
 
-      this.charts.qkAnnual.series = this.dataset.values.map(d => ({
+      this.charts.qkAnnual.series = this.values.map(d => ({
         name: `${d.decade}s`,
         data: d.qk_annual_slopepct,
         type: 'line',
         connectNulls: true
-        // marker: {
-        //   enabled: true,
-        //   fillColor: '#FFFFFF',
-        //   lineWidth: 1,
-        //   lineColor: null,
-        //   symbol: 'circle',
-        //   radius: 3
-        // }
       }))
     }
   }

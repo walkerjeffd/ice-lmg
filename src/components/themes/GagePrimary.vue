@@ -6,14 +6,18 @@
 
     <div v-if="dataset">
       <ice-gage-properties-box :properties="dataset.properties"></ice-gage-properties-box>
-      <!-- <ice-feature-box>
+      <ice-feature-box>
         <template v-slot:title>Basin Characteristics</template>
         <v-list dense>
           <v-list-item v-for="variableId in tables.constants.fields" :key="variableId">
             <v-list-item-content class="align-start" width="20">{{ variableById(variableId).label }}:</v-list-item-content>
-            <v-list-item-content class="align-end">{{ dataset.values[0][variableId] }} {{ variableById(variableId).units }}</v-list-item-content>
+            <v-list-item-content class="align-end">{{ variableFormatter(variableId)(dataset.values[0][variableId]) }} {{ variableById(variableId).units }}</v-list-item-content>
           </v-list-item>
         </v-list>
+      </ice-feature-box>
+      <ice-feature-box>
+        <template v-slot:title>Land Use</template>
+        <highcharts class="chart" :options="charts.landUse"></highcharts>
       </ice-feature-box>
       <ice-feature-box>
         <template v-slot:title>Annual Precipitation</template>
@@ -22,7 +26,15 @@
       <ice-feature-box>
         <template v-slot:title>Annual Air Temperature</template>
         <highcharts class="chart" :options="charts.temp"></highcharts>
-      </ice-feature-box> -->
+      </ice-feature-box>
+      <ice-feature-box>
+        <template v-slot:title>Streamflow Statistics</template>
+        <highcharts class="chart" :options="charts.qStat"></highcharts>
+      </ice-feature-box>
+      <ice-feature-box>
+        <template v-slot:title>Streamflow Trends (Mann-Kendall)</template>
+        <highcharts class="chart" :options="charts.mkSeason"></highcharts>
+      </ice-feature-box>
     </div>
     <div v-else>
       Loading...
@@ -31,52 +43,291 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
-// import highcharts from 'highcharts'
+import themeSelect from '@/mixins/themeSelect'
 
-import IceFeatureContainer from '@/components/IceFeatureContainer'
-// import IceFeatureBox from '@/components/IceFeatureBox'
-import IceGagePropertiesBox from '@/components/IceGagePropertiesBox'
+const seasons = ['Spring', 'Summer', 'Fall', 'Winter']
 
 export default {
   name: 'GagePrimary',
-  props: ['selected'],
-  components: {
-    IceFeatureContainer,
-    // IceFeatureBox,
-    IceGagePropertiesBox
-  },
+  mixins: [themeSelect],
   data () {
     return {
-      dataset: null
-    }
-  },
-  computed: {
-    ...mapGetters(['theme', 'variableById'])
-  },
-  mounted () {
-    this.fetchData()
-  },
-  watch: {
-    selected () {
-      this.fetchData()
+      tables: {
+        constants: {
+          fields: [
+            'basin_area',
+            'bfi'
+          ]
+        }
+      },
+      charts: {
+        landUse: {
+          chart: {
+            height: 300,
+            marginTop: 20,
+            marginLeft: 70
+          },
+          title: {
+            text: null
+          },
+          legend: {
+            enabled: true
+          },
+          tooltip: {
+            valueDecimals: 0,
+            valueSuffix: ' %',
+            shared: true
+          },
+          xAxis: {
+            type: 'category',
+            categories: ['1950s', '1960s', '1970s', '1980s', '1990s', '2000s'],
+            title: {
+              text: 'Decade'
+            }
+          },
+          yAxis: [
+            {
+              title: {
+                text: '%'
+              }
+            }
+          ],
+          series: []
+        },
+        ppt: {
+          chart: {
+            height: 200,
+            marginTop: 20,
+            marginLeft: 70
+          },
+          title: {
+            text: null
+          },
+          legend: {
+            enabled: false
+          },
+          tooltip: {
+            valueDecimals: 0,
+            valueSuffix: ' mm',
+            shared: true
+          },
+          xAxis: {
+            type: 'category',
+            categories: ['1950s', '1960s', '1970s', '1980s', '1990s', '2000s'],
+            title: {
+              text: 'Decade'
+            }
+          },
+          yAxis: [
+            {
+              title: {
+                text: 'mm'
+              }
+            }
+          ],
+          series: []
+        },
+        temp: {
+          chart: {
+            height: 200,
+            marginTop: 20,
+            marginLeft: 70
+          },
+          title: {
+            text: null
+          },
+          legend: {
+            enabled: false
+          },
+          tooltip: {
+            valueDecimals: 1,
+            valueSuffix: ' degC',
+            shared: true
+          },
+          xAxis: {
+            type: 'category',
+            categories: ['1950s', '1960s', '1970s', '1980s', '1990s', '2000s'],
+            title: {
+              text: 'Decade'
+            }
+          },
+          yAxis: [
+            {
+              title: {
+                text: 'degC'
+              }
+            }
+          ],
+          series: []
+        },
+        qStat: {
+          chart: {
+            height: 300,
+            marginTop: 20,
+            type: 'line'
+          },
+          title: {
+            text: null
+          },
+          tooltip: {
+            valueDecimals: 2,
+            valueSuffix: ' m3/s',
+            shared: true
+          },
+          xAxis: {
+            type: 'category',
+            categories: ['1950s', '1960s', '1970s', '1980s', '1990s', '2000s'],
+            title: {
+              text: 'Decade'
+            }
+          },
+          yAxis: {
+            type: 'logarithmic',
+            title: {
+              text: 'Streamflow (m3/s)'
+            }
+          },
+          series: []
+        },
+        mkSeason: {
+          chart: {
+            height: 300,
+            marginTop: 20,
+            marginLeft: 70
+          },
+          title: {
+            text: null
+          },
+          tooltip: {
+            valueDecimals: 1,
+            valueSuffix: ' m3/s/yr',
+            shared: true,
+            headerFormat: '<span style="font-size: 10px">Season: {point.key}</span><br/>'
+          },
+          xAxis: {
+            type: 'category',
+            categories: seasons,
+            max: seasons.length - 1,
+            title: {
+              text: 'Season'
+            }
+          },
+          yAxis: [
+            {
+              title: {
+                text: 'Trend Slope (m3/s/yr)'
+              }
+            }
+          ],
+          series: []
+        }
+      }
     }
   },
   methods: {
-    fetchData () {
-      if (!this.selected) {
-        this.dataset = null
-        return
-      }
-      this.$http.get(`/${this.theme.id}/features/${this.selected.id}.json`)
-        .then((response) => {
-          this.dataset = response.data
-        })
-        .catch((err) => {
-          console.log('GagePrimary: error', err)
-          this.dataset = null
-          this.loading = false
-        })
+    updateCharts () {
+      this.clearCharts()
+
+      this.charts.landUse.series = [
+        {
+          name: 'Developed',
+          data: this.values.map(d => d.developed),
+          type: 'line'
+        },
+        {
+          name: 'Hay/Pasture',
+          data: this.values.map(d => d.hay_pasture),
+          type: 'line'
+        },
+        {
+          name: 'Cultivated Cropland',
+          data: this.values.map(d => d.cultivated_cropland),
+          type: 'line'
+        },
+        {
+          name: 'Grassland',
+          data: this.values.map(d => d.grassland),
+          type: 'line'
+        },
+        {
+          name: 'Shrubland',
+          data: this.values.map(d => d.shrubland),
+          type: 'line'
+        },
+        {
+          name: 'Total Forest',
+          data: this.values.map(d => d.total_forest),
+          type: 'line'
+        },
+        {
+          name: 'Total Wetland',
+          data: this.values.map(d => d.total_wetland),
+          type: 'line'
+        },
+        {
+          name: 'Open Water',
+          data: this.values.map(d => d.water),
+          type: 'line'
+        }
+      ]
+      this.charts.ppt.series = [
+        {
+          name: 'Mean Precip',
+          data: this.values.map(d => d.ppt_mean),
+          type: 'line'
+        }
+      ]
+
+      this.charts.temp.series = [
+        {
+          name: 'Mean Air Temp',
+          data: this.values.map(d => d.temp_mean),
+          type: 'line'
+        }
+      ]
+
+      this.charts.qStat.series = [
+        {
+          name: 'Maximum',
+          data: this.values.map(d => d.q_max),
+          type: 'line'
+        },
+        {
+          name: 'Mean',
+          data: this.values.map(d => d.q_L1_mean),
+          type: 'line'
+        },
+        {
+          name: 'Median',
+          data: this.values.map(d => d.q_f50),
+          type: 'line'
+        },
+        {
+          name: 'Median (Non-Zero)',
+          data: this.values.map(d => d.q_median_nonzero),
+          type: 'line'
+        },
+        {
+          name: 'Minimum',
+          data: this.values.map(d => d.q_min),
+          type: 'line'
+        }
+      ]
+
+      this.charts.mkSeason.series = this.values.map(d => ({
+        name: `${d.decade}s`,
+        data: seasons.map(season => d[`mk_${season.toLowerCase()}_slope`]),
+        type: 'line',
+        connectNulls: true,
+        marker: {
+          enabled: true,
+          fillColor: '#FFFFFF',
+          lineWidth: 1,
+          lineColor: null,
+          symbol: 'circle',
+          radius: 3
+        }
+      }))
     }
   }
 }

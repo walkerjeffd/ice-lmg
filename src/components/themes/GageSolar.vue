@@ -19,75 +19,17 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
 import highcharts from 'highcharts'
 
-import IceFeatureContainer from '@/components/IceFeatureContainer'
-import IceFeatureBox from '@/components/IceFeatureBox'
-import IceGagePropertiesBox from '@/components/IceGagePropertiesBox'
+import themeSelect from '@/mixins/themeSelect'
 
-const months = [
-  {
-    value: 'jan',
-    label: 'Jan'
-  },
-  {
-    value: 'feb',
-    label: 'Feb'
-  },
-  {
-    value: 'mar',
-    label: 'Mar'
-  },
-  {
-    value: 'apr',
-    label: 'Apr'
-  },
-  {
-    value: 'may',
-    label: 'May'
-  },
-  {
-    value: 'jun',
-    label: 'Jun'
-  },
-  {
-    value: 'jul',
-    label: 'Jul'
-  },
-  {
-    value: 'aug',
-    label: 'Aug'
-  },
-  {
-    value: 'sep',
-    label: 'Sep'
-  },
-  {
-    value: 'oct',
-    label: 'Oct'
-  },
-  {
-    value: 'nov',
-    label: 'Nov'
-  },
-  {
-    value: 'dec',
-    label: 'Dec'
-  }
-]
+const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
 export default {
   name: 'GageSolar',
-  props: ['selected'],
-  components: {
-    IceFeatureContainer,
-    IceFeatureBox,
-    IceGagePropertiesBox
-  },
+  mixins: [themeSelect],
   data () {
     return {
-      dataset: null,
       charts: {
         solar: {
           chart: {
@@ -124,51 +66,18 @@ export default {
       }
     }
   },
-  computed: {
-    ...mapGetters(['theme'])
-  },
-  watch: {
-    dataset () {
-      this.updateCharts()
-    },
-    selected () {
-      this.updateDataset()
-    }
-  },
-  mounted () {
-    this.updateDataset()
-  },
   beforeDestroy () {
-    this.charts.solar.series = []
     this.charts.solar.yAxis.plotLines = []
   },
   methods: {
-    updateDataset () {
-      if (!this.selected) {
-        this.dataset = null
-        return
-      }
-      return this.$http.get(`/${this.theme.id}/features/${this.selected.id}.json`)
-        .then((response) => {
-          this.dataset = response.data
-        })
-        .catch((err) => {
-          console.log('GageSolar: error', err)
-        })
-    },
     updateCharts () {
-      if (!this.dataset) {
-        this.charts.solar.series = []
-        this.charts.solar.yAxis.plotLines = []
-        return
-      }
-
-      const values = this.dataset.values
+      this.clearCharts()
+      this.charts.solar.yAxis.plotLines = []
 
       this.charts.solar.series = [
         {
           name: 'Mean',
-          data: months.map(m => values[`dni_${m.value}`])
+          data: months.map(m => this.dataset.values[`dni_${m.toLowerCase()}`])
         }
       ]
       this.charts.solar.yAxis.plotLines = [{

@@ -24,23 +24,13 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
-
-import IceFeatureContainer from '@/components/IceFeatureContainer'
-import IceFeatureBox from '@/components/IceFeatureBox'
-import IceGagePropertiesBox from '@/components/IceGagePropertiesBox'
+import themeSelect from '@/mixins/themeSelect'
 
 export default {
   name: 'GageQstat',
-  props: ['selected'],
-  components: {
-    IceFeatureContainer,
-    IceFeatureBox,
-    IceGagePropertiesBox
-  },
+  mixins: [themeSelect],
   data () {
     return {
-      dataset: null,
       charts: {
         mean: {
           chart: {
@@ -103,70 +93,34 @@ export default {
       }
     }
   },
-  computed: {
-    ...mapGetters(['theme'])
-  },
-  watch: {
-    dataset () {
-      this.updateCharts()
-    },
-    selected () {
-      this.updateDataset()
-    }
-  },
-  mounted () {
-    this.updateDataset()
-  },
-  beforeDestroy () {
-    this.charts.quantiles.series = []
-  },
   methods: {
-    updateDataset () {
-      if (!this.selected) {
-        this.dataset = null
-        return
-      }
-      return this.$http.get(`/${this.theme.id}/features/${this.selected.id}.json`)
-        .then((response) => {
-          this.dataset = response.data
-        })
-        .catch((err) => {
-          console.log('GageQstat: error', err)
-        })
-    },
     updateCharts () {
-      if (!this.dataset) {
-        this.charts.mean.series = []
-        this.charts.quantiles.series = []
-        return
-      }
-
-      const values = this.dataset.values
+      this.clearCharts()
 
       this.charts.mean.series = [
         {
           name: 'Maximum',
-          data: values.map(d => d.q_max),
+          data: this.values.map(d => d.q_max),
           type: 'line'
         },
         {
           name: 'Mean',
-          data: values.map(d => d.q_L1_mean),
+          data: this.values.map(d => d.q_L1_mean),
           type: 'line'
         },
         {
           name: 'Median',
-          data: values.map(d => d.q_f50),
+          data: this.values.map(d => d.q_f50),
           type: 'line'
         },
         {
           name: 'Median (Non-Zero)',
-          data: values.map(d => d.q_median_nonzero),
+          data: this.values.map(d => d.q_median_nonzero),
           type: 'line'
         },
         {
           name: 'Minimum',
-          data: values.map(d => d.q_min),
+          data: this.values.map(d => d.q_min),
           type: 'line'
         }
       ]
@@ -201,7 +155,7 @@ export default {
         '99.98'
       ]
 
-      const quantileSeries = values.map(d => ({
+      const quantileSeries = this.values.map(d => ({
         decade: d.decade,
         quantiles: quantiles.map(q => ({
           x: +q,
