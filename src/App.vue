@@ -454,7 +454,7 @@
                     <v-icon right>mdi-chevron-double-right</v-icon>
                   </v-btn>
                 </div>
-                <hr class="my-4" height="1">
+                <v-divider class="my-4"></v-divider>
                 <div v-if="theme.citations">
                   <h3 v-if="theme.citations.length > 1">Citations: </h3>
                   <h3 v-else>Citation: </h3>

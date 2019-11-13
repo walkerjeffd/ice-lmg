@@ -6,6 +6,7 @@
 
     <div v-if="dataset">
       <ice-huc12-properties-box :properties="dataset.properties"></ice-huc12-properties-box>
+
       <ice-feature-box>
         <template v-slot:title>Streamflow Quantiles by Decade</template>
         <highcharts class="chart" :options="charts.quantiles"></highcharts>
@@ -84,7 +85,7 @@ export default {
         decade: d.decade,
         quantiles: quantiles.map(q => ({
           x: +q,
-          y: d[`f${q}`]
+          y: d[`q_f${q}`]
         }))
       }))
 

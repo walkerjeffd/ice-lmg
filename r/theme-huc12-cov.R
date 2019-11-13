@@ -32,10 +32,16 @@ df_dataset <- load_dataset(theme, col_types = cols(
   arrange(id, decade) %>% 
   filter(
     !(id == "031001011006-16808225" & dec_lat_va < 27.0505)
+  ) %>% 
+  mutate(
+    total_forest = deciduous_forest + evergreen_forest + mixed_forest,
+    total_forest = if_else(total_forest > 100, 100, total_forest),
+    total_wetland = herbaceous_wetland + woody_wetland,
+    total_wetland = if_else(total_wetland > 100, 100, total_wetland)
   )
 
 out_dataset <- df_dataset %>% 
-  select(id, decade, variables$df$id)
+  select(id, decade, lat = dec_lat_va, lon = dec_long_va, variables$df$id)
 
 dataset <- list(
   df = df_dataset,
@@ -49,6 +55,7 @@ stopifnot(
     nrow() == 0
 )
 
+
 # layer -------------------------------------------------------------------
 
 layer <- df_dataset %>% 
@@ -59,15 +66,17 @@ layer <- df_dataset %>%
 ggplot(layer$sf) +
   geom_sf()
 
+
 # export ------------------------------------------------------------------
 
 export_theme(theme, variables, dataset, layer)
 
+
 # feature data ------------------------------------------------------------
 
 df_feature <- dataset$out %>% 
-  group_by(id) %>% 
-  nest(.key = "values") %>% 
+  select(-lat, -lon) %>% 
+  nest(values = -id) %>% 
   mutate(
     values = map(values, function (x) {
       x %>% 
@@ -77,3 +86,38 @@ df_feature <- dataset$out %>%
   append_feature_properties(layer)
 
 write_feature_json(theme, df_feature)
+
+
+# variable ranges ---------------------------------------------------------
+
+summary(out_dataset)
+
+# => use max(pretty(values)) for domain ranges
+out_dataset %>% 
+  select(-id, -decade, -lat, -lon) %>% 
+  select_if(is.numeric) %>% 
+  pivot_longer(everything(), "var", "value") %>% 
+  mutate(var = ordered(var, levels = variables$df$id)) %>% 
+  group_by(var) %>% 
+  summarise(
+    min = min(pretty(value)),
+    max = max(pretty(value))
+  ) %>% 
+  # write_csv("~/vars.csv")
+  print(n = Inf)
+
+# pretty log breaks
+out_dataset %>% 
+  select(-id, -decade, -lat, -lon) %>% 
+  select_if(is.numeric) %>% 
+  pivot_longer(everything(), "var", "value") %>% 
+  mutate(var = ordered(var, levels = variables$df$id)) %>% 
+  filter(value > 0) %>%  # POSITIVE NON-ZERO VALUES ONLY
+  group_by(var) %>% 
+  summarise(
+    min_log = min(scales::log_breaks()(value)),
+    max_log = max(scales::log_breaks()(value))
+  ) %>% 
+  # write_csv("~/vars.csv")
+  print(n = Inf)
+

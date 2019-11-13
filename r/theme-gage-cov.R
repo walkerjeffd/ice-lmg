@@ -33,7 +33,9 @@ df_dataset <- load_dataset(theme, col_types = cols(
   arrange(id, decade) %>% 
   mutate(
     total_forest = deciduous_forest + evergreen_forest + mixed_forest,
-    total_wetland = herbaceous_wetland + woody_wetland
+    total_forest = if_else(total_forest > 100, 100, total_forest),
+    total_wetland = herbaceous_wetland + woody_wetland,
+    total_wetland = if_else(total_wetland > 100, 100, total_wetland)
   )
 
 out_dataset <- df_dataset %>% 
@@ -74,7 +76,7 @@ export_theme(theme, variables, dataset, layer)
 # feature data ------------------------------------------------------------
 
 df_feature <- dataset$out %>% 
-  group_by(id) %>% 
+  select(-lat, -lon) %>% 
   nest(values = -id) %>% 
   mutate(
     values = map(values, function (x) {
@@ -101,6 +103,21 @@ out_dataset %>%
   summarise(
     min = min(pretty(value)),
     max = max(pretty(value))
+  ) %>% 
+  # write_csv("~/vars.csv")
+  print(n = Inf)
+
+# pretty log breaks
+out_dataset %>% 
+  select(-id, -decade, -lat, -lon) %>% 
+  select_if(is.numeric) %>% 
+  pivot_longer(everything(), "var", "value") %>% 
+  mutate(var = ordered(var, levels = variables$df$id)) %>% 
+  filter(value > 0) %>%  # POSITIVE NON-ZERO VALUES ONLY
+  group_by(var) %>% 
+  summarise(
+    min_log = min(scales::log_breaks()(value)),
+    max_log = max(scales::log_breaks()(value))
   ) %>% 
   # write_csv("~/vars.csv")
   print(n = Inf)

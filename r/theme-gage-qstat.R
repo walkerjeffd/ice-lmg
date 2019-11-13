@@ -68,7 +68,7 @@ export_theme(theme, variables, dataset, layer)
 # feature data ------------------------------------------------------------
 
 df_feature <- dataset$out %>% 
-  group_by(id) %>% 
+  select(-lat, -lon) %>% 
   nest(values = -id) %>% 
   mutate(
     values = map(values, function (x) {
