@@ -1,7 +1,7 @@
 <template>
   <ice-feature-container v-if="selected" @close="$emit('close')">
     <template v-slot:title>
-      HUC12: {{selected.properties.huc12}}
+      Selected HUC12: {{selected.properties.huc12}}
     </template>
 
     <div v-if="dataset">
@@ -11,9 +11,13 @@
         <v-list dense>
           <v-list-item v-for="variableId in tables.constants.fields" :key="variableId">
             <v-list-item-content class="align-start" width="20">{{ variableById(variableId).label }}:</v-list-item-content>
-            <v-list-item-content class="align-end">{{ dataset.values[0][variableId] }} {{ variableById(variableId).units }}</v-list-item-content>
+            <v-list-item-content class="align-end">{{ variableFormatter(variableId)(dataset.values[0][variableId]) }} {{ variableById(variableId).units }}</v-list-item-content>
           </v-list-item>
         </v-list>
+      </ice-feature-box>
+      <ice-feature-box>
+        <template v-slot:title>Land Use</template>
+        <highcharts class="chart" :options="charts.landUse"></highcharts>
       </ice-feature-box>
       <ice-feature-box>
         <template v-slot:title>Annual Precipitation</template>
@@ -31,24 +35,15 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
 import highcharts from 'highcharts'
 
-import IceFeatureContainer from '@/components/IceFeatureContainer'
-import IceFeatureBox from '@/components/IceFeatureBox'
-import IceHuc12PropertiesBox from '@/components/IceHuc12PropertiesBox'
+import themeSelect from '@/mixins/themeSelect'
 
 export default {
-  name: 'GageCov',
-  props: ['selected'],
-  components: {
-    IceFeatureContainer,
-    IceFeatureBox,
-    IceHuc12PropertiesBox
-  },
+  name: 'Huc12Cov',
+  mixins: [themeSelect],
   data () {
     return {
-      dataset: null,
       tables: {
         constants: {
           fields: [
@@ -65,6 +60,39 @@ export default {
         }
       },
       charts: {
+        landUse: {
+          chart: {
+            height: 300,
+            marginTop: 20,
+            marginLeft: 70
+          },
+          title: {
+            text: null
+          },
+          legend: {
+            enabled: true
+          },
+          tooltip: {
+            valueDecimals: 0,
+            valueSuffix: ' %',
+            shared: true
+          },
+          xAxis: {
+            type: 'category',
+            categories: ['1950s', '1960s', '1970s', '1980s', '1990s', '2000s'],
+            title: {
+              text: 'Decade'
+            }
+          },
+          yAxis: [
+            {
+              title: {
+                text: '%'
+              }
+            }
+          ],
+          series: []
+        },
         ppt: {
           chart: {
             height: 200,
@@ -134,79 +162,100 @@ export default {
       }
     }
   },
-  computed: {
-    ...mapGetters(['theme', 'variableById'])
-  },
-  mounted () {
-    this.fetchData()
-  },
-  watch: {
-    selected () {
-      this.fetchData()
-    }
-  },
   methods: {
-    fetchData () {
-      if (!this.selected) {
-        this.dataset = null
-        return
-      }
-      this.$http.get(`/${this.theme.id}/features/${this.selected.id}.json`)
-        .then((response) => {
-          this.dataset = response.data
-          const pptData = this.dataset.values.map((d, i) => ({
-            mean: d.ppt_mean,
-            sd: d.ppt_sd,
-            low: d.ppt_mean - d.ppt_sd,
-            high: d.ppt_mean + d.ppt_sd
-          }))
-          this.charts.ppt.series = [
-            {
-              name: 'Mean',
-              data: pptData.map(d => d.mean),
-              type: 'line'
-            },
-            {
-              name: 'Std. Dev.',
-              data: pptData,
-              type: 'errorbar',
-              tooltip: {
-                pointFormatter: function () {
-                  return `<span style="color:${this.color}">●</span> ${this.series.name}: <b>+/- ${highcharts.numberFormat(this.sd, 0, '.', ',')} mm</b><br/>`
-                }
-              }
-            }
-          ]
+    updateCharts () {
+      this.clearCharts()
 
-          const tempData = this.dataset.values.map((d, i) => ({
-            mean: d.temp_mean,
-            sd: d.temp_sd,
-            low: d.temp_mean - d.temp_sd,
-            high: d.temp_mean + d.temp_sd
-          }))
-          this.charts.temp.series = [
-            {
-              name: 'Mean',
-              data: tempData.map(d => d.mean),
-              type: 'line'
-            },
-            {
-              name: 'Std. Dev.',
-              data: tempData,
-              type: 'errorbar',
-              tooltip: {
-                pointFormatter: function () {
-                  return `<span style="color:${this.color}">●</span> ${this.series.name}: <b>+/- ${highcharts.numberFormat(this.sd, 1, '.', ',')} degC</b><br/>`
-                }
-              }
+      this.charts.landUse.series = [
+        {
+          name: 'Developed',
+          data: this.values.map(d => d.developed),
+          type: 'line'
+        },
+        {
+          name: 'Hay/Pasture',
+          data: this.values.map(d => d.hay_pasture),
+          type: 'line'
+        },
+        {
+          name: 'Cultivated Cropland',
+          data: this.values.map(d => d.cultivated_cropland),
+          type: 'line'
+        },
+        {
+          name: 'Grassland',
+          data: this.values.map(d => d.grassland),
+          type: 'line'
+        },
+        {
+          name: 'Shrubland',
+          data: this.values.map(d => d.shrubland),
+          type: 'line'
+        },
+        {
+          name: 'Total Forest',
+          data: this.values.map(d => d.total_forest),
+          type: 'line'
+        },
+        {
+          name: 'Total Wetland',
+          data: this.values.map(d => d.total_wetland),
+          type: 'line'
+        },
+        {
+          name: 'Open Water',
+          data: this.values.map(d => d.water),
+          type: 'line'
+        }
+      ]
+
+      const pptData = this.values.map((d, i) => ({
+        mean: d.ppt_mean,
+        sd: d.ppt_sd,
+        low: d.ppt_mean - d.ppt_sd,
+        high: d.ppt_mean + d.ppt_sd
+      }))
+      this.charts.ppt.series = [
+        {
+          name: 'Mean',
+          data: pptData.map(d => d.mean),
+          type: 'line'
+        },
+        {
+          name: 'Std. Dev.',
+          data: pptData,
+          type: 'errorbar',
+          tooltip: {
+            pointFormatter: function () {
+              return `<span style="color:${this.color}">●</span> ${this.series.name}: <b>+/- ${highcharts.numberFormat(this.sd, 0, '.', ',')} mm</b><br/>`
             }
-          ]
-        })
-        .catch((err) => {
-          console.log('GageCov: error', err)
-          this.dataset = null
-          this.loading = false
-        })
+          }
+        }
+      ]
+
+      const tempData = this.values.map((d, i) => ({
+        mean: d.temp_mean,
+        sd: d.temp_sd,
+        low: d.temp_mean - d.temp_sd,
+        high: d.temp_mean + d.temp_sd
+      }))
+      this.charts.temp.series = [
+        {
+          name: 'Mean',
+          data: tempData.map(d => d.mean),
+          type: 'line'
+        },
+        {
+          name: 'Std. Dev.',
+          data: tempData,
+          type: 'errorbar',
+          tooltip: {
+            pointFormatter: function () {
+              return `<span style="color:${this.color}">●</span> ${this.series.name}: <b>+/- ${highcharts.numberFormat(this.sd, 1, '.', ',')} degC</b><br/>`
+            }
+          }
+        }
+      ]
     }
   }
 }

@@ -1,7 +1,7 @@
 <template>
   <ice-feature-container v-if="selected" @close="$emit('close')">
     <template v-slot:title>
-      HUC12: {{selected.properties.huc12}}
+      Selected HUC12: {{selected.properties.huc12}}
     </template>
 
     <div v-if="dataset">
@@ -19,75 +19,17 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
 import highcharts from 'highcharts'
 
-import IceFeatureContainer from '@/components/IceFeatureContainer'
-import IceFeatureBox from '@/components/IceFeatureBox'
-import IceHuc12PropertiesBox from '@/components/IceHuc12PropertiesBox'
+import themeSelect from '@/mixins/themeSelect'
 
-const months = [
-  {
-    value: 'jan',
-    label: 'Jan'
-  },
-  {
-    value: 'feb',
-    label: 'Feb'
-  },
-  {
-    value: 'mar',
-    label: 'Mar'
-  },
-  {
-    value: 'apr',
-    label: 'Apr'
-  },
-  {
-    value: 'may',
-    label: 'May'
-  },
-  {
-    value: 'jun',
-    label: 'Jun'
-  },
-  {
-    value: 'jul',
-    label: 'Jul'
-  },
-  {
-    value: 'aug',
-    label: 'Aug'
-  },
-  {
-    value: 'sep',
-    label: 'Sep'
-  },
-  {
-    value: 'oct',
-    label: 'Oct'
-  },
-  {
-    value: 'nov',
-    label: 'Nov'
-  },
-  {
-    value: 'dec',
-    label: 'Dec'
-  }
-]
+const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
 export default {
   name: 'Huc12Solar',
-  props: ['selected'],
-  components: {
-    IceFeatureContainer,
-    IceFeatureBox,
-    IceHuc12PropertiesBox
-  },
+  mixins: [themeSelect],
   data () {
     return {
-      dataset: null,
       charts: {
         solar: {
           chart: {
@@ -109,7 +51,7 @@ export default {
           },
           xAxis: {
             type: 'category',
-            categories: months.map(d => d.label),
+            categories: months,
             title: {
               text: 'Month'
             }
@@ -124,51 +66,20 @@ export default {
       }
     }
   },
-  computed: {
-    ...mapGetters(['theme'])
-  },
-  watch: {
-    dataset () {
-      this.updateCharts()
-    },
-    selected () {
-      this.updateDataset()
-    }
-  },
-  mounted () {
-    this.updateDataset()
-  },
   beforeDestroy () {
-    this.charts.solar.series = []
     this.charts.solar.yAxis.plotLines = []
   },
   methods: {
-    updateDataset () {
-      if (!this.selected) {
-        this.dataset = null
-        return
-      }
-      return this.$http.get(`/${this.theme.id}/features/${this.selected.id}.json`)
-        .then((response) => {
-          this.dataset = response.data
-        })
-        .catch((err) => {
-          console.log('Huc12Solar: error', err)
-        })
-    },
     updateCharts () {
-      if (!this.dataset) {
-        this.charts.solar.series = []
-        this.charts.solar.yAxis.plotLines = []
-        return
-      }
+      this.clearCharts()
+      this.charts.solar.yAxis.plotLines = []
 
-      const values = this.dataset.values
+      if (!this.dataset) return
 
       this.charts.solar.series = [
         {
           name: 'Mean',
-          data: months.map(m => values[`dni_${m.value}`])
+          data: months.map(m => this.dataset.values[`dni_${m.toLowerCase()}`])
         }
       ]
       this.charts.solar.yAxis.plotLines = [{

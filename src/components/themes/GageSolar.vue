@@ -51,7 +51,7 @@ export default {
           },
           xAxis: {
             type: 'category',
-            categories: months.map(d => d.label),
+            categories: months,
             title: {
               text: 'Month'
             }

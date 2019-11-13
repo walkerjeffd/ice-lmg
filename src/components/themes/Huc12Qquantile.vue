@@ -1,7 +1,7 @@
 <template>
   <ice-feature-container v-if="selected" @close="$emit('close')">
     <template v-slot:title>
-      HUC12: {{selected.properties.huc12}}
+      Selected HUC12: {{selected.properties.huc12}}
     </template>
 
     <div v-if="dataset">
@@ -18,23 +18,13 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
-
-import IceFeatureContainer from '@/components/IceFeatureContainer'
-import IceFeatureBox from '@/components/IceFeatureBox'
-import IceHuc12PropertiesBox from '@/components/IceHuc12PropertiesBox'
+import themeSelect from '@/mixins/themeSelect'
 
 export default {
   name: 'Huc12Qquantile',
-  props: ['selected'],
-  components: {
-    IceFeatureContainer,
-    IceFeatureBox,
-    IceHuc12PropertiesBox
-  },
+  mixins: [themeSelect],
   data () {
     return {
-      dataset: null,
       charts: {
         quantiles: {
           chart: {
@@ -44,9 +34,6 @@ export default {
           },
           title: {
             text: null
-          },
-          legend: {
-            // enabled: false
           },
           tooltip: {
             valueDecimals: 1,
@@ -71,42 +58,9 @@ export default {
       }
     }
   },
-  computed: {
-    ...mapGetters(['theme'])
-  },
-  mounted () {
-    this.updateDataset()
-  },
-  watch: {
-    dataset () {
-      this.updateCharts()
-    },
-    selected () {
-      this.updateDataset()
-    }
-  },
-  beforeDestroy () {
-    this.charts.quantiles.series = []
-  },
   methods: {
-    updateDataset () {
-      if (!this.selected) {
-        this.dataset = null
-        return
-      }
-      return this.$http.get(`/${this.theme.id}/features/${this.selected.id}.json`)
-        .then((response) => {
-          this.dataset = response.data
-        })
-        .catch((err) => {
-          console.log('Huc12Qquantile: error', err)
-        })
-    },
     updateCharts () {
-      if (!this.dataset) {
-        this.charts.quantiles.series = []
-        return
-      }
+      this.clearCharts()
 
       const quantiles = [
         '0.03',
@@ -126,8 +80,7 @@ export default {
         '99.97'
       ]
 
-      const values = this.dataset.values
-      const quantileSeries = values.map(d => ({
+      const quantileSeries = this.values.map(d => ({
         decade: d.decade,
         quantiles: quantiles.map(q => ({
           x: +q,

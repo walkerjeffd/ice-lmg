@@ -208,6 +208,7 @@ export default {
           type: 'line'
         }
       ]
+
       const pptData = this.values.map((d, i) => ({
         mean: d.ppt_mean,
         sd: d.ppt_sd,

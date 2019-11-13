@@ -4,13 +4,15 @@ import { format } from 'd3'
 import IceFeatureContainer from '@/components/IceFeatureContainer'
 import IceFeatureBox from '@/components/IceFeatureBox'
 import IceGagePropertiesBox from '@/components/IceGagePropertiesBox'
+import IceHuc12PropertiesBox from '@/components/IceHuc12PropertiesBox'
 
 export default {
   props: ['selected'],
   components: {
     IceFeatureContainer,
     IceFeatureBox,
-    IceGagePropertiesBox
+    IceGagePropertiesBox,
+    IceHuc12PropertiesBox
   },
   data () {
     return {
