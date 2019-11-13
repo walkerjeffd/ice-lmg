@@ -46,6 +46,7 @@ stopifnot(
 
 stopifnot(all(!is.na(dataset$out)))
 
+
 # layer -------------------------------------------------------------------
 
 layer <- df_dataset %>% 
@@ -56,9 +57,11 @@ layer <- df_dataset %>%
 ggplot(layer$sf) +
   geom_sf()
 
+
 # export ------------------------------------------------------------------
 
 export_theme(theme, variables, dataset, layer)
+
 
 # feature data ------------------------------------------------------------
 

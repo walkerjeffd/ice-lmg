@@ -26,7 +26,7 @@ df_dataset <- load_dataset(theme, col_types = cols(
   )
 
 out_dataset <- df_dataset %>% 
-  select(id, variables$df$id)
+  select(id, lat = dec_lat_va, lon = dec_long_va, variables$df$id)
 
 dataset <- list(
   df = df_dataset,
@@ -39,6 +39,9 @@ stopifnot(
     nrow() == 0
 )
 
+stopifnot(all(!is.na(dataset$out)))
+
+
 # layer -------------------------------------------------------------------
 
 layer <- df_dataset %>% 
@@ -49,18 +52,40 @@ layer <- df_dataset %>%
 ggplot(layer$sf) +
   geom_sf()
 
+
 # export ------------------------------------------------------------------
 
 export_theme(theme, variables, dataset, layer)
 
+
 # feature data ------------------------------------------------------------
 
 df_feature <- dataset$out %>% 
-  group_by(id) %>% 
-  nest(.key = "values") %>% 
+  select(-lat, -lon) %>% 
+  nest(values = -id) %>% 
   mutate(
     values = map(values, ~ as.list(.))
   ) %>% 
   append_feature_properties(layer)
 
 write_feature_json(theme, df_feature)
+
+
+# variable ranges ---------------------------------------------------------
+
+summary(out_dataset)
+
+# => use max(pretty(values)) for domain ranges
+out_dataset %>% 
+  select(-id, -lat, -lon) %>% 
+  select_if(is.numeric) %>% 
+  pivot_longer(everything(), "var", "value") %>% 
+  mutate(var = ordered(var, levels = variables$df$id)) %>% 
+  group_by(var) %>% 
+  summarise(
+    min = min(pretty(value)),
+    max = max(pretty(value))
+  ) %>% 
+  # summary()
+  # write_csv("~/vars.csv")
+  print(n = Inf)
