@@ -74,6 +74,8 @@ export default {
       this.clearCharts()
       this.charts.solar.yAxis.plotLines = []
 
+      if (!this.dataset) return
+
       this.charts.solar.series = [
         {
           name: 'Mean',
