@@ -118,7 +118,7 @@ df_feature <- dataset$out %>%
       ) %>% 
         select(decade, signif, slopePct) %>% 
         nest(qk_annual_slopepct = -c(decade, signif)) %>% 
-        mutate(qk_annual_slopepct = map(slopepct, ~ .$slopePct))
+        mutate(qk_annual_slopepct = map(qk_annual_slopepct, ~ .$slopePct))
       
       list(
         cov = v_cov,
