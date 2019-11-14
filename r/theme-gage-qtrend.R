@@ -55,8 +55,8 @@ read_qk <- function(decade, season) {
     select(gage, everything())
 }
 
-# all resultes
-df_qk_all <- crossing(
+# all results
+df_qk_raw <- crossing(
   decade = seq(1950, 2000, by = 10),
   season = c("Annual", "Spring", "Summer", "Fall", "Winter")
 ) %>% 
@@ -66,7 +66,7 @@ df_qk_all <- crossing(
   unnest(data)
 
 # only min, median, max quantiles
-df_qk <- df_qk_all %>% 
+df_qk_all <- df_qk_raw %>% 
   group_by(season) %>% 
   mutate(
     quantile = case_when(
@@ -84,14 +84,14 @@ df_qk <- df_qk_all %>%
   ) %>% 
   select(id = gage, decade, season, quantile, signif, slopepct = slopePct) 
 
-df_qk_signif <- df_qk %>% 
+df_qk_signif <- df_qk_all %>% 
   mutate(
     slopepct = if_else(signif, slopepct, NA_real_),
     signif = TRUE
   )
 
 df_qk <- bind_rows(
-  df_qk %>% 
+  df_qk_all %>% 
     mutate(signif = FALSE),
   df_qk_signif
 ) %>% 
@@ -149,7 +149,7 @@ read_mk <- function(decade, season) {
 }
 
 # mann-kendall
-df_mk_all <- crossing(
+df_mk_raw <- crossing(
   decade = seq(1950, 2000, by = 10),
   season = c(
     month.abb,
@@ -162,7 +162,7 @@ df_mk_all <- crossing(
   ) %>% 
   unnest(data)
 
-df_mk <- df_mk_all %>% 
+df_mk_all <- df_mk_raw %>% 
   mutate(
     signif = Tau.p < 0.05
   ) %>% 
@@ -170,14 +170,14 @@ df_mk <- df_mk_all %>%
     id = Site, decade, season, signif, slope = SensSlope
   )
 
-df_mk_signif <- df_mk %>% 
+df_mk_signif <- df_mk_all %>% 
   mutate(
     slope = if_else(signif, slope, NA_real_),
     signif = TRUE
   )
 
 df_mk <- bind_rows(
-  df_mk %>% 
+  df_mk_all %>% 
     mutate(signif = FALSE),
   df_mk_signif
 ) %>% 
@@ -249,7 +249,9 @@ out_dataset <- df_dataset %>%
 
 dataset <- list(
   df = df_dataset,
-  out = out_dataset
+  out = out_dataset,
+  qk = df_qk_raw,
+  mk = df_mk_raw
 )
 
 stopifnot(
@@ -275,7 +277,7 @@ df_feature <- dataset$out %>%
         mutate(
           qk_annual_slopepct = map2(decade, signif, function (d, s) {
             if (!s) {
-              x <- df_qk_all %>% 
+              x <- df_qk_raw %>% 
                 filter(
                   gage == i,
                   season == "Annual",
@@ -284,7 +286,7 @@ df_feature <- dataset$out %>%
                 arrange(quantile) %>% 
                 pull(slopePct)  
             } else {
-              x <- df_qk_all %>% 
+              x <- df_qk_raw %>% 
                 filter(
                   gage == i,
                   season == "Annual",

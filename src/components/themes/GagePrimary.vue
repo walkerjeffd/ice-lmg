@@ -11,7 +11,7 @@
         <v-list dense>
           <v-list-item v-for="variableId in tables.constants.fields" :key="variableId">
             <v-list-item-content class="align-start" width="20">{{ variableById(variableId).label }}:</v-list-item-content>
-            <v-list-item-content class="align-end">{{ variableFormatter(variableId)(dataset.values[0][variableId]) }} {{ variableById(variableId).units }}</v-list-item-content>
+            <v-list-item-content class="align-end">{{ variableFormatter(variableId)(dataset.values.cov[0][variableId]) }} {{ variableById(variableId).units }}</v-list-item-content>
           </v-list-item>
         </v-list>
       </ice-feature-box>
@@ -32,8 +32,42 @@
         <highcharts class="chart" :options="charts.qStat"></highcharts>
       </ice-feature-box>
       <ice-feature-box>
-        <template v-slot:title>Streamflow Trends (Mann-Kendall)</template>
-        <highcharts class="chart" :options="charts.mkSeason"></highcharts>
+        <template v-slot:title>Streamflow Trends (Mann-Kendall by Season)</template>
+        <div v-if="values && values.qtrend.mk && values.qtrend.mk.length > 0">
+          <v-card-text>
+            <v-checkbox
+              v-model="signif.mk"
+              label="Significant Trend Results Only (p < 0.05)"
+              hide-details
+              class="mt-0">
+            </v-checkbox>
+          </v-card-text>
+          <highcharts class="chart" :options="charts.mkSeason"></highcharts>
+        </div>
+        <div v-else>
+          <v-card-text>
+            Trend results not available for selected gage
+          </v-card-text>
+        </div>
+      </ice-feature-box>
+      <ice-feature-box>
+        <template v-slot:title>Streamflow Trends (Annual Quantile-Kendall)</template>
+        <div v-if="values && values.qtrend.qk && values.qtrend.qk.length > 0">
+          <v-card-text>
+            <v-checkbox
+              v-model="signif.qk"
+              label="Significant Trend Results Only (p < 0.05)"
+              hide-details
+              class="mt-0">
+            </v-checkbox>
+          </v-card-text>
+          <highcharts class="chart" :options="charts.qkAnnual"></highcharts>
+        </div>
+        <div v-else>
+          <v-card-text>
+            Trend results not available for selected gage
+          </v-card-text>
+        </div>
       </ice-feature-box>
     </div>
     <div v-else>
@@ -52,6 +86,10 @@ export default {
   mixins: [themeSelect],
   data () {
     return {
+      signif: {
+        mk: false,
+        qk: false
+      },
       tables: {
         constants: {
           fields: [
@@ -220,60 +258,99 @@ export default {
             }
           ],
           series: []
+        },
+        qkAnnual: {
+          chart: {
+            height: 300,
+            marginTop: 20,
+            marginLeft: 70
+          },
+          title: {
+            text: null
+          },
+          tooltip: {
+            valueDecimals: 1,
+            valueSuffix: ' %/yr',
+            shared: true,
+            headerFormat: '<span style="font-size: 10px">Rank: {point.x}</span><br/>'
+          },
+          xAxis: {
+            title: {
+              text: 'Rank'
+            }
+          },
+          yAxis: [
+            {
+              title: {
+                text: 'Trend Slope (%/yr)'
+              }
+            }
+          ],
+          series: []
         }
       }
+    }
+  },
+  watch: {
+    'signif.mk' () {
+      this.updateCharts()
+    },
+    'signif.qk' () {
+      this.updateCharts()
     }
   },
   methods: {
     updateCharts () {
       this.clearCharts()
 
+      if (!this.values || this.values.length === 0) return
+
       this.charts.landUse.series = [
         {
           name: 'Developed',
-          data: this.values.map(d => d.developed),
+          data: this.values.cov.map(d => d.developed),
           type: 'line'
         },
         {
           name: 'Hay/Pasture',
-          data: this.values.map(d => d.hay_pasture),
+          data: this.values.cov.map(d => d.hay_pasture),
           type: 'line'
         },
         {
           name: 'Cultivated Cropland',
-          data: this.values.map(d => d.cultivated_cropland),
+          data: this.values.cov.map(d => d.cultivated_cropland),
           type: 'line'
         },
         {
           name: 'Grassland',
-          data: this.values.map(d => d.grassland),
+          data: this.values.cov.map(d => d.grassland),
           type: 'line'
         },
         {
           name: 'Shrubland',
-          data: this.values.map(d => d.shrubland),
+          data: this.values.cov.map(d => d.shrubland),
           type: 'line'
         },
         {
           name: 'Total Forest',
-          data: this.values.map(d => d.total_forest),
+          data: this.values.cov.map(d => d.total_forest),
           type: 'line'
         },
         {
           name: 'Total Wetland',
-          data: this.values.map(d => d.total_wetland),
+          data: this.values.cov.map(d => d.total_wetland),
           type: 'line'
         },
         {
           name: 'Open Water',
-          data: this.values.map(d => d.water),
+          data: this.values.cov.map(d => d.water),
           type: 'line'
         }
       ]
       this.charts.ppt.series = [
         {
           name: 'Mean Precip',
-          data: this.values.map(d => d.ppt_mean),
+          data: this.values.cov.map(d => d.ppt_mean),
           type: 'line'
         }
       ]
@@ -281,7 +358,7 @@ export default {
       this.charts.temp.series = [
         {
           name: 'Mean Air Temp',
-          data: this.values.map(d => d.temp_mean),
+          data: this.values.cov.map(d => d.temp_mean),
           type: 'line'
         }
       ]
@@ -289,45 +366,55 @@ export default {
       this.charts.qStat.series = [
         {
           name: 'Maximum',
-          data: this.values.map(d => d.q_max),
+          data: this.values.qstat.map(d => d.q_max),
           type: 'line'
         },
         {
           name: 'Mean',
-          data: this.values.map(d => d.q_L1_mean),
+          data: this.values.qstat.map(d => d.q_L1_mean),
           type: 'line'
         },
         {
           name: 'Median',
-          data: this.values.map(d => d.q_f50),
+          data: this.values.qstat.map(d => d.q_f50),
           type: 'line'
         },
         {
           name: 'Median (Non-Zero)',
-          data: this.values.map(d => d.q_median_nonzero),
+          data: this.values.qstat.map(d => d.q_median_nonzero),
           type: 'line'
         },
         {
           name: 'Minimum',
-          data: this.values.map(d => d.q_min),
+          data: this.values.qstat.map(d => d.q_min),
           type: 'line'
         }
       ]
 
-      this.charts.mkSeason.series = this.values.map(d => ({
-        name: `${d.decade}s`,
-        data: seasons.map(season => d[`mk_${season.toLowerCase()}_slope`]),
-        type: 'line',
-        connectNulls: true,
-        marker: {
-          enabled: true,
-          fillColor: '#FFFFFF',
-          lineWidth: 1,
-          lineColor: null,
-          symbol: 'circle',
-          radius: 3
-        }
-      }))
+      this.charts.mkSeason.series = this.values.qtrend.mk
+        .filter(d => d.signif === this.signif.mk)
+        .map(d => ({
+          name: `${d.decade}s`,
+          data: seasons.map(season => d[`mk_${season.toLowerCase()}_slope`]),
+          type: 'line',
+          connectNulls: true,
+          marker: {
+            enabled: true,
+            fillColor: '#FFFFFF',
+            lineWidth: 1,
+            lineColor: null,
+            symbol: 'circle',
+            radius: 3
+          }
+        }))
+
+      this.charts.qkAnnual.series = this.values.qtrend.qk
+        .filter(d => d.signif === this.signif.qk)
+        .map(d => ({
+          name: `${d.decade}s`,
+          data: d.qk_annual_slopepct,
+          type: 'line'
+        }))
     }
   }
 }

@@ -2,7 +2,7 @@
   <div>
     <v-checkbox
       v-model="value"
-      label="Show Significant Trend Results Only (p < 0.05)"
+      label="Significant Trend Results Only (p < 0.05)"
       hide-details>
     </v-checkbox>
   </div>

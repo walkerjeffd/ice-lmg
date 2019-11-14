@@ -201,5 +201,5 @@ append_feature_properties <- function(df, layer) {
         ),
       by = "id"
     ) %>% 
-    select(id, properties, values)
+    select(id, properties, everything())
 }
