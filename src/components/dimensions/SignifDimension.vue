@@ -34,7 +34,6 @@ export default {
   },
   methods: {
     update () {
-      console.log('signif-dimension: update()', this.value)
       this.dim.filterExact(this.value)
       evt.$emit('map:render')
       evt.$emit('xf:filter')
