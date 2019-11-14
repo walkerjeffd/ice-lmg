@@ -81,8 +81,8 @@ export default new Vuex.Store({
                   x.decade = d.decade
                 }
 
-                if (theme.dimensions.mklevel) {
-                  x.mklevel = d.mklevel
+                if (theme.dimensions.signif) {
+                  x.signif = d.signif === 'TRUE'
                 }
 
                 theme.variables.forEach(v => {

@@ -79,17 +79,33 @@ df_qk <- df_qk_all %>%
   ungroup() %>% 
   mutate(season = tolower(season)) %>% 
   filter(!is.na(quantile)) %>% 
-  select(decade, id = gage, season, quantile, slopepct = slopePct) %>% 
-  pivot_longer(slopepct, "var", "value") %>% 
+  mutate(
+    signif = pValueAdj < 0.05
+  ) %>% 
+  select(id = gage, decade, season, quantile, signif, slopepct = slopePct) 
+
+df_qk_signif <- df_qk %>% 
+  mutate(
+    slopepct = if_else(signif, slopepct, NA_real_),
+    signif = TRUE
+  )
+
+df_qk <- bind_rows(
+  df_qk %>% 
+    mutate(signif = FALSE),
+  df_qk_signif
+) %>% 
+  pivot_longer(c(slopepct), "var", "value") %>% 
   unite("var", c(season, quantile, var)) %>% 
   mutate(var = str_c("qk_", var)) %>% 
-  pivot_wider(names_from = var, values_from = value)
+  pivot_wider(names_from = var, values_from = value) %>% 
+  arrange(id, decade, signif)
 
 qk_vars <- crossing(
   test = "qk",
   season = c("Spring", "Summer", "Fall", "Winter", "Annual"),
   quantile = c("Min", "Median", "Max"),
-  var = "slopepct"
+  var = c("slopepct")
 ) %>%
   mutate(
     var = tolower(str_c(test, season, quantile, var, sep = "_")),
@@ -98,14 +114,15 @@ qk_vars <- crossing(
   ) %>% 
   left_join(
     df_qk %>% 
+      filter(signif) %>% 
       pivot_longer(c(-decade, -id), "var", "value") %>% 
       group_by(var) %>% 
       summarise(
-        min = min(value),
-        q01 = quantile(value, prob = 0.01),
-        median = quantile(value, prob = 0.5),
-        q99 = quantile(value, prob = 0.99),
-        max = max(value)
+        min = min(value, na.rm = TRUE),
+        q01 = quantile(value, prob = 0.01, na.rm = TRUE),
+        median = quantile(value, prob = 0.5, na.rm = TRUE),
+        q99 = quantile(value, prob = 0.99, na.rm = TRUE),
+        max = max(value, na.rm = TRUE)
       ),
     by = "var"
   ) %>% 
@@ -132,7 +149,7 @@ read_mk <- function(decade, season) {
 }
 
 # mann-kendall
-df_mk <- crossing(
+df_mk_all <- crossing(
   decade = seq(1950, 2000, by = 10),
   season = c(
     month.abb,
@@ -143,16 +160,33 @@ df_mk <- crossing(
   mutate(
     data = map2(decade, season, read_mk)
   ) %>% 
-  unnest(data) %>% 
-  select(
-    decade, id = Site, season, slope = SensSlope
+  unnest(data)
+
+df_mk <- df_mk_all %>% 
+  mutate(
+    signif = Tau.p < 0.05
   ) %>% 
+  select(
+    id = Site, decade, season, signif, slope = SensSlope
+  )
+
+df_mk_signif <- df_mk %>% 
+  mutate(
+    slope = if_else(signif, slope, NA_real_),
+    signif = TRUE
+  )
+
+df_mk <- bind_rows(
+  df_mk %>% 
+    mutate(signif = FALSE),
+  df_mk_signif
+) %>% 
   pivot_longer(c(slope), "var", "value") %>% 
   mutate(season = tolower(season)) %>% 
   unite("var", c(season, var)) %>%
   mutate(var = str_c("mk_", var)) %>% 
-  pivot_wider(names_from = var, values_from = value)
-
+  pivot_wider(names_from = var, values_from = value) %>% 
+  arrange(id, decade, signif)
 
 mk_vars <- crossing(
   test = "mk",
@@ -161,7 +195,7 @@ mk_vars <- crossing(
     c("Spring", "Summer", "Fall", "Winter"),
     glue("Q{sprintf('%02d', 10*(0:10))}")
   ),
-  var = "slope"
+  var = c("slope")
 ) %>%
   mutate(
     var = tolower(str_c(test, season, var, sep = "_")),
@@ -170,14 +204,15 @@ mk_vars <- crossing(
   ) %>% 
   left_join(
     df_mk %>% 
+      filter(signif) %>% 
       pivot_longer(c(-decade, -id), "var", "value") %>% 
       group_by(var) %>% 
       summarise(
-        min = min(value),
-        q01 = quantile(value, prob = 0.01),
-        median = quantile(value, prob = 0.5),
-        q99 = quantile(value, prob = 0.99),
-        max = max(value)
+        min = min(value, na.rm = TRUE),
+        q01 = quantile(value, prob = 0.01, na.rm = TRUE),
+        median = quantile(value, prob = 0.5, na.rm = TRUE),
+        q99 = quantile(value, prob = 0.99, na.rm = TRUE),
+        max = max(value, na.rm = TRUE)
       ),
     by = "var"
   ) %>% 
@@ -197,7 +232,7 @@ setdiff(df_qk$id, df_mk$id)
 
 df_dataset <- full_join(
   df_mk, df_qk,
-  by = c("decade", "id")
+  by = c("id", "decade", "signif")
 )
 
 stopifnot(all(df_layer$id %in% unique(df_dataset$id)))
@@ -209,7 +244,8 @@ out_dataset <- df_dataset %>%
       select(id, lat = dec_lat_va, lon = dec_long_va),
     by = "id"
   ) %>% 
-  select(id, lat, lon, decade, variables$df$id)
+  select(id, lat, lon, decade, signif, variables$df$id) %>% 
+  arrange(id, decade, signif)
 
 dataset <- list(
   df = df_dataset,
@@ -218,76 +254,47 @@ dataset <- list(
 
 stopifnot(
   dataset$out %>% 
-    mutate(id_decade = str_c(id, decade, sep = "-")) %>% 
-    filter(duplicated(id_decade)) %>% 
+    mutate(id_decade_signif = str_c(id, decade, signif, sep = "-")) %>% 
+    filter(duplicated(id_decade_signif)) %>% 
     nrow() == 0
 )
-
-# df_vars <- bind_rows(
-#   qk_vars,
-#   mk_vars
-# )
-# 
-# write_csv(df_vars, "../data/huc12-qquantile/r-vars.csv")
 
 # export ------------------------------------------------------------------
 
 export_theme(theme, variables, dataset, layer)
 
 # feature data ------------------------------------------------------------
-# 
-# df_feature <- dataset$out %>% 
-#   mutate(
-#     mklevel = ordered(mklevel, levels = c(months, seasons, quantiles))
-#   ) %>%
-#   arrange(id, mklevel, decade) %>% 
-#   nest(values = -id) %>% 
-#   mutate(
-#     values = map(values, function (x) {
-#       x %>% 
-#         mutate(
-#           group = case_when(
-#             mklevel %in% seasons ~ "season",
-#             mklevel %in% months ~ "month",
-#             mklevel %in% quantiles ~ "quantile"
-#           )
-#         ) %>% 
-#         group_by(decade, group) %>% 
-#         nest() %>% 
-#         # converts group: {mklevel:{}} to group [{mklevel}, {mklevel}]
-#         mutate(
-#           data = map(data, function (y) {
-#             y %>%
-#               group_by(mklevel) %>%
-#               nest() %>%
-#               mutate(data = map(data, ~ as.list(.))) %>%
-#               spread(mklevel, data) %>%
-#               flatten()
-#           })
-#         ) %>%
-#         spread(group, data)
-#     })
-#   ) %>% 
-#   append_feature_properties(layer)
 
 df_feature <- dataset$out %>% 
   select(-lat, -lon) %>% 
-  group_by(id) %>% 
   nest(values = -id) %>% 
   mutate(
     values = map2(id, values, function (i, v) {
       v %>% 
-        arrange(decade) %>% 
+        arrange(decade, signif) %>% 
         mutate(
-          qk_annual_slopepct = map(decade, function (d) {
-            df_qk_all %>% 
-              filter(
-                gage == i,
-                season == "Annual",
-                decade == d
-              ) %>% 
-              arrange(quantile) %>% 
-              pull(slopePct)
+          qk_annual_slopepct = map2(decade, signif, function (d, s) {
+            if (!s) {
+              x <- df_qk_all %>% 
+                filter(
+                  gage == i,
+                  season == "Annual",
+                  decade == d
+                ) %>% 
+                arrange(quantile) %>% 
+                pull(slopePct)  
+            } else {
+              x <- df_qk_all %>% 
+                filter(
+                  gage == i,
+                  season == "Annual",
+                  decade == d
+                ) %>% 
+                arrange(quantile) %>% 
+                mutate(slopePct = if_else(pValueAdj < 0.05, slopePct, NA_real_)) %>% 
+                pull(slopePct)  
+            }
+            x
           })
         )
     })
@@ -297,23 +304,21 @@ df_feature <- dataset$out %>%
 write_feature_json(theme, df_feature)
 
 
-df_qk_all
-
-
 # variable ranges ---------------------------------------------------------
 
 summary(out_dataset)
 
 # => use max(pretty(values)) for domain ranges
 out_dataset %>% 
-  select(-id, -decade, -lat, -lon) %>% 
+  filter(signif) %>% 
+  select(-id, -decade, -lat, -lon, -signif) %>% 
   select_if(is.numeric) %>% 
   pivot_longer(everything(), "var", "value") %>% 
   mutate(var = ordered(var, levels = variables$df$id)) %>% 
   group_by(var) %>% 
   filter(
-    value >= quantile(value, probs = 0.1, na.rm = TRUE),
-    value <= quantile(value, probs = 0.9, na.rm = TRUE)
+    value >= quantile(value, probs = 0.05, na.rm = TRUE),
+    value <= quantile(value, probs = 0.95, na.rm = TRUE)
   ) %>% 
   summarise(
     min = min(pretty(value)),
@@ -323,30 +328,3 @@ out_dataset %>%
   ) %>% 
   # write_csv("~/vars.csv")
   print(n = Inf)
-
-# pretty log breaks
-out_dataset %>% 
-  select(-id, -decade, -lat, -lon) %>% 
-  select_if(is.numeric) %>% 
-  pivot_longer(everything(), "var", "value") %>% 
-  mutate(var = ordered(var, levels = variables$df$id)) %>% 
-  filter(value > 0) %>%  # POSITIVE NON-ZERO VALUES ONLY
-  group_by(var) %>% 
-  summarise(
-    min_log = min(scales::log_breaks()(value)),
-    max_log = max(scales::log_breaks()(value))
-  ) %>% 
-  # write_csv("~/vars.csv")
-  print(n = Inf)
-
-
-out_dataset %>% 
-  select(-id, -decade, -lat, -lon) %>% 
-  select_if(is.numeric) %>% 
-  select(starts_with("mk_")) %>% 
-  pivot_longer(everything(), "var", "value") %>% 
-  mutate(var = ordered(var, levels = variables$df$id)) %>% 
-  ggplot(aes(value)) +
-  geom_histogram() +
-  facet_wrap(vars(var), scales = "free")
-

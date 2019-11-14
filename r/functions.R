@@ -97,10 +97,6 @@ transform_variables <- function(df) {
       formats = list(
         text = df$formats_text[.],
         axis = df$formats_axis[.]
-      ),
-      dimensions = list(
-        decade = df$dims_decade[.],
-        mklevel = df$dims_mklevel[.]
       )
     )) 
   }
@@ -167,7 +163,7 @@ export_theme <- function (theme, variables, dataset, layer) {
     ),
     dimensions = list(
       decade = theme$config$dims_decade,
-      mklevel = theme$config$dims_mklevel
+      signif = theme$config$dims_signif
     ),
     variables = variables$config
   ) %>% 

@@ -1,7 +1,7 @@
 import * as crossfilter from 'crossfilter2'
 
 const xf = crossfilter()
-
+window.xf = xf
 const byFeature = {
   map: new Map()
 }

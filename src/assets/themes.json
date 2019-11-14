@@ -73,12 +73,27 @@
     "name": "HUC12 Basins",
     "children": [
       {
+        "id": "huc12-primary",
+        "name": "Primary Dataset",
+        "description": "A combination of the primary variables from the various HUC12 dataset.",
+        "citations": [
+          {
+            "text": "Crowley-Ornelas, E.R., Worland, S.C., Wieczorek, M.E., Asquith, W.H., Knight, R.R., 2019, Summary of basin characteristics for National Hydrography Dataset, version 2 catchments in the Southeastern United States, 1950 - 2010: U.S. Geological Survey data release.",
+            "url": "https://doi.org/10.5066/P9KXTDU4"
+          },
+          {
+            "text": "Worland, S.C., Knight, R.R., and Asquith, W.H., 2019, Estimated quantiles for the pour points of 9,203 level-12 hydrologic unit codes in the southeastern United States, 1950--2009: U.S. Geological Survey data release.",
+            "url": "https://doi.org/10.5066/P9YGKZZV"
+          }
+        ]
+      },
+      {
         "id": "huc12-cov",
         "name": "Basin Characteristics",
         "description": "This dataset provides numerical and categorical descriptions of 48 basin characteristics for 9,314 ungaged basins coinciding with 12-digit hydrologic unit code (HUC12) pour points that drain to the Gulf of Mexico. Characteristics are indexed by National Hydrography Dataset (NHD) version 2 COMID (integer that uniquely identifies each feature in the NHD) and HUC12 identifying number. The variables represent mutable and immutable basin characteristics and are organized by characteristic type: physical (5), hydrologic (6), categorical (12), climate (6), landscape alteration (7), and land cover (12). Mutable characteristics such as climate, land cover, and landscape alteration variables are reported in decadal increments (for example, average percent forest for the decade 1950-1959, 1960-1969, etc). The majority of basin characteristics in this dataset were calculated using divergence-routing methods and are often referred to as “network-accumulated”. This method uses a modified routing database to navigate the NHDPlus reach network to aggregate (accumulate) the values derived from the reach catchment scale (Schwarz, G.E., and Wieczorek, M.E., 2018, Database of modified routing for NHDPlus version 2.1 flowlines: ENHDPlusV2_us: U.S. Geological Survey data release, https://doi.org/10.5066/P9PA63SM ). In four instances, values are also provided for the entire catchment above a site and area designated using the “CAT_” prefix.",
         "citations": [
           {
-            "text": "Summary of basin characteristics for National Hydrography Dataset, version 2 catchments in the southeastern United States, 1950 - 2010 at 12-digit hydrologic unit code (HUC12) pour Crowley-Ornelas, E.R., Worland, S.C., Wieczorek, M.E., Asquith, W.H., Knight, R.R., 2019, Summary of basin characteristics for National Hydrography Dataset, version 2 catchments in the Southeastern United States, 1950 - 2010: U.S. Geological Survey data release.",
+            "text": "Crowley-Ornelas, E.R., Worland, S.C., Wieczorek, M.E., Asquith, W.H., Knight, R.R., 2019, Summary of basin characteristics for National Hydrography Dataset, version 2 catchments in the Southeastern United States, 1950 - 2010: U.S. Geological Survey data release.",
             "url": "https://doi.org/10.5066/P9KXTDU4"
           }
         ]

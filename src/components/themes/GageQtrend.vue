@@ -7,6 +7,17 @@
     <div v-if="dataset">
       <ice-gage-properties-box :properties="dataset.properties"></ice-gage-properties-box>
       <ice-feature-box>
+        <template v-slot:title>Settings</template>
+        <v-card-text>
+          <v-checkbox
+            v-model="signif"
+            label="Show Significant Trend Results Only (p < 0.05)"
+            hide-details
+            class="mt-0">
+          </v-checkbox>
+        </v-card-text>
+      </ice-feature-box>
+      <ice-feature-box>
         <template v-slot:title>Mann-Kendall: Monthly</template>
         <highcharts class="chart" :options="charts.month"></highcharts>
       </ice-feature-box>
@@ -43,6 +54,7 @@ export default {
   mixins: [themeSelect],
   data () {
     return {
+      signif: false,
       charts: {
         season: {
           chart: {
@@ -168,61 +180,70 @@ export default {
       }
     }
   },
+  watch: {
+    signif () {
+      this.updateCharts()
+    }
+  },
   methods: {
     updateCharts () {
       this.clearCharts()
 
-      this.charts.season.series = this.values.map(d => ({
-        name: `${d.decade}s`,
-        data: seasons.map(season => d[`mk_${season.toLowerCase()}_slope`]),
-        type: 'line',
-        connectNulls: true,
-        marker: {
-          enabled: true,
-          fillColor: '#FFFFFF',
-          lineWidth: 1,
-          lineColor: null,
-          symbol: 'circle',
-          radius: 3
-        }
-      }))
+      this.charts.season.series = this.values
+        .filter(d => d.signif === this.signif)
+        .map(d => ({
+          name: `${d.decade}s`,
+          data: seasons.map(season => d[`mk_${season.toLowerCase()}_slope`]),
+          type: 'line',
+          marker: {
+            enabled: true,
+            fillColor: '#FFFFFF',
+            lineWidth: 1,
+            lineColor: null,
+            symbol: 'circle',
+            radius: 3
+          }
+        }))
 
-      this.charts.month.series = this.values.map(d => ({
-        name: `${d.decade}s`,
-        data: months.map(month => d[`mk_${month.toLowerCase()}_slope`]),
-        type: 'line',
-        connectNulls: true,
-        marker: {
-          enabled: true,
-          fillColor: '#FFFFFF',
-          lineWidth: 1,
-          lineColor: null,
-          symbol: 'circle',
-          radius: 3
-        }
-      }))
+      this.charts.month.series = this.values
+        .filter(d => d.signif === this.signif)
+        .map(d => ({
+          name: `${d.decade}s`,
+          data: months.map(month => d[`mk_${month.toLowerCase()}_slope`]),
+          type: 'line',
+          marker: {
+            enabled: true,
+            fillColor: '#FFFFFF',
+            lineWidth: 1,
+            lineColor: null,
+            symbol: 'circle',
+            radius: 3
+          }
+        }))
 
-      this.charts.quantile.series = this.values.map(d => ({
-        name: `${d.decade}s`,
-        data: quantiles.map(quantile => [quantile, d[`mk_q${format('02d')(quantile)}_slope`]]),
-        type: 'line',
-        connectNulls: true,
-        marker: {
-          enabled: true,
-          fillColor: '#FFFFFF',
-          lineWidth: 1,
-          lineColor: null,
-          symbol: 'circle',
-          radius: 3
-        }
-      }))
+      this.charts.quantile.series = this.values
+        .filter(d => d.signif === this.signif)
+        .map(d => ({
+          name: `${d.decade}s`,
+          data: quantiles.map(quantile => [quantile, d[`mk_q${format('02d')(quantile)}_slope`]]),
+          type: 'line',
+          marker: {
+            enabled: true,
+            fillColor: '#FFFFFF',
+            lineWidth: 1,
+            lineColor: null,
+            symbol: 'circle',
+            radius: 3
+          }
+        }))
 
-      this.charts.qkAnnual.series = this.values.map(d => ({
-        name: `${d.decade}s`,
-        data: d.qk_annual_slopepct,
-        type: 'line',
-        connectNulls: true
-      }))
+      this.charts.qkAnnual.series = this.values
+        .filter(d => d.signif === this.signif)
+        .map(d => ({
+          name: `${d.decade}s`,
+          data: d.qk_annual_slopepct,
+          type: 'line'
+        }))
     }
   }
 }

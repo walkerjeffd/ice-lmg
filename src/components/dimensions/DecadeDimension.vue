@@ -1,6 +1,5 @@
 <template>
   <div>
-    <!-- <v-subheader class="pa-0 ma-0"></v-subheader> -->
     Select decade...
     <v-slider
       v-model="value"

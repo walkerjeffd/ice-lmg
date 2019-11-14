@@ -48,30 +48,19 @@
                 </v-row>
               </v-container>
             </v-card>
-            <v-card class="ice-card elevation-10 mt-2">
+            <v-card class="ice-card elevation-10 mt-2 pb-0">
               <v-toolbar dark dense color="primary">
                 <h4>Dataset: <span v-if="theme">{{ theme.title }}</span><span v-else>None</span></h4>
-                <!-- <strong>Current Dataset</strong>:
-                <span v-if="loading.theme">Loading... <v-progress-circular indeterminate color="primary" :size="20" class="ml-2"></v-progress-circular></span>
-                <span v-else-if="error.theme"><v-icon color="error" size="19">mdi-alert</v-icon> {{error.theme}}</span>
-                <span v-else-if="theme">{{ theme.title }}</span>
-                <span v-else>None</span> -->
               </v-toolbar>
-              <v-card-text v-if="theme" class="pb-0">
+              <v-card-text v-if="theme">
                 <decade-dimension v-if="theme.dimensions.decade"></decade-dimension>
+                <signif-dimension v-if="theme.dimensions.signif"></signif-dimension>
               </v-card-text>
               <v-divider></v-divider>
               <v-card-actions>
-                <!-- <v-btn small outlined text color="primary">
-                  <v-icon left small>mdi-information</v-icon> About Dataset
-                </v-btn>
-                <v-spacer></v-spacer> -->
                 <v-btn small outlined text color="primary" @click="dialogs.theme = true">
                   <v-icon left small>mdi-folder-open</v-icon> Open Dataset Browser
                 </v-btn>
-                <!-- <v-btn small outlined text color="primary" @click="clearTheme" v-if="theme">
-                  <v-icon left small>mdi-close</v-icon> Close
-                </v-btn> -->
                 <v-spacer></v-spacer>
                 <v-btn small outlined text color="primary" v-if="theme" @click="dialogs.download = true">
                   <v-icon left small>mdi-download</v-icon> Download
@@ -165,7 +154,7 @@
                 </v-btn>
               </v-toolbar>
               <v-card-text v-if="!debug.hide">
-                <pre>{{ $vuetify.application.top }}</pre>
+                <pre></pre>
               </v-card-text>
             </v-card>
           </v-col>
@@ -498,6 +487,7 @@ import IceFilter from '@/components/IceFilter'
 import IceLegendBox from '@/components/IceLegendBox'
 
 import DecadeDimension from '@/components/dimensions/DecadeDimension'
+import SignifDimension from '@/components/dimensions/SignifDimension'
 
 import TrendVariable from '@/components/TrendVariable'
 
@@ -528,6 +518,7 @@ export default {
     IceFilter,
     IceLegendBox,
     DecadeDimension,
+    SignifDimension,
     TrendVariable,
     GagePrimary,
     GageCov,
@@ -694,6 +685,7 @@ export default {
       const variable = this.$store.getters.variableById(id)
       if (!variable) return
       this.variable = variable
+      this.updateCounts()
     },
     downloadDataset (filtered) {
       downloadDataset(filtered, this.theme)
