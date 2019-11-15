@@ -51,12 +51,17 @@
             <v-card class="ice-card elevation-10 mt-2 pb-0">
               <v-toolbar dark dense color="primary">
                 <h4>Dataset: <span v-if="theme">{{ theme.title }}</span><span v-else>None</span></h4>
+                <v-spacer></v-spacer>
+                <v-btn icon small @click="collapse.dataset = !collapse.dataset">
+                  <v-icon small v-if="!collapse.dataset">mdi-menu-up</v-icon>
+                  <v-icon small v-else>mdi-menu-down</v-icon>
+                </v-btn>
               </v-toolbar>
-              <v-card-text v-if="theme">
+              <v-card-text v-if="theme && !collapse.dataset && (theme.dimensions.decade || theme.dimensions.signif)">
                 <decade-dimension v-if="theme.dimensions.decade"></decade-dimension>
                 <signif-dimension v-if="theme.dimensions.signif"></signif-dimension>
               </v-card-text>
-              <v-divider></v-divider>
+              <v-divider v-if="!collapse.dataset && (theme.dimensions.decade || theme.dimensions.signif)"></v-divider>
               <v-card-actions>
                 <v-btn small outlined text color="primary" @click="dialogs.theme = true">
                   <v-icon left small>mdi-folder-open</v-icon> Open Dataset Browser
@@ -144,16 +149,16 @@
               </v-tabs>
             </v-card>
             <ice-legend-box v-if="theme"></ice-legend-box>
-            <v-card class="ice-card elevation-10 mt-2" v-if="debug.visible">
+            <v-card class="ice-card elevation-10 mt-2" v-if="debug">
               <v-toolbar dense dark color="red darken-4">
                 <h4>Debug</h4>
                 <v-spacer></v-spacer>
-                <v-btn icon small @click="debug.hide = !debug.hide">
-                  <v-icon small v-if="!debug.hide">mdi-menu-up</v-icon>
+                <v-btn icon small @click="collapse.debug = !collapse.debug">
+                  <v-icon small v-if="!collapse.debug">mdi-menu-up</v-icon>
                   <v-icon small v-else>mdi-menu-down</v-icon>
                 </v-btn>
               </v-toolbar>
-              <v-card-text v-if="!debug.hide">
+              <v-card-text v-if="!collapse.debug">
                 <pre></pre>
               </v-card-text>
             </v-card>
@@ -264,14 +269,13 @@
           <p class="ml-4">
             Kirk D. Rodgers, PhD<br>
             Hydrologist, and Eastern Region Diversity Subcouncil Chairman<br>
-            U.S. Geological Survey Lower Mississippi-Gulf Water Science Center<br>
+            <a href="https://www.usgs.gov/centers/lmg-water" target="_blank">U.S. Geological Survey Lower Mississippi-Gulf Water Science Center</a><br>
             E-mail: <a href="mailto:krodgers@usgs.gov">krodgers@usgs.gov</a>
           </p>
           <h4>Site Administrator</h4>
           <p class="ml-4">
             Jeffrey D. Walker, PhD<br>
             Environmental Data Scientist<br>
-            <a href="https://ecosheds.org" target="_blank">Spatial Hydro-Ecological Decision System (SHEDS)</a><br>
             <a href="https://walkerenvres.com" target="_blank">Walker Environmental Research, LLC</a><br>
             E-mail: <a href="mailto:jeff@walkerenvres.com">jeff@walkerenvres.com</a>
           </p>
@@ -531,19 +535,17 @@ export default {
     Huc12Solar
   },
   data: () => ({
-    filters: [],
-    debug: {
-      // visible: process.env.NODE_ENV === 'development',
-      visible: false,
-      hide: true
+    // debug: process.env.NODE_ENV === 'development',
+    debug: false,
+    collapse: {
+      dataset: false,
+      debug: false
     },
     tabs: {
       active: 0,
       hide: false
     },
-    legend: {
-      hide: false
-    },
+    filters: [],
     leftSidebar: {
       open: true,
       items: [

@@ -74,7 +74,9 @@ export default new Vuex.Store({
               return csvParse(csvString, (d, i) => {
                 const x = {
                   $index: i,
-                  id: d.id
+                  id: d.id,
+                  lat: d.lat,
+                  lon: d.lon
                 }
 
                 if (theme.dimensions.decade) {

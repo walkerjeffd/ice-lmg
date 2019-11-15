@@ -25,20 +25,30 @@ export function downloadDataset (filtered, theme) {
 
   const dataCsv = json2csv.parse(data, { fields: dataFields })
 
-  let variables = [{ id: 'id', label: 'Unique gage or HUC12 ID' }]
+  let variables = [
+    { id: 'id', label: 'Unique gage or HUC12 ID' },
+    { id: 'lat', label: 'Latitude' },
+    { id: 'lon', label: 'Longitude' }
+  ]
   if (theme.dimensions.decade) {
     variables.push({ id: 'decade', label: 'Decade' })
   }
+  if (theme.dimensions.signif) {
+    variables.push({ id: 'signif', label: 'Significant (p < 0.05) trend results only (if TRUE then trend slope columns will only include significant (p >= 0.05) results; otherwise all trend slopes are included regardless of p-value; does not affect columns from other datasets which will have the same values for signif=TRUE or FALSE)' })
+  }
   variables = [...variables, ...theme.variables]
-  const variableLines = variables.map(d => `# ${d.id}: ${d.label} (${d.units ? d.units : 'no units'})`)
+  const variableLines = variables.map(d => `# ${d.id}: ${d.label}${d.units ? ' (' + d.units + ')' : ''}`)
 
   let headerLines = [
     '# USGS LMGWSC Data Visualization Tool',
     `# Downloaded At: ${timeFormat('%m/%d/%Y %H:%M:%S')(d)}`,
     '#',
+    `# Dataset: ${theme.title}`,
     '#',
-    '# Column Descriptions',
+    '# Citation(s):',
+    ...theme.citations.map(d => `# "${d.text}" ${d.url}`),
     '#',
+    '# Column Descriptions:',
     ...variableLines,
     '#',
     '# \n'
