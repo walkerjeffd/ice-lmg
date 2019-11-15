@@ -61,7 +61,7 @@
                 <decade-dimension v-if="theme.dimensions.decade"></decade-dimension>
                 <signif-dimension v-if="theme.dimensions.signif"></signif-dimension>
               </v-card-text>
-              <v-divider v-if="!collapse.dataset && (theme.dimensions.decade || theme.dimensions.signif)"></v-divider>
+              <v-divider v-if="theme && !collapse.dataset && (theme.dimensions.decade || theme.dimensions.signif)"></v-divider>
               <v-card-actions>
                 <v-btn small outlined text color="primary" @click="dialogs.theme = true">
                   <v-icon left small>mdi-folder-open</v-icon> Open Dataset Browser
