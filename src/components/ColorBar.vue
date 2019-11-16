@@ -5,7 +5,7 @@
 <script>
 import * as d3 from 'd3'
 
-import { colorSchemes } from '@/lib/constants'
+import { colorSchemesContinuous } from '@/lib/constants'
 import ColorMixin from '../mixins/color'
 
 export default {
@@ -21,7 +21,7 @@ export default {
       required: true,
       default: 'Viridis',
       validator (value) {
-        return colorSchemes.includes(value)
+        return colorSchemesContinuous.includes(value)
       }
     },
     invert: {

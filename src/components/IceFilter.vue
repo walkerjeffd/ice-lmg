@@ -1,6 +1,5 @@
 <template>
   <v-card elevation-1 class="my-2">
-    <!-- <h4>{{ variable.label }}</h4> -->
     <v-toolbar dense color="grey lighten-2" flat height="32" class="ice-filter-toolbar">
       <strong>{{ variable.label }} <span v-if="variable.units">({{variable.units}})</span></strong>
       <v-tooltip right max-width="600">
@@ -17,9 +16,17 @@
       <v-btn small icon @click="close"><v-icon small>mdi-close</v-icon></v-btn>
     </v-toolbar>
     <v-card-text v-if="!hide">
-      Filter Range:
-      <span v-if="filter">{{textFormatter(inverseTransform(filter[0]))}} to {{textFormatter(inverseTransform(filter[1]))}}</span>
-      <span v-else>None</span>
+      <div v-if="this.variable.type === 'num'">
+        Filter:
+        <span v-if="filter">{{textFormatter(inverseTransform(filter[0]))}} to {{textFormatter(inverseTransform(filter[1]))}}</span>
+        <span v-else>None</span>
+      </div>
+      <div v-else>
+        Filter:
+        <span v-if="filter && filter.length === 1">{{filter[0]}}</span>
+        <span v-else-if="filter">{{filter.length}} values</span>
+        <span v-else>None</span>
+      </div>
     </v-card-text>
     <div class="ice-filter-chart" v-show="!hide"></div>
   </v-card>
@@ -52,35 +59,92 @@ export default {
 
   },
   mounted () {
+    const width = 460
+    const el = this.$el.getElementsByClassName('ice-filter-chart').item(0)
     const interval = (this.transform(this.variable.scale.domain[1]) - this.transform(this.variable.scale.domain[0])) / 30
     const xf = getCrossfilter()
-    const dim = xf.dimension(d => this.transform(d[this.variable.id]))
-    const group = dim.group(d => Math.floor(d / interval) * interval).reduceCount()
 
-    this.chart = dc.barChart(this.$el.getElementsByClassName('ice-filter-chart').item(0))
-      .width(460)
-      .height(200)
-      .margins({ top: 10, right: 50, bottom: 30, left: 40 })
-      .dimension(dim)
-      .group(group)
-      .elasticY(true)
-      .transitionDelay(0)
-      .x(d3.scaleLinear().domain(this.variable.scale.domain.map(this.transform)))
-      .on('filtered', () => {
-        const filter = this.chart.dimension().currentFilter()
-        if (filter) {
-          this.filter = [filter[0], filter[1]]
-        } else {
-          this.filter = undefined
-        }
-        evt.$emit('xf:filter')
-        evt.$emit('map:render')
-      })
+    if (this.variable.type === 'num') {
+      const dim = xf.dimension(d => this.transform(d[this.variable.id]))
+      const group = dim.group(d => Math.floor(d / interval) * interval).reduceCount()
 
-    this.chart.xUnits(() => 30)
+      this.chart = dc.barChart(el)
+        .width(width)
+        .height(200)
+        .margins({ top: 10, right: 50, bottom: 30, left: 40 })
+        .dimension(dim)
+        .group(group)
+        .elasticY(true)
+        .transitionDelay(0)
+        .x(d3.scaleLinear().domain(this.variable.scale.domain.map(this.transform)))
+        .on('filtered', () => {
+          const filter = this.chart.dimension().currentFilter()
+          if (filter) {
+            this.filter = [filter[0], filter[1]]
+          } else {
+            this.filter = undefined
+          }
+          evt.$emit('xf:filter')
+          evt.$emit('map:render')
+        })
 
-    this.chart.xAxis()
-      .tickFormat(d => this.axisFormatter(this.inverseTransform(d)))
+      this.chart.xUnits(() => 30)
+
+      this.chart.xAxis()
+        .tickFormat(d => this.axisFormatter(this.inverseTransform(d)))
+    } else {
+      const dim = xf.dimension(d => d[this.variable.id])
+      const group = dim.group().reduceCount()
+      const count = this.variable.scale.domain.length
+      const gap = 5
+      const barHeight = 20
+      const margins = { top: 0, right: 20, bottom: 25, left: 30 }
+      const height = margins.top + margins.bottom + barHeight * count + gap * (count + 1)
+
+      this.chart = dc.rowChart(el)
+        .width(width)
+        .height(height)
+        .margins(margins)
+        .dimension(dim)
+        .group(group)
+        .elasticX(true)
+        .ordinalColors(d3.range(this.variable.scale.domain.length).map(d => d3.schemeCategory10[0]))
+        .transitionDelay(0)
+        .transitionDuration(0)
+        .gap(gap)
+        .fixedBarHeight(20)
+        .ordering(d => this.variable.scale.domain.findIndex(v => v.id === d.key))
+        .label(function (d) {
+          return d.key
+        })
+        .on('filtered', () => {
+          const filter = this.chart.filters()
+          if (filter && filter.length > 0) {
+            this.filter = filter
+          } else {
+            this.filter = undefined
+          }
+          evt.$emit('xf:filter')
+          evt.$emit('map:render')
+        })
+        .on('renderlet', (chart) => {
+          chart.selectAll('g.row')
+            .each(function () {
+              const barWidth = +d3.select(this).select('rect').attr('width')
+              const textEl = d3.select(this).select('text')
+              const textWidth = textEl.node().getBBox().width
+              if (barWidth < (10 + textWidth)) {
+                textEl
+                  .style('fill', 'black')
+                  .attr('transform', `translate(${barWidth - 5},0)`)
+              } else {
+                textEl
+                  .style('fill', null)
+              }
+            })
+          chart.select('.axis').selectAll('g.tick:not(:first-of-type) line.grid-line').style('display', 'none')
+        })
+    }
 
     this.chart.render()
 

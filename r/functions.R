@@ -69,36 +69,51 @@ load_variables <- function(theme, index_names = NULL) {
   df <- readxl::read_xlsx(file.path(config::get("data_dir"), "themes.xlsx"), sheet = "variables") %>% 
     filter(theme == !!theme$id)
   
-  cfg <- transform_variables(df)
+  categories <- readxl::read_xlsx(file.path(config::get("data_dir"), "themes.xlsx"), sheet = "categories") %>% 
+    filter(theme == !!theme$id)
+  
+  cfg <- transform_variables(df, categories)
   
   list(
     df = df,
     config = cfg,
-    meta = meta
+    meta = meta,
+    categories = categories
   )
 }
 
-transform_variables <- function(df) {
+transform_variables <- function(df, categories) {
   cfg <- list()
   if (nrow(df) > 0) {
-    cfg <- map(1:nrow(df), ~ list(
-      id = df$id[.],
-      label = df$label[.],
-      description = df$description[.],
-      units = df$units[.],
-      type = df$type[.],
-      map = df$map[.],
-      filter = df$filter[.],
-      group = df$group[.],
-      scale = list(
-        domain = c(df$scale_domain_min[.], df$scale_domain_max[.]),
-        transform = df$scale_transform[.]
-      ),
-      formats = list(
-        text = df$formats_text[.],
-        axis = df$formats_axis[.]
+    cfg <- map(1:nrow(df), function (i) {
+      if (df$type[i] == "cat") {
+        scale <- list(
+          domain = categories %>% 
+            filter(variable == df$id[i]) %>% 
+            select(value, label)
+        )
+      } else {
+        scale <- list(
+          domain = c(df$scale_domain_min[i], df$scale_domain_max[i]),
+          transform = df$scale_transform[i]
+        )
+      }
+      list(
+        id = df$id[i],
+        label = df$label[i],
+        description = df$description[i],
+        units = df$units[i],
+        type = df$type[i],
+        map = df$map[i],
+        filter = df$filter[i],
+        group = df$group[i],
+        scale = scale,
+        formats = list(
+          text = df$formats_text[i],
+          axis = df$formats_axis[i]
+        )
       )
-    )) 
+    })
   }
   cfg
 }

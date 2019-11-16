@@ -18,8 +18,8 @@
           name="points"
           set-bounds
           :layer="layer"
-          :getFill="getFeatureFill"
-          :getValue="getFeatureValue"
+          :getFill="getFill"
+          :getValue="getValue"
           :selected="feature.selected"
           @click="selectFeature">
         </ice-map-layer>
@@ -48,7 +48,7 @@
                 </v-row>
               </v-container>
             </v-card>
-            <v-card class="ice-card elevation-10 mt-2 pb-0">
+            <v-card class="ice-card elevation-10 mt-2 pb-0" ref="dataset">
               <v-toolbar dark dense color="primary">
                 <h4>Dataset: <span v-if="theme">{{ theme.title }}</span><span v-else>None</span></h4>
                 <v-spacer></v-spacer>
@@ -86,12 +86,12 @@
                   Crossfilters
                 </v-tab>
                 <v-spacer></v-spacer>
-                <v-btn icon small @click="tabs.hide = !tabs.hide" class="align-self-center mr-1">
-                  <v-icon small v-if="!tabs.hide">mdi-menu-up</v-icon>
+                <v-btn icon small @click="collapse.tabs = !collapse.tabs" class="align-self-center mr-1">
+                  <v-icon small v-if="!collapse.tabs">mdi-menu-up</v-icon>
                   <v-icon small v-else>mdi-menu-down</v-icon>
                 </v-btn>
                 <v-tab-item :transition="false" :reverse-transition="false">
-                  <v-card v-show="!tabs.hide">
+                  <v-card v-show="!collapse.tabs">
                     <v-card-text v-if="theme.id !== 'gage-qtrend'">
                       <v-autocomplete
                         label="Select variable..."
@@ -120,7 +120,7 @@
                   </v-card>
                 </v-tab-item>
                 <v-tab-item :transition="false" :reverse-transition="false">
-                  <v-card v-show="!tabs.hide" :max-height="$vuetify.breakpoint.height - 550" style="overflow-y: auto">
+                  <v-card v-show="!collapse.tabs" :max-height="$vuetify.breakpoint.height - heights.dataset - heights.legend - heights.debug - 205" style="overflow-y: auto">
                     <v-card-text>
                       <v-autocomplete
                         :items="filterVariables"
@@ -148,8 +148,8 @@
                 </v-tab-item>
               </v-tabs>
             </v-card>
-            <ice-legend-box v-if="theme"></ice-legend-box>
-            <v-card class="ice-card elevation-10 mt-2" v-if="debug">
+            <ice-legend-box v-if="theme" ref="legend" :collapse="collapse.legend" @collapse="collapse.legend = !collapse.legend"></ice-legend-box>
+            <v-card class="ice-card elevation-10 mt-2" v-if="debug" ref="debug">
               <v-toolbar dense dark color="red darken-4">
                 <h4>Debug</h4>
                 <v-spacer></v-spacer>
@@ -159,7 +159,7 @@
                 </v-btn>
               </v-toolbar>
               <v-card-text v-if="!collapse.debug">
-                <pre></pre>
+                <pre>heights: {{ heights }}</pre>
               </v-card-text>
             </v-card>
           </v-col>
@@ -535,15 +535,16 @@ export default {
     Huc12Solar
   },
   data: () => ({
-    // debug: process.env.NODE_ENV === 'development',
-    debug: false,
+    debug: process.env.NODE_ENV === 'development',
+    // debug: false,
     collapse: {
       dataset: false,
+      tabs: false,
+      legend: false,
       debug: false
     },
     tabs: {
-      active: 0,
-      hide: false
+      active: 0
     },
     filters: [],
     leftSidebar: {
@@ -586,6 +587,11 @@ export default {
       total: 0,
       filtered: 0
     },
+    heights: {
+      dataset: 0,
+      legend: 0,
+      debug: 0
+    },
     map: {
       basemaps: [
         {
@@ -622,16 +628,35 @@ export default {
   },
   mounted () {
     if (!this.theme) this.dialogs.welcome = true
+    this.updateHeights()
     evt.$on('xf:filter', this.updateCounts)
   },
   beforeDestroy () {
+    evt.$off('xf:filter', this.updateCounts)
   },
   watch: {
     variable () {
+      this.updateHeights()
       this.variable && evt.$emit('map:render')
+    },
+    theme () {
+      this.updateHeights()
+    },
+    collapse: {
+      deep: true,
+      handler () {
+        this.updateHeights()
+      }
     }
   },
   methods: {
+    updateHeights () {
+      this.$nextTick(() => {
+        for (let x in this.$refs) {
+          this.heights[x] = this.$refs[x] ? this.$refs[x].$el.clientHeight : 0
+        }
+      })
+    },
     updateCounts () {
       this.counts.total = getTotalCount()
       this.counts.filtered = getFilteredCount()
@@ -670,11 +695,11 @@ export default {
         // TODO: fetch drainage area layer
       }
     },
-    getFeatureValue (feature) {
+    getValue (feature) {
       return getValueById(feature.id)
     },
-    getFeatureFill (feature) {
-      const value = this.getFeatureValue(feature)
+    getFill (feature) {
+      const value = this.getValue(feature)
       return value ? this.colorScale(this.variableScale(value.mean)) : null
     },
     removeFilter (variable) {

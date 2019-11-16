@@ -5,7 +5,7 @@
       <v-spacer></v-spacer>
       <v-menu v-model="settings" offset-x :close-on-content-click="false" nudge-right="60px">
         <template v-slot:activator="{ on }">
-          <v-btn icon small v-on="on">
+          <v-btn icon small v-on="on" :disabled="variable.type === 'cat'">
             <v-icon small>mdi-settings-outline</v-icon>
           </v-btn>
         </template>
@@ -50,13 +50,14 @@
           </v-card-actions>
         </v-card>
       </v-menu>
-      <v-btn icon small @click="hide = !hide">
-        <v-icon small v-if="!hide">mdi-menu-up</v-icon>
+      <v-btn icon small @click="$emit('collapse')">
+        <v-icon small v-if="!collapse">mdi-menu-up</v-icon>
         <v-icon small v-else>mdi-menu-down</v-icon>
       </v-btn>
     </v-toolbar>
-    <v-card-text v-if="!hide && variable">
-      <ice-legend id="legend" class="pt-3" v-if="variable"></ice-legend>
+    <v-card-text v-if="!collapse && variable">
+      <ice-continuous-legend id="legend" class="pt-3" v-if="variable && variable.type === 'num'"></ice-continuous-legend>
+      <ice-discrete-legend id="legend" class="pt-3" v-if="variable && variable.type === 'cat'"></ice-discrete-legend>
       <div class="text-center grey--text text--darken-2 font-weight-medium" v-if="variable">
         {{ variable.label }}<span v-if="variable.units">&nbsp;({{ variable.units }})</span>
         <v-tooltip right max-width="600">
@@ -73,28 +74,26 @@
 <script>
 import { mapGetters } from 'vuex'
 
-import IceLegend from '@/components/IceLegend'
+import IceContinuousLegend from '@/components/IceContinuousLegend'
+import IceDiscreteLegend from '@/components/IceDiscreteLegend'
 import ColorBar from '@/components/ColorBar'
 import variableMixin from '@/mixins/variable'
-import { colorSchemes } from '@/lib/constants'
+import { colorSchemesContinuous } from '@/lib/constants'
 import evt from '@/lib/events'
 
 export default {
   name: 'IceLegendBox',
   mixins: [variableMixin],
+  props: ['collapse'],
   components: {
-    IceLegend,
+    IceContinuousLegend,
+    IceDiscreteLegend,
     ColorBar
   },
   data () {
     return {
-      hide: false,
       settings: false,
-      schemes: colorSchemes,
-      types: {
-        options: ['Continuous', 'Quantile'],
-        selected: 'Continuous'
-      }
+      schemes: colorSchemesContinuous
     }
   },
   computed: {

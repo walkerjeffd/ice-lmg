@@ -1,4 +1,4 @@
-export const colorSchemes = [
+export const colorSchemesContinuous = [
   // sequential (multi hue),
   'Viridis',
   'Inferno',

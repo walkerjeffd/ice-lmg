@@ -11,7 +11,7 @@ import VariableMixin from '../mixins/variable'
 import ColorMixin from '../mixins/color'
 
 export default {
-  name: 'IceLegend',
+  name: 'IceContinuousLegend',
   mixins: [VariableMixin, ColorMixin],
   props: ['id'],
   data () {

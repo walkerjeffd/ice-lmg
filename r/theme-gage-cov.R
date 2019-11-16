@@ -32,6 +32,9 @@ df_dataset <- load_dataset(theme, col_types = cols(
   select(id, everything()) %>% 
   arrange(id, decade) %>% 
   mutate(
+    cat_aquifers = if_else(cat_aquifers == "acc_aq111", "cat_aq111", cat_aquifers),
+    cat_soller = if_else(cat_soller == "acc_soller_221", "cat_soller_221", cat_soller),
+    ed_rch_zone = if_else(ed_rch_zone == 1, "yes", "no"),
     total_forest = deciduous_forest + evergreen_forest + mixed_forest,
     total_forest = if_else(total_forest > 100, 100, total_forest),
     total_wetland = herbaceous_wetland + woody_wetland,
@@ -147,3 +150,11 @@ out_dataset %>%
   ggplot(aes(value)) +
   geom_histogram() +
   facet_wrap(vars(var), scales = "free")
+
+
+# categorical variables ---------------------------------------------------
+
+out_dataset$cat_soller %>%
+  unique() %>% 
+  sort() %>% 
+  str_c(collapse = ",")

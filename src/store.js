@@ -68,6 +68,17 @@ export default new Vuex.Store({
           return { theme, variable }
         })
         .then(({ theme, variable }) => {
+          const numVariables = theme.variables
+            .filter(v => v.type === 'num')
+            .map(v => v.id)
+          const catVariables = theme.variables
+            .filter(v => v.type === 'cat')
+            .map((v) => {
+              return {
+                id: v.id,
+                map: new Map(v.scale.domain.map(d => [d.value, d.label]))
+              }
+            })
           return axios.get(theme.data.url)
             .then((response) => response.data)
             .then((csvString) => {
@@ -87,8 +98,12 @@ export default new Vuex.Store({
                   x.signif = d.signif === 'TRUE'
                 }
 
-                theme.variables.forEach(v => {
-                  x[v.id] = v.type === 'num' ? (d[v.id] === '' ? null : +d[v.id]) : d[v.id]
+                numVariables.forEach(v => {
+                  x[v] = d[v] === '' ? null : +d[v]
+                })
+
+                catVariables.forEach(v => {
+                  x[v.id] = d[v.id] === '' ? null : v.map.get(d[v.id])
                 })
 
                 return x
