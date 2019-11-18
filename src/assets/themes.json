@@ -6,7 +6,7 @@
       {
         "id": "gage-primary",
         "name": "Primary Dataset",
-        "description": "A combination of the primary variables from the various streamflow gage datasets.",
+        "description": "The Primary Dataset for Streamflow Gages includes a combination of the key variables from the other Streamflow Gage datasets. From the Basin Characteristics dataset, it includes basin area, baseflow index, hydro-geological classifications, annual average precipitation and air temperature, and land use composition. From the Streamflow Statistics dataset, it includes various metrics such as the mean, median, and lower/upper quartile streamflow at each gage. Lastly, it includes the main seasonal results from the Streamflow Trend Analyses dataset. Together, these metrics can be used to better understand relationships between the basin characteristics, streamflow statitistics and streamflow trends at USGS gages throughout the region.",
         "citations": [
           {
             "text": "Crowley-Ornelas, E.R., Worland, S.C., Wieczorek, M.E., Asquith, W.H., Knight, R.R., 2019, Summary of basin characteristics for National Hydrography Dataset, version 2 catchments in the Southeastern United States, 1950 - 2010: U.S. Geological Survey data release.",
@@ -20,7 +20,8 @@
             "text": "Rodgers, K.D., Hoos, A.B., Roland, V.L., and Knight, R.R., 2018, Trend analysis results for sites used in RESTORE Streamflow alteration assessments: U.S. Geological Survey data release.",
             "url": "https://doi.org/10.5066/P9YSE754"
           }
-        ]
+        ],
+        "title": "Gages > Primary Dataset"
       },
       {
         "id": "gage-cov",
@@ -31,7 +32,8 @@
             "text": "Crowley-Ornelas, E.R., Worland, S.C., Wieczorek, M.E., Asquith, W.H., Knight, R.R., 2019, Summary of basin characteristics for National Hydrography Dataset, version 2 catchments in the Southeastern United States, 1950 - 2010: U.S. Geological Survey data release.",
             "url": "https://doi.org/10.5066/P9KXTDU4"
           }
-        ]
+        ],
+        "title": "Gages > Basin Characteristics"
       },
       {
         "id": "gage-qstat",
@@ -42,7 +44,8 @@
             "text": "Crowley-Ornelas, E.R., Asquith, W.H., Worland, S.C., and Knight, R.R., 2019, Summary of streamflow statistics for USGS streamgages in the southeastern United States, 1950–2010: U.S. Geological Survey data release.",
             "url": "https://doi.org/10.5066/P91DOYCJ"
           }
-        ]
+        ],
+        "title": "Gages > Streamflow Statistics"
       },
       {
         "id": "gage-qtrend",
@@ -53,7 +56,8 @@
             "text": "Rodgers, K.D., Hoos, A.B., Roland, V.L., and Knight, R.R., 2018, Trend analysis results for sites used in RESTORE Streamflow alteration assessments: U.S. Geological Survey data release.",
             "url": "https://doi.org/10.5066/P9YSE754"
           }
-        ]
+        ],
+        "title": "Gages > Streamflow Trend Analyses"
       },
       {
         "id": "gage-solar",
@@ -64,7 +68,8 @@
             "text": "Crowley-Ornelas, E.R., Asquith, W.H., Knight, R.R., and Worland, S.C., 2019, Solar radiation for National Hydrography Dataset, version 2 catchments in the southeastern United States, 1950 - 2010 at USGS streamflow-gaging stations:U.S. Geological Survey data release.",
             "url": "https://doi.org/10.5066/P9OD7FAL"
           }
-        ]
+        ],
+        "title": "Gages > Solar Radiation"
       }
     ]
   },
@@ -75,7 +80,7 @@
       {
         "id": "huc12-primary",
         "name": "Primary Dataset",
-        "description": "A combination of the primary variables from the various HUC12 dataset.",
+        "description": "The Primary Dataset for HUC12 Basins includes a combination of the key variables from the other HUC12 datasets. From the Basin Characteristics dataset, it includes basin area, baseflow index, hydro-geological classifications, annual average precipitation and air temperature, number of upstream dams, and land use composition. From the Streamflow Statistics dataset, it includes various metrics such as the mean, median, and lower/upper quartile streamflow at each gage. Together, these metrics can be used to better understand relationships between the basin characteristics and estimated streamflow statitistics at the pour points for all HUC12 basins in the region.",
         "citations": [
           {
             "text": "Crowley-Ornelas, E.R., Worland, S.C., Wieczorek, M.E., Asquith, W.H., Knight, R.R., 2019, Summary of basin characteristics for National Hydrography Dataset, version 2 catchments in the Southeastern United States, 1950 - 2010: U.S. Geological Survey data release.",
@@ -85,7 +90,8 @@
             "text": "Worland, S.C., Knight, R.R., and Asquith, W.H., 2019, Estimated quantiles for the pour points of 9,203 level-12 hydrologic unit codes in the southeastern United States, 1950--2009: U.S. Geological Survey data release.",
             "url": "https://doi.org/10.5066/P9YGKZZV"
           }
-        ]
+        ],
+        "title": "HUC12 Basins > Primary Dataset"
       },
       {
         "id": "huc12-cov",
@@ -96,7 +102,8 @@
             "text": "Crowley-Ornelas, E.R., Worland, S.C., Wieczorek, M.E., Asquith, W.H., Knight, R.R., 2019, Summary of basin characteristics for National Hydrography Dataset, version 2 catchments in the Southeastern United States, 1950 - 2010: U.S. Geological Survey data release.",
             "url": "https://doi.org/10.5066/P9KXTDU4"
           }
-        ]
+        ],
+        "title": "HUC12 Basins > Basin Characteristics"
       },
       {
         "id": "huc12-qquantile",
@@ -107,7 +114,8 @@
             "text": "Worland, S.C., Knight, R.R., and Asquith, W.H., 2019, Estimated quantiles for the pour points of 9,203 level-12 hydrologic unit codes in the southeastern United States, 1950--2009: U.S. Geological Survey data release.",
             "url": "https://doi.org/10.5066/P9YGKZZV"
           }
-        ]
+        ],
+        "title": "HUC12 Basins > Estimated Streamflow Quantiles"
       },
       {
         "id": "huc12-solar",
@@ -118,7 +126,8 @@
             "text": "Crowley-Ornelas, E.R., Asquith, W.H., Knight, R.R., and Worland, S.C., 2019, Solar radiation for National Hydrography Dataset, version 2 catchments in the southeastern United States, 1950 - 2010 at 12-digit hydrologic unit code (HUC12) pour points: U.S. Geological Survey data release.",
             "url": "https://doi.org/10.5066/P9OD7FAL"
           }
-        ]
+        ],
+        "title": "HUC12 Basins > Solar Radiation"
       }
     ]
   }

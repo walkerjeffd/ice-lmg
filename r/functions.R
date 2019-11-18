@@ -160,7 +160,7 @@ export_theme <- function (theme, variables, dataset, layer) {
     title = str_c(
       case_when(
         theme$config$group == "gage" ~ "Gages > ",
-        theme$config$group == "huc12" ~ "HUC12s > ",
+        theme$config$group == "huc12" ~ "HUC12 Basins > ",
         TRUE ~ ""
       ),
       theme$config$name

@@ -30,6 +30,7 @@ export default {
     evt.$on('theme:set', this.update)
   },
   beforeDestroy () {
+    evt.$off('theme:set', this.update)
     this.dim.dispose()
   },
   methods: {

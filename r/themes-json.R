@@ -15,7 +15,10 @@ themes <- read_xlsx(file.path(config$data_dir, "themes.xlsx"), sheet = "themes")
 
 gage_themes <- themes %>% 
   filter(group == "gage") %>% 
-  select(-group)
+  select(-group) %>% 
+  mutate(
+    title = str_c("Gages > ", name)
+  )
 
 gage_themes$citations[[1]] <- gage_themes %>% 
   filter(id %in% c("gage-cov", "gage-qstat", "gage-qtrend")) %>% 
@@ -24,7 +27,10 @@ gage_themes$citations[[1]] <- gage_themes %>%
 
 huc12_themes <- themes %>% 
   filter(group == "huc12") %>% 
-  select(-group)
+  select(-group) %>% 
+  mutate(
+    title = str_c("HUC12 Basins > ", name)
+  )
 
 huc12_themes$citations[[1]] <- huc12_themes %>% 
   filter(id %in% c("huc12-cov", "huc12-qquantile")) %>% 

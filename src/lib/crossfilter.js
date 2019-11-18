@@ -14,12 +14,16 @@ export function clearCrossfilter () {
 }
 
 export function setData (data, key) {
+  // console.log(`setData():start`)
   clearCrossfilter()
   xf.add(data)
   byFeature.dim = xf.dimension(d => d[key])
+  // console.log(`setData():end`)
+  return Promise.resolve()
 }
 
 export function setVariable (variable) {
+  // console.log(`setVariable(${variable ? variable.id : null}):start`)
   return new Promise((resolve) => {
     if (byFeature.group) byFeature.group.dispose()
 
@@ -73,7 +77,7 @@ export function setVariable (variable) {
     byFeature.group.all().forEach(d => {
       byFeature.map.set(d.key, d.value) // d is a reference, automatically updates after filtering
     })
-
+    // console.log(`setVariable(${variable ? variable.id : null}):done`)
     resolve()
   })
 }

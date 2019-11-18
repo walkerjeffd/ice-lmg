@@ -112,8 +112,12 @@ export default new Vuex.Store({
             .then(data => ({ theme, variable, data }))
         })
         .then(({ theme, variable, data }) => {
-          setData(data, theme.data.group.by)
-
+          return setData(data, theme.data.group.by)
+            .then(() => {
+              return { theme, variable, data }
+            })
+        })
+        .then(({ theme, variable }) => {
           commit('SET_THEME', theme)
           return dispatch('setVariable', variable)
         })
