@@ -5,7 +5,7 @@
       <v-spacer></v-spacer>
       <v-menu v-model="settings" offset-x :close-on-content-click="false" nudge-right="60px">
         <template v-slot:activator="{ on }">
-          <v-btn icon small v-on="on" :disabled="variable.type === 'cat'">
+          <v-btn icon small v-on="on" :disabled="!variable || variable.type === 'cat'">
             <v-icon small>mdi-settings-outline</v-icon>
           </v-btn>
         </template>

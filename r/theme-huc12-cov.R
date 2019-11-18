@@ -34,6 +34,7 @@ df_dataset <- load_dataset(theme, col_types = cols(
     !(id == "031001011006-16808225" & dec_lat_va < 27.0505)
   ) %>% 
   mutate(
+    ed_rch_zone = if_else(ed_rch_zone == 1, "yes", "no"),
     total_forest = deciduous_forest + evergreen_forest + mixed_forest,
     total_forest = if_else(total_forest > 100, 100, total_forest),
     total_wetland = herbaceous_wetland + woody_wetland,
@@ -121,3 +122,10 @@ out_dataset %>%
   # write_csv("~/vars.csv")
   print(n = Inf)
 
+
+# categorical variables ---------------------------------------------------
+
+out_dataset$ed_rch_zone %>%
+  unique() %>% 
+  sort() %>% 
+  str_c(collapse = ",")

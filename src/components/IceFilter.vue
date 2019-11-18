@@ -67,11 +67,12 @@ export default {
     if (this.variable.type === 'num') {
       const dim = xf.dimension(d => this.transform(d[this.variable.id]))
       const group = dim.group(d => Math.floor(d / interval) * interval).reduceCount()
+      const margins = { top: 5, right: 40, bottom: 30, left: 50 }
 
       this.chart = dc.barChart(el)
         .width(width)
         .height(200)
-        .margins({ top: 10, right: 50, bottom: 30, left: 40 })
+        .margins(margins)
         .dimension(dim)
         .group(group)
         .elasticY(true)
@@ -93,12 +94,12 @@ export default {
       this.chart.xAxis()
         .tickFormat(d => this.axisFormatter(this.inverseTransform(d)))
     } else {
+      const margins = { top: 0, right: 40, bottom: 30, left: 15 }
       const dim = xf.dimension(d => d[this.variable.id])
       const group = dim.group().reduceCount()
       const count = this.variable.scale.domain.length
       const gap = 5
       const barHeight = 20
-      const margins = { top: 0, right: 20, bottom: 25, left: 30 }
       const height = margins.top + margins.bottom + barHeight * count + gap * (count + 1)
 
       this.chart = dc.rowChart(el)

@@ -102,7 +102,8 @@
                         item-value="id"
                         item-text="label"
                         :menu-props="{ closeOnClick: false, closeOnContentClick: false, openOnClick: false, maxHeight: 400 }"
-                        class="mt-2">
+                        class="mt-2"
+                        hide-details>
                         <template v-slot:item="data">
                           <v-list-item-content class="pl-3 body-2" v-html="data.item.label"></v-list-item-content>
                           <v-tooltip right max-width="600">
@@ -231,10 +232,7 @@
         <v-divider class="mb-8"></v-divider>
 
         <v-card-text>
-          <v-alert type="warning" outlined prominent icon="mdi-alert">
-            <h2>Disclaimer</h2>
-            This information is preliminary and is subject to revision. It is being provided to meet the need for timely best science. The information is provided on the condition that neither the U.S. Geological Survey nor the U.S. Government may be held liable for any damages resulting from the authorized or unauthorized use of the information.
-          </v-alert>
+          <disclaimer></disclaimer>
         </v-card-text>
 
         <v-divider></v-divider>
@@ -374,7 +372,7 @@
             </v-row>
           </v-container>
 
-          <v-divider class="my-4"></v-divider>
+          <v-divider class="my-8"></v-divider>
 
           <h2 v-if="theme.citations.length > 1">Citations </h2>
           <h2 v-else>Citation </h2>
@@ -382,10 +380,9 @@
             {{citation.text}} <a :href="citation.url" target="_blank">{{ citation.url }}</a>.
           </p>
 
-          <v-alert color="warning" outlined prominent icon="mdi-alert" class="mb-0">
-            <h2>Disclaimer</h2>
-            This information is preliminary and is subject to revision. It is being provided to meet the need for timely best science. The information is provided on the condition that neither the U.S. Geological Survey nor the U.S. Government may be held liable for any damages resulting from the authorized or unauthorized use of the information.
-          </v-alert>
+          <v-divider class="my-8"></v-divider>
+
+          <disclaimer></disclaimer>
         </v-card-text>
 
         <v-divider></v-divider>
@@ -490,6 +487,8 @@ import IceMapLayer from '@/components/IceMapLayer'
 import IceFilter from '@/components/IceFilter'
 import IceLegendBox from '@/components/IceLegendBox'
 
+import Disclaimer from '@/components/Disclaimer'
+
 import DecadeDimension from '@/components/dimensions/DecadeDimension'
 import SignifDimension from '@/components/dimensions/SignifDimension'
 
@@ -521,6 +520,7 @@ export default {
     IceMapLayer,
     IceFilter,
     IceLegendBox,
+    Disclaimer,
     DecadeDimension,
     SignifDimension,
     TrendVariable,
@@ -535,8 +535,8 @@ export default {
     Huc12Solar
   },
   data: () => ({
-    debug: process.env.NODE_ENV === 'development',
-    // debug: false,
+    // debug: process.env.NODE_ENV === 'development',
+    debug: false,
     collapse: {
       dataset: false,
       tabs: false,

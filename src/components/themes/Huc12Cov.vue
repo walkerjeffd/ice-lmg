@@ -9,9 +9,18 @@
       <ice-feature-box>
         <template v-slot:title>Basin Characteristics</template>
         <v-list dense>
-          <v-list-item v-for="variableId in tables.constants.fields" :key="variableId">
+          <v-list-item v-for="variableId in tables.cov.fields" :key="variableId">
             <v-list-item-content class="align-start" width="20">{{ variableById(variableId).label }}:</v-list-item-content>
             <v-list-item-content class="align-end">{{ variableFormatter(variableId)(dataset.values[0][variableId]) }} {{ variableById(variableId).units }}</v-list-item-content>
+          </v-list-item>
+        </v-list>
+      </ice-feature-box>
+      <ice-feature-box>
+        <template v-slot:title>Hydro-geologic Classifications</template>
+        <v-list dense>
+          <v-list-item v-for="variableId in tables.cat.fields" :key="variableId">
+            <v-list-item-content class="align-start" width="20">{{ variableById(variableId).label }}:</v-list-item-content>
+            <v-list-item-content class="align-end">{{ variableFormatter(variableId)(dataset.values[0][variableId]) }}</v-list-item-content>
           </v-list-item>
         </v-list>
       </ice-feature-box>
@@ -45,7 +54,7 @@ export default {
   data () {
     return {
       tables: {
-        constants: {
+        cov: {
           fields: [
             'basin_area',
             'basin_slope',
@@ -56,6 +65,22 @@ export default {
             'length_km',
             'sinuosity',
             'strm_dens'
+          ]
+        },
+        cat: {
+          fields: [
+            'aquifers',
+            'cat_aquifers',
+            'bedperm',
+            'ecol3',
+            'cat_ecol3',
+            'hlr',
+            'physio',
+            'cat_physio',
+            'soller',
+            'cat_soller',
+            'statsgo',
+            'ed_rch_zone'
           ]
         }
       },

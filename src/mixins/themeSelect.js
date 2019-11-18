@@ -42,6 +42,11 @@ export default {
   methods: {
     variableFormatter (id) {
       const variable = this.variableById(id)
+      if (variable.type === 'cat') {
+        const domain = variable.scale.domain
+        const map = new Map(domain.map(d => [d.value, d.label]))
+        return (d) => map.get(d)
+      }
       return format(variable.formats.text)
     },
     updateDataset () {
