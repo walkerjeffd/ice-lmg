@@ -377,7 +377,7 @@
 
         <v-divider></v-divider> -->
 
-        <v-card-text class="my-4" v-if="theme">
+        <v-card-text class="my-4 black--text" v-if="theme">
           <v-container>
             <v-row>
               <v-col class="text-center">
