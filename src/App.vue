@@ -59,6 +59,9 @@
               </v-toolbar>
               <v-card-text v-if="theme && !collapse.dataset && (theme.dimensions.decade || theme.dimensions.signif)">
                 <decade-dimension v-if="theme.dimensions.decade"></decade-dimension>
+                <div class="subheading" v-if="theme.id === 'gage-primary' || theme.id === 'gage-qtrend'">
+                  <v-icon small>mdi-information</v-icon> For trend test results, the decade slider sets the starting point of the period of record, which always ends in 2015 (e.g., if 1970s is selected, then trend tests are based on flows from 1970-2015).
+                </div>
                 <signif-dimension v-if="theme.dimensions.signif"></signif-dimension>
               </v-card-text>
               <v-divider v-if="theme && !collapse.dataset && (theme.dimensions.decade || theme.dimensions.signif)"></v-divider>

@@ -38,7 +38,7 @@ read_qk <- function(decade, season) {
   } else {
     filename <- glue("{season}_QK_{decade}_Results.xls")
   }
-  filepath <- file.path(config::get("data_dir"), "sciencebase", theme$id, "Trend analysis results", "Quantile-Kendall results", decade, filename)
+  filepath <- file.path(config::get("data_dir"), "sciencebase", theme$id, "_versions", "v1.0", "Trend analysis results", "Quantile-Kendall results", decade, filename)
   
   sheets <- readxl::excel_sheets(filepath)
   
@@ -138,12 +138,8 @@ qk_vars <- crossing(
 read_mk <- function(decade, season) {
   cat(glue("read_mk({decade},{season})"), "\n")
   
-  if (decade %in% c(1980, 1990)) {
-    filename <- glue("{season}Ave_1970.xlsx")
-  } else {
-    filename <- glue("{season}Ave_{decade}.xlsx")
-  }
-  filepath <- file.path(config::get("data_dir"), "sciencebase", theme$id, "Trend analysis results", "Mann-Kendall results", decade, filename)
+  filename <- glue("{season}Ave_{decade}.xlsx")
+  filepath <- file.path(config::get("data_dir"), "sciencebase", theme$id, "Trend analysis results_v1.1", glue("Result Output {decade}"), filename)
   readxl::read_xlsx(filepath, sheet = 1, na = "NaN", skip = 1, col_names = c("Row", "Site", "Tau", "Tau.p", "SensSlope", "Z", "Z.p")) %>% 
     select(-Row)
 }
