@@ -18,7 +18,7 @@ theme$config$citations <- unname(map(themes, ~ .$theme$config$citations[[1]]))
 df_variables <- map_df(themes, ~ .$variables$df) %>% 
   filter(primary)
 
-categories <- readxl::read_xlsx(file.path(config::get("data_dir"), "themes.xlsx"), sheet = "categories") %>% 
+categories <- readxl::read_xlsx("xlsx/themes.xlsx", sheet = "categories") %>% 
   filter(theme %in% theme_ids)
 
 cfg_variables <- transform_variables(df_variables, categories)

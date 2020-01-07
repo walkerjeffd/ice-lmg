@@ -6,7 +6,7 @@ library(readxl)
 
 config <- config::get()
 
-themes <- read_xlsx(file.path(config$data_dir, "themes.xlsx"), sheet = "themes") %>% 
+themes <- read_xlsx("xlsx/themes.xlsx", sheet = "themes") %>% 
   filter(!skip) %>% 
   mutate(
     citations = map2(citation_text, citation_url, ~ list(list(text = .x, url = .y)))

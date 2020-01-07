@@ -2,7 +2,7 @@ load_theme <- function(id) {
   theme <- list(
     id = id,
     path = file.path("../data/", id),
-    config = readxl::read_xlsx(file.path(config::get("data_dir"), "themes.xlsx"), sheet = "themes") %>% 
+    config = readxl::read_xlsx("xlsx/themes.xlsx", sheet = "themes") %>% 
       filter(id == !!id) %>% 
       mutate(
         citations = map2(citation_text, citation_url, ~ list(text = .x, url = .y))
@@ -66,10 +66,10 @@ load_variables <- function(theme, index_names = NULL) {
   meta %>%
     write_csv(file.path(theme$path, "meta-variables.csv"))
   
-  df <- readxl::read_xlsx(file.path(config::get("data_dir"), "themes.xlsx"), sheet = "variables") %>% 
+  df <- readxl::read_xlsx("xlsx/themes.xlsx", sheet = "variables") %>% 
     filter(theme == !!theme$id)
   
-  categories <- readxl::read_xlsx(file.path(config::get("data_dir"), "themes.xlsx"), sheet = "categories") %>% 
+  categories <- readxl::read_xlsx("xlsx/themes.xlsx", sheet = "categories") %>% 
     filter(theme == !!theme$id)
   
   cfg <- transform_variables(df, categories)
