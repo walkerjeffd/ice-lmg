@@ -42,7 +42,7 @@
                   </v-col>
                   <v-col class="text-center">
                     <v-btn block tile medium color="secondary" @click="dialogs.help = true">
-                      <v-icon medium left>mdi-help</v-icon> Help
+                      <v-icon medium left>mdi-help</v-icon> User Guide
                     </v-btn>
                   </v-col>
                 </v-row>
@@ -83,7 +83,7 @@
                 dark
                 slider-color="white">
                 <v-tab ripple>
-                  Variable
+                  Map Variable
                 </v-tab>
                 <v-tab ripple>
                   Crossfilters
@@ -321,7 +321,7 @@
     </v-dialog>
     <v-dialog
       v-model="dialogs.help"
-      max-width="1000"
+      max-width="1200"
       scrollable>
       <v-card>
         <v-toolbar dark color="primary">
@@ -333,9 +333,7 @@
         </v-toolbar>
 
         <v-card-text class="mt-4">
-          <v-alert type="warning" outlined prominent>
-            User Guide is under development
-          </v-alert>
+          <user-guide></user-guide>
         </v-card-text>
 
         <v-divider></v-divider>
@@ -561,6 +559,7 @@ import DecadeDimension from '@/components/dimensions/DecadeDimension'
 import SignifDimension from '@/components/dimensions/SignifDimension'
 
 import TrendVariable from '@/components/TrendVariable'
+import UserGuide from '@/components/UserGuide'
 
 import GagePrimary from '@/components/themes/GagePrimary'
 import GageCov from '@/components/themes/GageCov'
@@ -592,6 +591,7 @@ export default {
     DecadeDimension,
     SignifDimension,
     TrendVariable,
+    UserGuide,
     GagePrimary,
     GageCov,
     GageQstat,
