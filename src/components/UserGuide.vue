@@ -50,6 +50,13 @@
             </li>
           </ul>
         </v-card-text>
+        <v-card-text class="mt-0">
+          <v-divider class="mb-8"></v-divider>
+          <div>
+            <v-btn disabled color="primary" class="mx-4 mb-4 float-left" @click="tab -= 1"><v-icon>mdi-chevron-left</v-icon>Previous</v-btn>
+            <v-btn color="primary" class="mx-4 mb-4 float-right" @click="tab += 1">Next <v-icon>mdi-chevron-right</v-icon></v-btn>
+          </div>
+        </v-card-text>
       </v-card>
     </v-tab-item>
     <v-tab-item>
@@ -88,6 +95,13 @@
           <p>
             The <strong>Primary Dataset</strong> for each group combines key variables from each of the other datasets.
           </p>
+        </v-card-text>
+        <v-card-text class="mt-0">
+          <v-divider class="mb-8"></v-divider>
+          <div>
+            <v-btn color="primary" class="mx-4 mb-4 float-left" @click="tab -= 1"><v-icon>mdi-chevron-left</v-icon>Previous</v-btn>
+            <v-btn color="primary" class="mx-4 mb-4 float-right" @click="tab += 1">Next <v-icon>mdi-chevron-right</v-icon></v-btn>
+          </div>
         </v-card-text>
       </v-card>
     </v-tab-item>
@@ -129,6 +143,13 @@
             Lastly, you can click on a point on the map to select a streamflow gage or HUC12 basin, which will open the
             <strong>Details Sidebar</strong> that contains a data summary and series of charts for the selected streamflow gage/HUC12 basin.
           </p>
+        </v-card-text>
+        <v-card-text class="mt-0">
+          <v-divider class="mb-8"></v-divider>
+          <div>
+            <v-btn color="primary" class="mx-4 mb-4 float-left" @click="tab -= 1"><v-icon>mdi-chevron-left</v-icon>Previous</v-btn>
+            <v-btn color="primary" class="mx-4 mb-4 float-right" @click="tab += 1">Next <v-icon>mdi-chevron-right</v-icon></v-btn>
+          </div>
         </v-card-text>
       </v-card>
     </v-tab-item>
@@ -176,6 +197,13 @@
             This indicates a positive correlation between the two variables with streamflow gages having larger basin areas also having higher mean streamflow.
           </p>
         </v-card-text>
+        <v-card-text class="mt-0">
+          <v-divider class="mb-8"></v-divider>
+          <div>
+            <v-btn color="primary" class="mx-4 mb-4 float-left" @click="tab -= 1"><v-icon>mdi-chevron-left</v-icon>Previous</v-btn>
+            <v-btn color="primary" class="mx-4 mb-4 float-right" @click="tab += 1">Next <v-icon>mdi-chevron-right</v-icon></v-btn>
+          </div>
+        </v-card-text>
       </v-card>
     </v-tab-item>
     <v-tab-item>
@@ -207,7 +235,13 @@
           <p>
             Or click the <code>Filtered Dataset</code> button to only download data for streamflow gages/HUC12 basins that meet the current crossfilter criteria.
           </p>
-
+        </v-card-text>
+        <v-card-text class="mt-0">
+          <v-divider class="mb-8"></v-divider>
+          <div>
+            <v-btn color="primary" class="mx-4 mb-4 float-left" @click="tab -= 1"><v-icon>mdi-chevron-left</v-icon>Previous</v-btn>
+            <v-btn disabled color="primary" class="mx-4 mb-4 float-right" @click="tab += 1">Next <v-icon>mdi-chevron-right</v-icon></v-btn>
+          </div>
         </v-card-text>
       </v-card>
     </v-tab-item>
