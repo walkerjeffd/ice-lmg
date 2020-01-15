@@ -1,24 +1,51 @@
-# ice-lmg
+# USGS LMGWSC RESTORE Data Visualization Tool
+
+Jeffrey D Walker, PhD <jeff@walkerenvres.com>  
+[Walker Environmental Research, LLC](https://walkerenvres.com)
+
 
 ## Project setup
-```
+
+Install dependencies
+
+```sh
 yarn install
 ```
 
-### Compiles and hot-reloads for development
+Configuration is set using `.env` files per [vue-cli](https://cli.vuejs.org/guide/mode-and-env.html)
+
+The only configuration variable is `VUE_APP_API_BASEURL`, which is used by `axios` to fetch data.
+
 ```
-yarn serve
+VUE_APP_API_BASEURL="http://localhost:8000/"
 ```
 
-### Compiles and minifies for production
+The default `.env` files can be overriden with `.local` variants (e.g. `.env.development.local`).
+
+## Development Server
+
+```sh
+yarn dev # runs both data and serve commands
 ```
+
+## Production Build
+
+```sh
 yarn build
 ```
 
-### Lints and fixes files
-```
-yarn lint
+### Deployment
+
+Run production build and sync static app files from `./dist` to server.
+
+```sh
+yarn deploy # runs build first
+# or
+yarn deploy:app
 ```
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+Sync data files to remote server
+
+```sh
+yarn deploy:data
+```

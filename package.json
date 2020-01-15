@@ -8,7 +8,9 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "deploy": "yarn build && scp -r -C dist/* jeff@ecosheds.org:/conte/www/static/ice/lmg-dev-v2/"
+    "deploy": "yarn deploy:app",
+    "deploy:app": "yarn build && rsync -av  dist/* jeff@ecosheds.org:/conte/www/static/ice/lmg-dev-v2/ --delete",
+    "deploy:data": "rsync -av data/* jeff@ecosheds.org:/conte/www/static/data/lmg-dev-v2 --delete"
   },
   "dependencies": {
     "@mdi/font": "^4.5.95",
