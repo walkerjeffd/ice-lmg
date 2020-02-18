@@ -5,7 +5,8 @@
         <v-img src="./assets/usgs-logo.png" alt="USGS Logo" height="42" width="42"></v-img>
       </a>
       <v-toolbar-title class="headline">
-        USGS LMGWSC | <span class="font-weight-light">RESTORE Data Visualization Tool</span>
+        USGS <span v-if="$vuetify.breakpoint.mdAndUp">Lower Mississippi-Gulf Water Science Center</span> |
+        <span class="font-weight-light">RESTORE Data Visualization Tool</span>
       </v-toolbar-title>
       <v-spacer></v-spacer>
       <v-btn text href="http://ecosheds.org">
@@ -50,7 +51,7 @@
             </v-card>
             <v-card class="ice-card elevation-10 mt-2 pb-0" ref="dataset">
               <v-toolbar dark dense color="primary">
-                <h4>Dataset: <span v-if="theme">{{ theme.title }}</span><span v-else>None</span></h4>
+                <h4>Dataset: <span v-if="theme">{{ theme.title }}</span><span v-else-if="error.theme">Failed to load dataset</span><span v-else>None</span></h4>
                 <v-spacer></v-spacer>
                 <v-btn icon small @click="collapse.dataset = !collapse.dataset">
                   <v-icon small v-if="!collapse.dataset">mdi-menu-up</v-icon>
@@ -512,7 +513,7 @@
                 </p>
                 <p class="body-2">
                   Datasets are organized into two groups: Streamflow Gages and HUC12 Basins. The first group provides data associated
-                  with USGS streamflow gageing stations. The second group provides data
+                  with USGS streamflow gaging stations. The second group provides data
                   associated with the pour points of all 12-digit hydrologic unit code (HUC12) basins in the region.
                 </p>
                 <p class="body-2">
