@@ -1,4 +1,4 @@
-# USGS LMGWSC RESTORE Data Visualization Tool
+# USGS Lower Mississippi-Gulf Water Science Center RESTORE Data Visualization Tool
 
 Jeffrey D Walker, PhD <jeff@walkerenvres.com>  
 [Walker Environmental Research, LLC](https://walkerenvres.com)
@@ -34,7 +34,7 @@ yarn dev # runs both data and serve commands
 yarn build
 ```
 
-### Deployment
+## Deployment
 
 Run production build and sync static app files from `./dist` to server.
 
