@@ -1,0 +1,83 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Parameters": {
+      "BucketName": {
+          "Description": "Name of S3 bucket",
+          "Type": "String"
+      }
+  },
+  "Resources": {
+      "S3Bucket": {
+          "Type": "AWS::S3::Bucket",
+          "Properties": {
+              "BucketName": {"Ref": "BucketName"},
+              "AccessControl": "PublicRead",
+              "WebsiteConfiguration": {
+                  "IndexDocument": "index.html",
+                  "ErrorDocument": "index.html"
+              }
+          },
+          "DeletionPolicy": "Retain"
+      },
+      "BucketPolicy": {
+          "Type": "AWS::S3::BucketPolicy",
+          "Properties": {
+              "PolicyDocument": {
+                  "Id": "PublicGetObjectPolicy",
+                  "Version": "2012-10-17",
+                  "Statement": [
+                      {
+                          "Sid": "PublicReadForGetBucketObjects",
+                          "Effect": "Allow",
+                          "Principal": "*",
+                          "Action": "s3:GetObject",
+                          "Resource": {
+                              "Fn::Join": [
+                                  "",
+                                  [
+                                      "arn:aws:s3:::",
+                                      {
+                                          "Ref": "S3Bucket"
+                                      },
+                                      "/*"
+                                  ]
+                              ]
+                          }
+                      }
+                  ]
+              },
+              "Bucket": {
+                  "Ref": "S3Bucket"
+              }
+          }
+      }
+  },
+  "Outputs": {
+      "WebsiteURL": {
+          "Value": {
+              "Fn::GetAtt": [
+                  "S3Bucket",
+                  "WebsiteURL"
+              ]
+          },
+          "Description": "URL for website hosted on S3"
+      },
+      "S3BucketSecureURL": {
+          "Value": {
+              "Fn::Join": [
+                  "",
+                  [
+                      "https://",
+                      {
+                          "Fn::GetAtt": [
+                              "S3Bucket",
+                              "DomainName"
+                          ]
+                      }
+                  ]
+              ]
+          },
+          "Description": "Secure URL for S3 bucket"
+      }
+  }
+}
