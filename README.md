@@ -36,7 +36,7 @@ yarn build
 
 ## Deployment
 
-Run production build and sync static app files from `./dist` to server.
+Run production build and sync static app files from `./dist` to ecosheds server.
 
 ```sh
 yarn deploy # runs build first
@@ -48,4 +48,14 @@ Sync data files to remote server
 
 ```sh
 yarn deploy:data
+```
+
+### Deploying to S3
+
+For deploying to S3, use the AWS CLI:
+
+```sh
+yarn build
+ln -s ../data dist/data # create symlink ./dist/data -> ./data so that aws s3 sync will upload data files
+aws s3 sync dist/ s3://<BUCKET_NAME> --delete
 ```
