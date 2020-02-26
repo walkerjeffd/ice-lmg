@@ -1,0 +1,38 @@
+Description: >
+  CONTE Development S3 Bucket For LMG-RESTORE Application
+AWSTemplateFormatVersion: '2010-09-09'
+Parameters:
+  BucketName:
+    Description: Name of S3 bucket
+    Type: String
+    Default: conte-lmg-restore-dev
+Resources:
+  S3Bucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: !Ref BucketName
+      AccessControl: PublicRead
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: index.html
+  BucketPolicy:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      PolicyDocument:
+        Id: PublicStaticWebsitePolicy
+        Version: '2012-10-17'
+        Statement:
+          - Sid: AllowPublicGetObject
+            Effect: Allow
+            Principal: '*'
+            Action: 's3:GetObject'
+            Resource: !Join ['', ['arn:aws:s3:::', !Ref S3Bucket, '/*']]
+            Bucket: !Ref S3Bucket
+Outputs:
+  WebsiteURL:
+    Value: !GetAtt [S3Bucket, WebsiteURL]
+    Description: URL for website hosted on S3
+  },
+  S3BucketSecureURL:
+    Value: !Join ['', ['https://', !GetAtt [S3Bucket, DomainName]]]
+    Description: Secure URL for S3 bucket
