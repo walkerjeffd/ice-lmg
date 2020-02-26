@@ -1,16 +1,13 @@
 <template>
   <v-app>
-    <v-app-bar app dark>
-      <a href="https://www.usgs.gov/centers/lmg-water" target="_blank" class="mr-4 ml-1">
-        <v-img src="./assets/usgs-logo.png" alt="USGS Logo" height="42" width="42"></v-img>
-      </a>
+    <v-app-bar app dark absolute>
       <v-toolbar-title class="headline">
         USGS <span v-if="$vuetify.breakpoint.mdAndUp">Lower Mississippi-Gulf Water Science Center</span> |
         <span class="font-weight-light">RESTORE Data Visualization Tool</span>
       </v-toolbar-title>
       <v-spacer></v-spacer>
       <v-btn text href="http://ecosheds.org">
-        <v-icon small left>mdi-home</v-icon> SHEDS
+        <v-icon small left>mdi-home</v-icon> ECOSHEDS
       </v-btn>
     </v-app-bar>
     <v-content v-if="$vuetify.breakpoint.smAndUp">
@@ -125,7 +122,7 @@
                   </v-card>
                 </v-tab-item>
                 <v-tab-item :transition="false" :reverse-transition="false">
-                  <v-card v-show="!collapse.tabs" :max-height="$vuetify.breakpoint.height - heights.dataset - heights.legend - heights.debug - 205" style="overflow-y: auto">
+                  <v-card v-show="!collapse.tabs" :max-height="$vuetify.breakpoint.height - heights.dataset - heights.legend - heights.debug - 350" style="overflow-y: auto">
                     <v-card-text>
                       <v-autocomplete
                         :items="filterVariables"
@@ -802,5 +799,11 @@ export default {
 
 .ice-card {
   width: 500px;
+}
+
+.v-dialog:not(.v-dialog--fullscreen) {
+  position: absolute;
+  margin-top: 20px !important;
+  max-height: calc(100vh - 40px) !important;
 }
 </style>
