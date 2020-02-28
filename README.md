@@ -56,6 +56,6 @@ For deploying to S3, use the AWS CLI:
 
 ```sh
 yarn build
-ln -s ../data dist/data # create symlink ./dist/data -> ./data so that aws s3 sync will upload data files
-aws s3 sync dist/ s3://<BUCKET_NAME> --delete
+aws s3 sync dist/ s3://<BUCKET_NAME>/<BASE_URL>
+aws s3 sync data/ s3://<BUCKET_NAME>/<BASE_URL>/data
 ```

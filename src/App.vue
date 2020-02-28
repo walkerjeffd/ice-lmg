@@ -5,12 +5,8 @@
         USGS <span v-if="$vuetify.breakpoint.mdAndUp">Lower Mississippi-Gulf Water Science Center</span> |
         <span class="font-weight-light">RESTORE Data Visualization Tool</span>
       </v-toolbar-title>
-      <v-spacer></v-spacer>
-      <v-btn text href="http://ecosheds.org">
-        <v-icon small left>mdi-home</v-icon> ECOSHEDS
-      </v-btn>
     </v-app-bar>
-    <v-content v-if="$vuetify.breakpoint.smAndUp">
+    <v-content v-if="$vuetify.breakpoint.mdAndUp">
       <ice-map :basemaps="map.basemaps" :center="[31.5, -89]" :zoom="6">
         <ice-map-layer
           name="points"
@@ -175,7 +171,7 @@
         app
         hide-overlay
         stateless
-        :height="$vuetify.breakpoint.height - 70"
+        :height="$vuetify.breakpoint.height - 138"
         width="600">
         <component v-if="theme" :is="theme.id" :selected="feature.selected" @close="selectFeature()"></component>
       </v-navigation-drawer>
@@ -256,9 +252,9 @@
             the Lower Mississippi-Gulf Region.
           </p>
           <p class="body-1">
-            This application is part of the <a href="https://ecosheds.org" target="_blank">Spatial Hydro-Ecological Decision System (SHEDS)</a>
-            and built using the <a href="http://ice.ecosheds.org" target="_blank">Interactive Catchment Explorer</a> framework by
-            <a href="https://walkerenvres.com" target="_blank">Walker Environmental Research LLC</a>.
+            This application was built by <a href="https://walkerenvres.com" target="_blank">Walker Environmental Research</a>
+            and is an adaptation of the <a href="http://ice.ecosheds.org" target="_blank">Interactive Catchment Explorer</a>,
+            which is part of the <a href="https://ecosheds.org" target="_blank">Spatial Hydro-Ecological Decision System (SHEDS)</a>.
           </p>
 
           <v-divider class="mb-4"></v-divider>
@@ -785,7 +781,7 @@ export default {
 
 <style>
 .v-navigation-drawer {
-  margin-top: 64px !important;
+  margin-top: 70px !important;
 }
 .v-list {
   background: none !important;
