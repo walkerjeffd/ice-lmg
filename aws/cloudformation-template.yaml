@@ -11,23 +11,31 @@ Resources:
     Type: 'AWS::S3::Bucket'
     Properties:
       BucketName: !Ref BucketName
-      AccessControl: PublicRead
       WebsiteConfiguration:
         IndexDocument: index.html
         ErrorDocument: index.html
+      Tags:
+        - Key: project
+          Value: lmg-restore
+        - Key: env
+          Value: dev
   BucketPolicy:
     Type: 'AWS::S3::BucketPolicy'
     Properties:
       Bucket: !Ref S3Bucket
       PolicyDocument:
-        Id: PublicStaticWebsitePolicy
+        Id: ConteDevLmgRestoreBucketPolicy
         Version: '2012-10-17'
         Statement:
-          - Sid: AllowPublicGetObject
+          - Sid: AllowWantedIps
             Effect: Allow
             Principal: '*'
             Action: 's3:GetObject'
             Resource: !Join ['', ['arn:aws:s3:::', !Ref S3Bucket, '/*']]
+            Condition:
+              IpAddress:
+                'aws:SourceIp':
+                  - 75.68.245.53
 Outputs:
   WebsiteURL:
     Value: !GetAtt [S3Bucket, WebsiteURL]
