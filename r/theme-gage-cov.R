@@ -32,6 +32,7 @@ df_dataset <- load_dataset(theme, col_types = cols(
   select(id, everything()) %>% 
   arrange(id, decade) %>% 
   mutate(
+    cat_physio = if_else(cat_physio == "acc_physio_3", "cat_physio_3", cat_physio),
     cat_aquifers = if_else(cat_aquifers == "acc_aq111", "cat_aq111", cat_aquifers),
     cat_soller = if_else(cat_soller == "acc_soller_221", "cat_soller_221", cat_soller),
     ed_rch_zone = if_else(ed_rch_zone == 1, "yes", "no"),
@@ -154,7 +155,13 @@ out_dataset %>%
 
 # categorical variables ---------------------------------------------------
 
-out_dataset$cat_soller %>%
-  unique() %>% 
-  sort() %>% 
-  str_c(collapse = ",")
+out_dataset %>% 
+  select(-id) %>% 
+  select_if(is_character) %>% 
+  gather(var, value) %>% 
+  distinct() %>% 
+  arrange(var, value) %>% 
+  group_by(var) %>% 
+  summarise(
+    values = str_c(value, collapse = ",")
+  )
