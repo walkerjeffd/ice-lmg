@@ -4,6 +4,7 @@ import './plugins/highcharts'
 import './plugins/leaflet'
 import './plugins/axios'
 import './plugins/dc'
+import './plugins/vue2-filters'
 
 import '@/assets/styles.css'
 

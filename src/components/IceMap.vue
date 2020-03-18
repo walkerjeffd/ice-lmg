@@ -117,9 +117,4 @@ export default {
   top: 0;
   z-index: 0;
 }
-
-circle {
-  cursor: pointer !important;
-  pointer-events: visible !important;
-}
 </style>

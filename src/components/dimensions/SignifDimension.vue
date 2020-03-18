@@ -2,8 +2,10 @@
   <div>
     <v-checkbox
       v-model="value"
-      label="Significant Trend Results Only (p < 0.05)"
       hide-details>
+      <template v-slot:label>
+        <div class="subtitle-2">Significant Trend Results Only (p &lt; 0.05)</div>
+      </template>
     </v-checkbox>
   </div>
 </template>

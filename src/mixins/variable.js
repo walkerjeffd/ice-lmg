@@ -10,13 +10,17 @@ export default {
     inverseTransform () {
       return transform.inverse(this.variable.scale.transform)
     },
-    textFormatter () {
-      if (!this.variable || !this.variable.formats.text) return (d) => d
-      return d3.format(this.variable.formats.text)
+    valueFormatter () {
+      if (!this.variable || !this.variable.formats.value) return (d) => d
+      return d3.format(this.variable.formats.value)
     },
-    axisFormatter () {
-      if (!this.variable || !this.variable.formats.axis) return (d) => d
-      return d3.format(this.variable.formats.axis)
+    mapFormatter () {
+      if (!this.variable || !this.variable.formats.map) return (d) => d
+      return d3.format(this.variable.formats.map)
+    },
+    filterFormatter () {
+      if (!this.variable || !this.variable.formats.filter) return (d) => d
+      return d3.format(this.variable.formats.filter)
     },
     variableScale () {
       if (!this.variable) return d3.scaleLinear()

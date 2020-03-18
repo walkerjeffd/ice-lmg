@@ -15,14 +15,14 @@
       </v-btn>
       <v-btn small icon @click="close"><v-icon small>mdi-close</v-icon></v-btn>
     </v-toolbar>
-    <v-card-text v-if="!hide">
+    <v-card-text v-if="!hide" class="py-0 ml-n1 caption">
       <div v-if="this.variable.type === 'num'">
-        Filter:
-        <span v-if="filter">{{textFormatter(inverseTransform(filter[0]))}} to {{textFormatter(inverseTransform(filter[1]))}}</span>
+        Range:
+        <span v-if="filter">{{valueFormatter(inverseTransform(filter[0]))}} to {{valueFormatter(inverseTransform(filter[1]))}}</span>
         <span v-else>None</span>
       </div>
       <div v-else>
-        Filter:
+        Range:
         <span v-if="filter && filter.length === 1">{{filter[0]}}</span>
         <span v-else-if="filter">{{filter.length}} values</span>
         <span v-else>None</span>
@@ -67,11 +67,11 @@ export default {
     if (this.variable.type === 'num') {
       const dim = xf.dimension(d => this.transform(d[this.variable.id]))
       const group = dim.group(d => Math.floor(d / interval) * interval).reduceCount()
-      const margins = { top: 5, right: 40, bottom: 30, left: 50 }
+      const margins = { top: 5, right: 40, bottom: 20, left: 50 }
 
       this.chart = dc.barChart(el)
         .width(width)
-        .height(200)
+        .height(120)
         .margins(margins)
         .dimension(dim)
         .group(group)
@@ -92,7 +92,9 @@ export default {
       this.chart.xUnits(() => 30)
 
       this.chart.xAxis()
-        .tickFormat(d => this.axisFormatter(this.inverseTransform(d)))
+        .tickFormat(d => this.filterFormatter(this.inverseTransform(d)))
+
+      this.chart.yAxis().ticks(4)
     } else {
       const margins = { top: 0, right: 40, bottom: 30, left: 15 }
       const dim = xf.dimension(d => d[this.variable.id])
@@ -113,7 +115,7 @@ export default {
         .transitionDelay(0)
         .transitionDuration(0)
         .gap(gap)
-        .fixedBarHeight(20)
+        // .fixedBarHeight(20)
         .ordering(d => this.variable.scale.domain.findIndex(v => v.id === d.key))
         .label(function (d) {
           return d.key
@@ -152,6 +154,7 @@ export default {
     evt.$on('filter:render', this.render)
   },
   beforeDestroy () {
+    this.chart.group().dispose()
     this.chart.dimension().dispose()
     dc.chartRegistry.deregister(this.chart)
     dc.renderAll()

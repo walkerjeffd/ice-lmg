@@ -47,7 +47,7 @@ export default {
         const map = new Map(domain.map(d => [d.value, d.label]))
         return (d) => map.get(d)
       }
-      return format(variable.formats.text)
+      return format(variable.formats.value)
     },
     updateDataset () {
       if (!this.selected) {

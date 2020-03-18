@@ -80,7 +80,7 @@ export default {
     evt.$on('map:zoom', this.resize)
     evt.$on('map:render', this.renderFill)
 
-    this.container = this.overlay.append('g')
+    this.container = this.overlay.append('g').classed('ice-map-layer', true)
     this.container.call(this.tip)
 
     if (this.layer) {
@@ -117,7 +117,7 @@ export default {
     setTipHtml () {
       this.tip.html(d => `
         <strong>ID: ${d.id}</strong><br>
-        ${this.variable.label}: ${typeof this.getValue(d) === 'object' ? this.textFormatter(this.getValue(d).mean) + ` ${this.variable.units || ''}` : 'N/A'}
+        ${this.variable.label}: ${typeof this.getValue(d) === 'object' ? this.valueFormatter(this.getValue(d).mean) + ` ${this.variable.units || ''}` : 'N/A'}
       `)
     },
     loadLayer (layer) {
@@ -232,4 +232,8 @@ export default {
 </script>
 
 <style>
+g.ice-map-layer > circle {
+  cursor: pointer;
+  pointer-events: visible;
+}
 </style>

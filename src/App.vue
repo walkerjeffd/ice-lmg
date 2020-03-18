@@ -1,18 +1,42 @@
 <template>
   <v-app>
-    <v-app-bar app dark absolute>
+    <!-- USGS Header -->
+    <header id="navbar" class="header-nav" role="banner">
+      <div class="tmp-container">
+        <div class="header-search">
+          <a class="logo-header" href="https://www.usgs.gov/" title="USGS Home">
+            <img src="img/usgs-logo.png" alt="USGS" class="img" border="0" />
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <v-app-bar dense app dark absolute style="margin-top:72px">
       <v-toolbar-title class="headline">
-        USGS <span v-if="$vuetify.breakpoint.mdAndUp">Lower Mississippi-Gulf Water Science Center</span> |
+        USGS <span v-if="$vuetify.breakpoint.xl">Lower Mississippi-Gulf Water Science Center</span><span v-else>LMGWSC</span> |
         <span class="font-weight-light">RESTORE Data Visualization Tool</span>
       </v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-btn text href="http://ecosheds.org">
-        <v-icon small left>mdi-home</v-icon> ECOSHEDS
+      <v-btn text medium class="mx-2" @click="dialogs.welcome = true">
+        <v-icon small left>mdi-home</v-icon> Welcome
+      </v-btn>
+      <v-btn text medium class="mx-2" @click="dialogs.help = true">
+        <v-icon small left>mdi-help</v-icon> User's Guide
+      </v-btn>
+      <v-btn text medium class="mx-2" @click="dialogs.contact = true">
+        <v-icon small left>mdi-email</v-icon> Contact
+      </v-btn>
+      <v-btn text medium class="mx-2" href="http://ecosheds.org">
+        <v-icon small left>mdi-home-import-outline</v-icon> ecosheds
+      </v-btn>
+      <v-btn text medium class="mx-2" v-if="debug" @click="goDebug">
+        <v-icon small left>mdi-play</v-icon> go
       </v-btn>
     </v-app-bar>
-    <v-content v-if="$vuetify.breakpoint.smAndUp">
-      <ice-map :basemaps="map.basemaps" :center="[31.5, -89]" :zoom="6">
-        <ice-map-layer
+
+    <v-content v-if="$vuetify.breakpoint.mdAndUp">
+      <IceMap :basemaps="map.basemaps" :center="[31.5, -89]" :zoom="6">
+        <IceMapLayer
           name="points"
           set-bounds
           :layer="layer"
@@ -20,66 +44,21 @@
           :getValue="getValue"
           :selected="feature.selected"
           @click="selectFeature">
-        </ice-map-layer>
-      </ice-map>
-      <v-container fluid>
-        <v-row no-gutters>
+        </IceMapLayer>
+      </IceMap>
+      <v-container fluid fill-height class="align-stretch py-0">
+        <v-row>
           <v-col>
-            <v-card class="ice-card elevation-10">
-              <v-container class="pa-0">
-                <v-row no-gutters>
-                  <v-col class="text-center">
-                    <v-btn block tile medium color="secondary" @click="dialogs.welcome = true">
-                      <v-icon medium left>mdi-home</v-icon> Welcome
-                    </v-btn>
-                  </v-col>
-                  <v-col class="text-center">
-                    <v-btn block tile medium color="secondary" @click="dialogs.contact = true">
-                      <v-icon medium left>mdi-email</v-icon> Contact
-                    </v-btn>
-                  </v-col>
-                  <v-col class="text-center">
-                    <v-btn block tile medium color="secondary" @click="dialogs.help = true">
-                      <v-icon medium left>mdi-help</v-icon> User's Guide
-                    </v-btn>
-                  </v-col>
-                </v-row>
-              </v-container>
-            </v-card>
-            <v-card class="ice-card elevation-10 mt-2 pb-0" ref="dataset">
-              <v-toolbar dark dense color="primary">
-                <h4>Dataset: <span v-if="theme">{{ theme.title }}</span><span v-else-if="error.theme">Failed to load dataset</span><span v-else>None</span></h4>
-                <v-spacer></v-spacer>
-                <v-btn icon small @click="collapse.dataset = !collapse.dataset">
-                  <v-icon small v-if="!collapse.dataset">mdi-menu-up</v-icon>
-                  <v-icon small v-else>mdi-menu-down</v-icon>
-                </v-btn>
-              </v-toolbar>
-              <v-card-text v-if="theme && !collapse.dataset && (theme.dimensions.decade || theme.dimensions.signif)">
-                <decade-dimension v-if="theme.dimensions.decade"></decade-dimension>
-                <div class="subheading" v-if="theme.id === 'gage-primary' || theme.id === 'gage-qtrend'">
-                  <v-icon small>mdi-information</v-icon> For trend test results, the decade slider sets the starting point of the period of record, which always ends in 2015 (e.g., if 1970s is selected, then trend tests are based on flows from 1970-2015).
-                </div>
-                <signif-dimension v-if="theme.dimensions.signif"></signif-dimension>
-              </v-card-text>
-              <v-divider v-if="theme && !collapse.dataset && (theme.dimensions.decade || theme.dimensions.signif)"></v-divider>
-              <v-card-actions>
-                <v-btn small outlined text color="primary" @click="dialogs.theme = true">
-                  <v-icon left small>mdi-folder-open</v-icon> Open Dataset Browser
-                </v-btn>
-                <v-spacer></v-spacer>
-                <v-btn small outlined text color="primary" v-if="theme" @click="dialogs.download = true">
-                  <v-icon left small>mdi-download</v-icon> Download
-                </v-btn>
-              </v-card-actions>
-            </v-card>
-            <v-card class="ice-card elevation-10 mt-2" v-if="theme">
+            <v-card width="500">
               <v-tabs
                 v-model="tabs.active"
                 background-color="primary"
                 color="white"
                 dark
                 slider-color="white">
+                <v-tab ripple>
+                  Dataset
+                </v-tab>
                 <v-tab ripple>
                   Map Variable
                 </v-tab>
@@ -91,9 +70,38 @@
                   <v-icon small v-if="!collapse.tabs">mdi-menu-up</v-icon>
                   <v-icon small v-else>mdi-menu-down</v-icon>
                 </v-btn>
-                <v-tab-item :transition="false" :reverse-transition="false">
-                  <v-card v-show="!collapse.tabs">
-                    <v-card-text v-if="theme.id !== 'gage-qtrend'">
+                <v-tab-item transition="false" reverse-transition="false">
+                  <v-card class="ice-card elevation-10 pb-0" ref="dataset">
+                    <v-card-text v-if="theme && !collapse.tabs" class="px-3">
+                      <div class="title font-weight-bold grey--text text--darken-4">
+                        <span v-if="theme">{{ theme.title }}</span><span v-else-if="error.theme">Failed to load dataset</span><span v-else>None</span>
+                      </div>
+                      <decade-dimension v-if="theme.dimensions.decade" class="mt-4"></decade-dimension>
+                      <signif-dimension v-if="theme.dimensions.signif"></signif-dimension>
+                      <div class="subheading mt-4" v-if="theme && theme.id === 'gage-primary' || theme.id === 'gage-qtrend'">
+                        <v-icon small>mdi-information</v-icon> For trend test results, the decade slider sets the
+                        starting point of the analysis period, which always ends in 2015 (e.g., if 1970s is selected, then trend results
+                        are based on 1970-2015).
+                      </div>
+                    </v-card-text>
+                    <v-divider></v-divider>
+                    <v-card-actions v-if="!collapse.tabs" class="pa-3">
+                      <v-btn small outlined text color="primary" @click="dialogs.theme = true">
+                        <v-icon left small>mdi-folder-open</v-icon> Dataset Browser
+                      </v-btn>
+                      <v-spacer></v-spacer>
+                      <v-btn small outlined text color="primary" v-if="theme" @click="dialogs.download = true">
+                        <v-icon left small>mdi-download</v-icon> Download
+                      </v-btn>
+                    </v-card-actions>
+                  </v-card>
+                </v-tab-item>
+                <v-tab-item transition="false" reverse-transition="false">
+                  <v-card v-show="!collapse.tabs" v-if="theme">
+                    <v-card-text class="pt-8" v-if="theme.id === 'gage-qtrend'">
+                      <trend-variable @update="setVariableById"></trend-variable>
+                    </v-card-text>
+                    <v-card-text v-else>
                       <v-autocomplete
                         label="Select variable..."
                         :items="mapVariables"
@@ -103,7 +111,7 @@
                         item-value="id"
                         item-text="label"
                         :menu-props="{ closeOnClick: false, closeOnContentClick: false, openOnClick: false, maxHeight: 400 }"
-                        class="mt-2"
+                        class="my-4"
                         hide-details>
                         <template v-slot:item="data">
                           <v-list-item-content class="pl-3 body-2" v-html="data.item.label"></v-list-item-content>
@@ -116,13 +124,10 @@
                         </template>
                       </v-autocomplete>
                     </v-card-text>
-                    <v-card-text v-else>
-                      <trend-variable @update="setVariableById"></trend-variable>
-                    </v-card-text>
                   </v-card>
                 </v-tab-item>
-                <v-tab-item :transition="false" :reverse-transition="false">
-                  <v-card v-show="!collapse.tabs" :max-height="$vuetify.breakpoint.height - heights.dataset - heights.legend - heights.debug - 350" style="overflow-y: auto">
+                <v-tab-item transition="false" reverse-transition="false">
+                  <v-card v-show="!collapse.tabs">
                     <v-card-text>
                       <v-autocomplete
                         :items="filterVariables"
@@ -133,6 +138,8 @@
                         item-value="id"
                         item-text="label"
                         chips
+                        class="my-4"
+                        hide-details
                         deletable-chips
                         clearable
                         label="Select crossfilter variable(s)...">
@@ -143,27 +150,15 @@
                           <v-list-item-content class="body-2" v-html="data.item.label"></v-list-item-content>
                         </template>
                       </v-autocomplete>
-                      <p>Filtered: {{ counts.filtered }} of {{ counts.total }}</p>
                       <ice-filter v-for="variable in filters" :key="variable.id" :variable="variable" @close="removeFilter(variable)"></ice-filter>
                     </v-card-text>
                   </v-card>
                 </v-tab-item>
               </v-tabs>
             </v-card>
-            <ice-legend-box v-if="theme" ref="legend" :collapse="collapse.legend" @collapse="collapse.legend = !collapse.legend"></ice-legend-box>
-            <v-card class="ice-card elevation-10 mt-2" v-if="debug" ref="debug">
-              <v-toolbar dense dark color="red darken-4">
-                <h4>Debug</h4>
-                <v-spacer></v-spacer>
-                <v-btn icon small @click="collapse.debug = !collapse.debug">
-                  <v-icon small v-if="!collapse.debug">mdi-menu-up</v-icon>
-                  <v-icon small v-else>mdi-menu-down</v-icon>
-                </v-btn>
-              </v-toolbar>
-              <v-card-text v-if="!collapse.debug">
-                <pre>heights: {{ heights }}</pre>
-              </v-card-text>
-            </v-card>
+          </v-col>
+          <v-col>
+            <ice-legend-box :collapse="collapse.legend" :counts="counts" @collapse="collapse.legend = !collapse.legend"></ice-legend-box>
           </v-col>
         </v-row>
       </v-container>
@@ -172,30 +167,21 @@
         right
         temporary
         fixed
-        app
         hide-overlay
         stateless
-        :height="$vuetify.breakpoint.height - 70"
-        width="600">
+        width="500"
+        class="mt-0">
         <component v-if="theme" :is="theme.id" :selected="feature.selected" @close="selectFeature()"></component>
       </v-navigation-drawer>
     </v-content>
+
     <v-content v-else>
-      <v-container fluid>
-        <v-row >
-          <v-col>
-            <v-card>
-              <v-card-text>
-                <h2 class="text-center mb-4"><v-icon large>mdi-alert</v-icon></h2>
-                <p class="text-center">
-                  This application is only designed for desktop computers, and does not support mobile devices.
-                </p>
-              </v-card-text>
-            </v-card>
-          </v-col>
-        </v-row>
-      </v-container>
+      <v-alert type="error" class="ma-8" outlined prominent color="grey darken-1">
+        <div class="title">This site is not designed for mobile devices.</div>
+        Please use a laptop or desktop with a larger screen size (>960px wide).
+      </v-alert>
     </v-content>
+
     <v-dialog
       v-model="dialogs.welcome"
       max-width="1000"
@@ -281,7 +267,7 @@
     </v-dialog>
     <v-dialog
       v-model="dialogs.contact"
-      max-width="1000"
+      max-width="600"
       scrollable>
       <v-card>
         <v-toolbar dark color="primary">
@@ -431,7 +417,7 @@
     </v-dialog>
     <v-dialog
       v-model="dialogs.theme"
-      max-width="1200"
+      max-width="900"
       scrollable>
       <v-card>
         <v-toolbar dark color="primary">
@@ -546,6 +532,40 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <!-- USGS Footer -->
+    <footer class="footer">
+      <div class="tmp-container">
+        <div class="footer-doi">
+          <ul class="menu nav">
+            <li class="first leaf menu-links menu-level-1"><a href="https://www.doi.gov/privacy">DOI Privacy Policy</a>
+            </li>
+            <li class="leaf menu-links menu-level-1"><a href="https://www.usgs.gov/laws/policies_notices.html">Legal</a>
+            </li>
+            <li class="leaf menu-links menu-level-1"><a
+                href="https://www2.usgs.gov/laws/accessibility.html">Accessibility</a></li>
+            <li class="leaf menu-links menu-level-1"><a href="https://www.usgs.gov/sitemap.html">Site Map</a></li>
+            <li class="last leaf menu-links menu-level-1"><a href="https://answers.usgs.gov/">Contact USGS</a></li>
+          </ul>
+        </div>
+
+        <hr class="usgs">
+
+        <div class="footer-doi">
+          <ul class="menu nav">
+            <li class="first leaf menu-links menu-level-1"><a href="https://www.doi.gov/">U.S. Department of the
+                Interior</a></li>
+            <li class="leaf menu-links menu-level-1"><a href="https://www.doioig.gov/">DOI Inspector General</a></li>
+            <li class="leaf menu-links menu-level-1"><a href="https://www.whitehouse.gov/">White House</a></li>
+            <li class="leaf menu-links menu-level-1"><a href="https://www.whitehouse.gov/omb/management/egov/">E-gov</a>
+            </li>
+            <li class="leaf menu-links menu-level-1"><a href="https://www.doi.gov/pmb/eeo/no-fear-act">No Fear Act</a>
+            </li>
+            <li class="last leaf menu-links menu-level-1"><a href="https://www2.usgs.gov/foia">FOIA</a></li>
+          </ul>
+        </div>
+      </div>
+    </footer>
   </v-app>
 </template>
 
@@ -556,6 +576,8 @@ import IceMap from '@/components/IceMap'
 import IceMapLayer from '@/components/IceMapLayer'
 import IceFilter from '@/components/IceFilter'
 import IceLegendBox from '@/components/IceLegendBox'
+// import IceContinuousLegend from '@/components/IceContinuousLegend'
+// import IceDiscreteLegend from '@/components/IceDiscreteLegend'
 
 import Disclaimer from '@/components/Disclaimer'
 
@@ -591,6 +613,8 @@ export default {
     IceMapLayer,
     IceFilter,
     IceLegendBox,
+    // IceContinuousLegend,
+    // IceDiscreteLegend,
     Disclaimer,
     DecadeDimension,
     SignifDimension,
@@ -607,8 +631,8 @@ export default {
     Huc12Solar
   },
   data: () => ({
-    // debug: process.env.NODE_ENV === 'development',
-    debug: false,
+    debug: process.env.NODE_ENV === 'development',
+    // debug: false,
     collapse: {
       dataset: false,
       tabs: false,
@@ -668,7 +692,8 @@ export default {
           attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }
       ]
-    }
+    },
+    legendSettings: false
   }),
   computed: {
     ...mapGetters(['theme', 'variables', 'layer', 'colorScheme', 'colorInvert']),
@@ -688,7 +713,7 @@ export default {
     }
   },
   mounted () {
-    if (!this.theme) this.dialogs.welcome = true
+    // if (!this.theme) this.dialogs.welcome = true
     this.updateHeights()
     evt.$on('xf:filter', this.updateCounts)
   },
@@ -711,6 +736,20 @@ export default {
     }
   },
   methods: {
+    goDebug () {
+      const variables = this.variables.filter(d => d.filter)
+      this.filters = [variables[0]]
+      this.setVariableById(variables[0].id)
+      let i = 1
+      const n = variables.length
+      // const n = 3
+      const interval = setInterval(() => {
+        if (i === n) return clearInterval(interval)
+        this.filters = [variables[i]]
+        this.setVariableById(variables[i].id)
+        i += 1
+      }, 2000)
+    },
     updateHeights () {
       this.$nextTick(() => {
         for (let x in this.$refs) {
@@ -790,20 +829,11 @@ export default {
 .v-list {
   background: none !important;
 }
-.v-dialog__content {
-  align-items: start !important;
+.v-dialog__content.v-dialog__content--active {
+  align-items: start;
 }
-.v-dialog.v-dialog--active {
-  margin-top: 64px !important;
-}
-
-.ice-card {
-  width: 500px;
-}
-
-.v-dialog:not(.v-dialog--fullscreen) {
-  position: absolute;
-  margin-top: 20px !important;
-  max-height: calc(100vh - 40px) !important;
+.v-tabs > .v-window > .v-window__container {
+  max-height: calc(100vh - 255px);
+  overflow-y: auto;
 }
 </style>

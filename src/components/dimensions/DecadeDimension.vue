@@ -7,7 +7,8 @@
       :max="labels.length - 1"
       step="1"
       ticks="always"
-      tick-size="3">
+      tick-size="3"
+      class="px-4">
     </v-slider>
   </div>
 </template>

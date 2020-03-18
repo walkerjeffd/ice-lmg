@@ -18,11 +18,11 @@ export default {
     return {
       svg: null,
       margins: {
-        left: 20,
-        right: 20
+        left: 10,
+        right: 10
       },
-      width: 500,
-      height: 30,
+      width: 300,
+      height: 24,
       axisHeight: 20
     }
   },
@@ -32,6 +32,7 @@ export default {
   mounted () {
     this.svg = d3.select(this.$el)
       .append('svg')
+      .attr('class', 'ice-continuous-legend')
       .attr('preserveAspectRatio', 'xMinYMin meet')
       .attr('viewBox', `0 0 ${this.width} ${this.height + this.axisHeight}`)
 
@@ -56,6 +57,7 @@ export default {
       this.renderContinuous()
     },
     renderContinuous () {
+      console.log('renderContinuous')
       const defs = this.svg.append('defs')
 
       const linearGradient = defs.append('linearGradient')
@@ -99,7 +101,7 @@ export default {
 
       const axis = d3.axisBottom(axisScale)
 
-      axis.ticks(10, this.variable.formats.axis)
+      axis.ticks(5, this.variable.formats.map)
       this.svg.select('g.legend-axis')
         .call(axis)
 
@@ -130,7 +132,13 @@ export default {
 </script>
 
 <style>
-g.legend-axis path {
-  fill: none;
+svg.ice-continuous-legend g.tick > text {
+  font-size: 1.2em;
+}
+svg.ice-continuous-legend g.tick:nth-child(2) > text {
+  text-anchor: start;
+}
+svg.ice-continuous-legend g.tick:nth-last-child(1) > text {
+  text-anchor: end;
 }
 </style>

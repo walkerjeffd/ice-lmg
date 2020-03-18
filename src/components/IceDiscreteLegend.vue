@@ -23,7 +23,7 @@ export default {
         right: 20,
         bottom: 20
       },
-      width: 500,
+      width: 250,
       itemHeight: 15,
       itemRadius: 5,
       itemPadding: 5
@@ -46,6 +46,7 @@ export default {
     this.render()
   },
   beforeDestroy () {
+    this.clear()
   },
   watch: {
     variable () {
@@ -68,13 +69,13 @@ export default {
 
       this.container = this.svg
         .append('g')
+        .attr('class', 'ice-discrete-legend')
         .attr('transform', `translate(${this.margins.left}, ${this.margins.top})`)
 
       const items = this.container.selectAll('g')
         .data(this.domain, d => d)
         .enter()
         .append('g')
-        .attr('class', 'tame-legend-color-discrete-item')
 
       items.append('circle')
         .attr('cx', this.itemRadius)
@@ -88,7 +89,7 @@ export default {
         .attr('x', this.itemRadius * 2 + 10)
         .attr('y', (d, i) => this.itemRadius + (this.itemRadius * 2 + this.itemPadding) * i)
         .attr('dy', '0.35em')
-        .text(d => d)
+        .text(d => this.$options.filters.truncate(d, 32))
     },
     clear () {
       this.svg && this.svg.select('g').remove()
@@ -100,5 +101,16 @@ export default {
 <style>
 g.legend-axis path {
   fill: none;
+}
+g.ice-discrete-legend > g > circle {
+  pointer-events: none;
+  cursor: none;
+  stroke: gray;
+  stroke-width: 0.5px;
+}
+g.ice-discrete-legend > g > text {
+  fill: rgb(20, 20, 20);
+  font-weight: 400;
+  font-size: 0.9em;
 }
 </style>
