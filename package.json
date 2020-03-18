@@ -8,6 +8,7 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
+    "build:staging": "vue-cli-service build --mode staging",
     "deploy": "yarn deploy:app && yarn deploy:data",
     "deploy:app": "yarn build && rsync -av dist/* jeff@ecosheds.org:/conte/www/static/lmg-restore/ --delete",
     "deploy:data": "rsync -av data/* jeff@ecosheds.org:/conte/www/static/data/lmg-restore --delete"

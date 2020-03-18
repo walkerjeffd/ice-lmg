@@ -242,9 +242,9 @@
             the Lower Mississippi-Gulf Region.
           </p>
           <p class="body-1">
-            This application is part of the <a href="https://ecosheds.org" target="_blank">Spatial Hydro-Ecological Decision System (SHEDS)</a>
-            and built using the <a href="http://ice.ecosheds.org" target="_blank">Interactive Catchment Explorer</a> framework by
-            <a href="https://walkerenvres.com" target="_blank">Walker Environmental Research LLC</a>.
+            This application was built by <a href="https://walkerenvres.com" target="_blank">Walker Environmental Research</a>
+            and is an adaptation of the <a href="http://ice.ecosheds.org" target="_blank">Interactive Catchment Explorer</a>,
+            which is part of the <a href="https://ecosheds.org" target="_blank">Spatial Hydro-Ecological Decision System (SHEDS)</a>.
           </p>
 
           <v-divider class="mb-4"></v-divider>
@@ -824,7 +824,7 @@ export default {
 
 <style>
 .v-navigation-drawer {
-  margin-top: 64px !important;
+  margin-top: 70px !important;
 }
 .v-list {
   background: none !important;
