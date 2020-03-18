@@ -125,7 +125,13 @@ out_dataset %>%
 
 # categorical variables ---------------------------------------------------
 
-out_dataset$ed_rch_zone %>%
-  unique() %>% 
-  sort() %>% 
-  str_c(collapse = ",")
+out_dataset %>% 
+  select(-id) %>% 
+  select_if(is_character) %>% 
+  gather(var, value) %>% 
+  distinct() %>% 
+  arrange(var, value) %>% 
+  group_by(var) %>% 
+  summarise(
+    values = str_c(value, collapse = ",")
+  )

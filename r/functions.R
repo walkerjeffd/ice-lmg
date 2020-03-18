@@ -67,7 +67,8 @@ load_variables <- function(theme, index_names = NULL) {
     write_csv(file.path(theme$path, "meta-variables.csv"))
   
   df <- readxl::read_xlsx("xlsx/themes.xlsx", sheet = "variables") %>% 
-    filter(theme == !!theme$id)
+    filter(theme == !!theme$id) %>% 
+    select(-row_number)
   
   categories <- readxl::read_xlsx("xlsx/themes.xlsx", sheet = "categories") %>% 
     filter(theme == !!theme$id)
@@ -109,8 +110,9 @@ transform_variables <- function(df, categories) {
         group = df$group[i],
         scale = scale,
         formats = list(
-          text = df$formats_text[i],
-          axis = df$formats_axis[i]
+          value = df$format_value[i],
+          map = df$format_map[i],
+          filter = df$format_filter[i]
         )
       )
     })
