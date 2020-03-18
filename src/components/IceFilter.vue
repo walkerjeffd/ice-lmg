@@ -9,6 +9,14 @@
         {{ variable.description }}
       </v-tooltip>
       <v-spacer></v-spacer>
+      <v-tooltip bottom open-delay="300">
+        <template v-slot:activator="{ on }">
+          <v-btn icon small @click="resetFilter" v-on="on" :disabled="!filter">
+            <v-icon small>mdi-refresh</v-icon>
+          </v-btn>
+        </template>
+        <span>Reset Filter</span>
+      </v-tooltip>
       <v-btn small icon @click="hide = !hide">
         <v-icon v-if="!hide">mdi-menu-up</v-icon>
         <v-icon v-else>mdi-menu-down</v-icon>
@@ -17,12 +25,12 @@
     </v-toolbar>
     <v-card-text v-if="!hide" class="py-0 ml-n1 caption">
       <div v-if="this.variable.type === 'num'">
-        Range:
+        Filter:
         <span v-if="filter">{{valueFormatter(inverseTransform(filter[0]))}} to {{valueFormatter(inverseTransform(filter[1]))}}</span>
         <span v-else>None</span>
       </div>
       <div v-else>
-        Range:
+        Filter:
         <span v-if="filter && filter.length === 1">{{filter[0]}}</span>
         <span v-else-if="filter">{{filter.length}} values</span>
         <span v-else>None</span>
@@ -54,9 +62,6 @@ export default {
       filter: null,
       hide: false
     }
-  },
-  calculated () {
-
   },
   mounted () {
     const width = 460
@@ -154,10 +159,11 @@ export default {
     evt.$on('filter:render', this.render)
   },
   beforeDestroy () {
-    this.chart.group().dispose()
-    this.chart.dimension().dispose()
-    dc.chartRegistry.deregister(this.chart)
-    dc.renderAll()
+    if (this.chart) {
+      this.chart.dimension().dispose()
+      dc.chartRegistry.deregister(this.chart)
+      dc.renderAll()
+    }
     evt.$off('filter:render', this.render)
     evt.$emit('xf:filter')
     evt.$emit('map:render')
@@ -165,10 +171,11 @@ export default {
   methods: {
     render () {
       // console.log('filter:render')
-      this.chart.render()
+      this.chart && this.chart.render()
     },
     resetFilter () {
-      this.chart.dimension().filterAll()
+      this.chart && this.chart.filterAll()
+      dc.redrawAll()
     },
     close () {
       this.$emit('close')
@@ -178,6 +185,9 @@ export default {
 </script>
 
 <style>
+.dc-chart {
+  float: none !important;
+}
 .ice-filter-toolbar > .v-toolbar__content {
   padding-left: 12px;
   padding-right: 12px;

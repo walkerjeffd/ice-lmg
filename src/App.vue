@@ -158,7 +158,7 @@
             </v-card>
           </v-col>
           <v-col>
-            <ice-legend-box :collapse="collapse.legend" :counts="counts" @collapse="collapse.legend = !collapse.legend"></ice-legend-box>
+            <ice-legend-box v-if="theme && variable" :collapse="collapse.legend" :counts="counts" @collapse="collapse.legend = !collapse.legend"></ice-legend-box>
           </v-col>
         </v-row>
       </v-container>
@@ -576,8 +576,6 @@ import IceMap from '@/components/IceMap'
 import IceMapLayer from '@/components/IceMapLayer'
 import IceFilter from '@/components/IceFilter'
 import IceLegendBox from '@/components/IceLegendBox'
-// import IceContinuousLegend from '@/components/IceContinuousLegend'
-// import IceDiscreteLegend from '@/components/IceDiscreteLegend'
 
 import Disclaimer from '@/components/Disclaimer'
 
@@ -613,8 +611,6 @@ export default {
     IceMapLayer,
     IceFilter,
     IceLegendBox,
-    // IceContinuousLegend,
-    // IceDiscreteLegend,
     Disclaimer,
     DecadeDimension,
     SignifDimension,
@@ -835,5 +831,9 @@ export default {
 .v-tabs > .v-window > .v-window__container {
   max-height: calc(100vh - 255px);
   overflow-y: auto;
+}
+.v-toolbar__content {
+  padding-left: 12px;
+  padding-right: 12px;
 }
 </style>

@@ -236,4 +236,20 @@ g.ice-map-layer > circle {
   cursor: pointer;
   pointer-events: visible;
 }
+
+g.ice-map-layer > circle.selected {
+  stroke-width: 2px;
+  stroke: red;
+}
+
+.d3-tip {
+  line-height: 1;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.8);
+  color: #000;
+  border-radius: 2px;
+  pointer-events: none;
+  font-family: sans-serif;
+  z-index: 1000;
+}
 </style>
