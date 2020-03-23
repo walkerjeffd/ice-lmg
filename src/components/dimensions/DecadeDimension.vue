@@ -16,6 +16,7 @@
 <script>
 import { getCrossfilter } from '@/lib/crossfilter'
 import evt from '@/lib/events'
+import { mapActions } from 'vuex'
 
 export default {
   name: 'DecadeDimension',
@@ -45,11 +46,14 @@ export default {
     this.dim.dispose()
   },
   methods: {
+    ...mapActions(['setDecade']),
     update () {
       if (this.decadeValue) {
         this.dim.filterExact(this.decadeValue)
+        this.setDecade(this.decadeValue)
       } else {
         this.dim.filterAll()
+        this.setDecade(null)
       }
       evt.$emit('map:render')
       evt.$emit('xf:filter')

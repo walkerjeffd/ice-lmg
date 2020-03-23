@@ -86,7 +86,7 @@ df_feature <- dataset$out %>%
   ) %>% 
   append_feature_properties(layer)
 
-write_feature_json(theme, df_feature)
+write_feature_json(theme, df_feature, clear = TRUE)
 
 
 # variable ranges ---------------------------------------------------------

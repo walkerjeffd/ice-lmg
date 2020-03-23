@@ -28,6 +28,7 @@ variables <- list(
   config = cfg_variables
 )
 
+
 # merge datasets ----------------------------------------------------------
 
 variables_cov <- themes$`huc12-cov`$variables$df %>% 
@@ -35,15 +36,35 @@ variables_cov <- themes$`huc12-cov`$variables$df %>%
   pull(id)
 df_cov <- themes$`huc12-cov`$dataset$out %>% 
   select(id, decade, variables_cov)
+layer_cov <- themes$`huc12-cov`$layer$df
 
 variables_qquantile <- themes$`huc12-qquantile`$variables$df %>% 
   filter(primary) %>% 
   pull(id)
 df_qquantile <- themes$`huc12-qquantile`$dataset$out %>% 
   select(id, decade, variables_qquantile)
+layer_qquantile <- themes$`huc12-qquantile`$layer$df
+
+# fix qquantile ID by joining on lat,long
+qquantile_fix_id <- left_join(
+    layer_cov,
+    layer_qquantile %>% 
+      select(id_qquantile = id, dec_long_va, dec_lat_va),
+    by = c("dec_long_va", "dec_lat_va")
+  )
+df_qquantile_fix <- df_qquantile %>% 
+  rename(id_qquantile = id) %>% 
+  inner_join(
+    select(qquantile_fix_id, id, id_qquantile), by = "id_qquantile"
+  )
+stopifnot(all(!is.na(df_qquantile_fix)))
 
 df <- df_cov %>% 
-  full_join(df_qquantile, by = c("id", "decade")) %>% 
+  left_join(
+    df_qquantile_fix %>% 
+      select(-id_qquantile),
+    by = c("id", "decade")
+  ) %>% 
   left_join(
     themes$`huc12-cov`$layer$df %>% 
       select(id, lat = dec_lat_va, lon = dec_long_va),
@@ -60,6 +81,8 @@ dataset <- list(
 # layer -------------------------------------------------------------------
 
 layer <- themes$`huc12-cov`$layer
+
+stopifnot(identical(sort(unique(layer$sf$id)), sort(unique(df$id))))
 
 
 # export ------------------------------------------------------------------
@@ -80,5 +103,4 @@ df_feature <- dataset$out %>%
   ) %>% 
   append_feature_properties(layer)
 
-write_feature_json(theme, df_feature)
-
+write_feature_json(theme, df_feature, clear = TRUE)

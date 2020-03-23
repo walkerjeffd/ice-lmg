@@ -1,10 +1,10 @@
 <template>
-  <ice-feature-container v-if="selected" @close="$emit('close')">
+  <ice-feature-container v-if="selected" @close="$emit('close')" :loading="loading" :error="error">
     <template v-slot:title>
       Selected HUC12: {{selected.properties.huc12}}
     </template>
 
-    <div v-if="dataset">
+    <div v-if="!loading && !error && dataset">
       <ice-huc12-properties-box :properties="dataset.properties"></ice-huc12-properties-box>
       <ice-feature-box>
         <template v-slot:title>Basin Characteristics</template>
@@ -25,6 +25,11 @@
         </v-list>
       </ice-feature-box>
       <ice-feature-box>
+        <template v-slot:title>Impoundments</template>
+        <highcharts class="chart" :options="charts.dams"></highcharts>
+        <highcharts class="chart" :options="charts.damStorage"></highcharts>
+      </ice-feature-box>
+      <ice-feature-box>
         <template v-slot:title>Land Use</template>
         <highcharts class="chart" :options="charts.landUse"></highcharts>
       </ice-feature-box>
@@ -36,9 +41,6 @@
         <template v-slot:title>Annual Air Temperature</template>
         <highcharts class="chart" :options="charts.temp"></highcharts>
       </ice-feature-box>
-    </div>
-    <div v-else>
-      Loading...
     </div>
   </ice-feature-container>
 </template>
@@ -88,6 +90,7 @@ export default {
         landUse: {
           chart: {
             height: 300,
+            width: 450,
             marginTop: 20,
             marginLeft: 70
           },
@@ -118,9 +121,76 @@ export default {
           ],
           series: []
         },
+        dams: {
+          chart: {
+            height: 200,
+            width: 450,
+            marginTop: 20,
+            marginLeft: 70
+          },
+          title: {
+            text: null
+          },
+          legend: {
+            enabled: false
+          },
+          tooltip: {
+            valueDecimals: 0,
+            shared: true
+          },
+          xAxis: {
+            type: 'category',
+            categories: ['1950s', '1960s', '1970s', '1980s', '1990s', '2000s'],
+            title: {
+              text: 'Decade'
+            }
+          },
+          yAxis: [
+            {
+              title: {
+                text: '# Dams'
+              }
+            }
+          ],
+          series: []
+        },
+        damStorage: {
+          chart: {
+            height: 250,
+            width: 450,
+            marginTop: 20,
+            marginLeft: 70
+          },
+          title: {
+            text: null
+          },
+          legend: {
+            enabled: true
+          },
+          tooltip: {
+            valueDecimals: 0,
+            shared: true
+          },
+          xAxis: {
+            type: 'category',
+            categories: ['1950s', '1960s', '1970s', '1980s', '1990s', '2000s'],
+            title: {
+              text: 'Decade'
+            }
+          },
+          yAxis: [
+            {
+              title: {
+                text: 'Storage (m-km2)'
+              }
+            }
+          ],
+          series: []
+        },
         ppt: {
           chart: {
             height: 200,
+            width: 450,
             marginTop: 20,
             marginLeft: 70
           },
@@ -154,6 +224,7 @@ export default {
         temp: {
           chart: {
             height: 200,
+            width: 450,
             marginTop: 20,
             marginLeft: 70
           },
@@ -230,6 +301,32 @@ export default {
         {
           name: 'Open Water',
           data: this.values.map(d => d.water),
+          type: 'line'
+        }
+      ]
+
+      this.charts.dams.series = [
+        {
+          name: '# All Dams',
+          data: this.values.map(d => d.ndams),
+          type: 'line'
+        },
+        {
+          name: '# Major Dams',
+          data: this.values.map(d => d.major),
+          type: 'line'
+        }
+      ]
+
+      this.charts.damStorage.series = [
+        {
+          name: '# Dams Upstream',
+          data: this.values.map(d => d.ndams),
+          type: 'line'
+        },
+        {
+          name: '# Major Dams Upstreams',
+          data: this.values.map(d => d.major),
           type: 'line'
         }
       ]

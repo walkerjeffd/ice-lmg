@@ -1,7 +1,7 @@
 <template>
   <v-app>
-    <!-- USGS Header -->
-    <header id="navbar" class="header-nav" role="banner">
+    <!-- USGS header -->
+    <header id="navbar" class="header-nav" role="banner" v-if="usgs">
       <div class="tmp-container">
         <div class="header-search">
           <a class="logo-header" href="https://www.usgs.gov/" title="USGS Home">
@@ -11,7 +11,7 @@
       </div>
     </header>
 
-    <v-app-bar dense app dark absolute style="margin-top:72px">
+    <v-app-bar dense app dark absolute :style="{'margin-top': usgs ? '72px' : '0'}">
       <v-toolbar-title class="headline">
         USGS <span v-if="$vuetify.breakpoint.xl">Lower Mississippi-Gulf Water Science Center</span><span v-else>LMGWSC</span> |
         <span class="font-weight-light">RESTORE Data Visualization Tool</span>
@@ -26,16 +26,16 @@
       <v-btn text medium class="mx-2" @click="dialogs.contact = true">
         <v-icon small left>mdi-email</v-icon> Contact
       </v-btn>
-      <v-btn text medium class="mx-2" href="http://ecosheds.org">
+      <!-- <v-btn text medium class="mx-2" href="http://ecosheds.org" v-if="!usgs">
         <v-icon small left>mdi-home-import-outline</v-icon> ecosheds
-      </v-btn>
-      <v-btn text medium class="mx-2" v-if="debug" @click="goDebug">
+      </v-btn> -->
+      <!-- <v-btn text medium class="mx-2" v-if="debug" @click="goDebug">
         <v-icon small left>mdi-play</v-icon> go
-      </v-btn>
+      </v-btn> -->
     </v-app-bar>
 
     <v-content v-if="$vuetify.breakpoint.mdAndUp">
-      <IceMap :basemaps="map.basemaps" :center="[31.5, -89]" :zoom="6">
+      <IceMap :basemaps="map.basemaps" :center="[31, -94]" :zoom="6">
         <IceMapLayer
           name="points"
           set-bounds
@@ -59,10 +59,10 @@
                 <v-tab ripple>
                   Dataset
                 </v-tab>
-                <v-tab ripple>
+                <v-tab ripple :disabled="!theme">
                   Map Variable
                 </v-tab>
-                <v-tab ripple>
+                <v-tab ripple :disabled="!theme">
                   Crossfilters
                 </v-tab>
                 <v-spacer></v-spacer>
@@ -71,10 +71,12 @@
                   <v-icon small v-else>mdi-menu-down</v-icon>
                 </v-btn>
                 <v-tab-item transition="false" reverse-transition="false">
-                  <v-card class="ice-card elevation-10 pb-0" ref="dataset">
-                    <v-card-text v-if="theme && !collapse.tabs" class="px-3">
+                  <v-card class="ice-card elevation-10 pb-0" ref="dataset" v-if="!collapse.tabs">
+                    <v-card-text v-if="theme" class="px-3">
                       <div class="title font-weight-bold grey--text text--darken-4">
-                        <span v-if="theme">{{ theme.title }}</span><span v-else-if="error.theme">Failed to load dataset</span><span v-else>None</span>
+                        <span v-if="theme">{{ theme.title }}</span>
+                        <span v-else-if="error.theme">Failed to load dataset</span>
+                        <span v-else>None</span>
                       </div>
                       <decade-dimension v-if="theme.dimensions.decade" class="mt-4"></decade-dimension>
                       <signif-dimension v-if="theme.dimensions.signif"></signif-dimension>
@@ -84,8 +86,20 @@
                         are based on 1970-2015).
                       </div>
                     </v-card-text>
+                    <v-card-text v-else-if="error.theme">
+                      <v-alert type="error" outlined class="mb-0">
+                        <strong>Failed to load dataset</strong><br>
+                        Try another dataset or <a @click="dialogs.contact=true">contact us</a> if the problem persists.
+                      </v-alert>
+                    </v-card-text>
+                    <v-card-text v-else>
+                      <v-alert type="info" outlined class="mb-0">
+                        <strong>No dataset has been loaded</strong><br>
+                        Open the Dataset Browser to load a dataset.
+                      </v-alert>
+                    </v-card-text>
                     <v-divider></v-divider>
-                    <v-card-actions v-if="!collapse.tabs" class="pa-3">
+                    <v-card-actions class="pa-3">
                       <v-btn small outlined text color="primary" @click="dialogs.theme = true">
                         <v-icon left small>mdi-folder-open</v-icon> Dataset Browser
                       </v-btn>
@@ -101,25 +115,26 @@
                     <v-card-text class="pt-8" v-if="theme.id === 'gage-qtrend'">
                       <trend-variable @update="setVariableById"></trend-variable>
                     </v-card-text>
-                    <v-card-text v-else>
+                    <v-card-text v-else class="pb-2">
                       <v-autocomplete
                         label="Select variable..."
                         :items="mapVariables"
                         v-model="variable"
                         return-object
                         dense
+                        outlined
                         item-value="id"
                         item-text="label"
                         :menu-props="{ closeOnClick: false, closeOnContentClick: false, openOnClick: false, maxHeight: 400 }"
-                        class="my-4"
+                        class="mb-4 mt-2"
                         hide-details>
-                        <template v-slot:item="data">
-                          <v-list-item-content class="pl-3 body-2" v-html="data.item.label"></v-list-item-content>
+                        <template v-slot:item="{ item }">
+                          <v-list-item-content class="pl-3 body-2" v-html="item.label"></v-list-item-content>
                           <v-tooltip right max-width="600">
                             <template v-slot:activator="{ on }">
                               <v-icon v-on="on" small color="grey lighten-1">mdi-information</v-icon>
                             </template>
-                            {{ data.item.description }}
+                            {{ item.description }}
                           </v-tooltip>
                         </template>
                       </v-autocomplete>
@@ -127,8 +142,8 @@
                   </v-card>
                 </v-tab-item>
                 <v-tab-item transition="false" reverse-transition="false">
-                  <v-card v-show="!collapse.tabs">
-                    <v-card-text>
+                  <v-card v-show="!collapse.tabs" v-if="theme">
+                    <v-card-text class="pb-2">
                       <v-autocomplete
                         :items="filterVariables"
                         v-model="filters"
@@ -138,7 +153,9 @@
                         item-value="id"
                         item-text="label"
                         chips
-                        class="my-4"
+                        small-chips
+                        outlined
+                        class="mb-4 mt-2"
                         hide-details
                         deletable-chips
                         clearable
@@ -182,6 +199,7 @@
       </v-alert>
     </v-content>
 
+    <!-- welcome -->
     <v-dialog
       v-model="dialogs.welcome"
       max-width="1000"
@@ -201,12 +219,20 @@
           </div>
 
           <div class="text-center my-8">
-            <v-btn
-              color="success"
-              x-large
-              @click="dialogs.welcome = false; dialogs.theme = true">
-              Get Started <v-icon>mdi-chevron-double-right</v-icon>
-            </v-btn>
+            <div>
+              <video loop controls width="400">
+              <source src="video/crossfilters-small.mp4" type="video/mp4">
+                Sorry, your browser doesn't support embedded videos.
+              </video>
+            </div>
+            <div class="mt-8">
+              <v-btn
+                color="success"
+                x-large
+                @click="dialogs.welcome = false; dialogs.theme = true">
+                Get Started <v-icon>mdi-chevron-double-right</v-icon>
+              </v-btn>
+            </div>
           </div>
 
           <v-divider class="mb-4"></v-divider>
@@ -265,6 +291,7 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <!-- contact -->
     <v-dialog
       v-model="dialogs.contact"
       max-width="600"
@@ -287,7 +314,7 @@
             <a href="https://www.usgs.gov/centers/lmg-water" target="_blank">U.S. Geological Survey Lower Mississippi-Gulf Water Science Center</a><br>
             E-mail: <a href="mailto:krodgers@usgs.gov">krodgers@usgs.gov</a>
           </p>
-          <h4>Site Administrator</h4>
+          <h4>Application Developer and Administrator</h4>
           <p class="ml-4">
             Jeffrey D. Walker, PhD<br>
             Environmental Data Scientist<br>
@@ -309,9 +336,10 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <!-- help -->
     <v-dialog
       v-model="dialogs.help"
-      max-width="1200"
+      max-width="1600"
       scrollable>
       <v-card>
         <v-toolbar dark color="primary">
@@ -339,6 +367,8 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <!-- download -->
     <v-dialog
       v-model="dialogs.download"
       max-width="1000"
@@ -415,9 +445,11 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <!-- dataset browser -->
     <v-dialog
       v-model="dialogs.theme"
-      max-width="900"
+      max-width="1200"
       scrollable>
       <v-card>
         <v-toolbar dark color="primary">
@@ -428,7 +460,7 @@
           </v-btn>
         </v-toolbar>
 
-        <v-card-text>
+        <v-card-text class="pl-0">
           <v-row justify="space-between">
             <v-col sm="4">
               <v-treeview
@@ -439,7 +471,8 @@
                 activatable
                 return-object
                 open-on-click
-                dense>
+                dense
+                open-all>
                 <template v-slot:prepend="{ item, open }">
                   <v-icon v-if="item.children">
                     {{ open ? 'mdi-folder-open' : 'mdi-folder' }}
@@ -533,8 +566,8 @@
       </v-card>
     </v-dialog>
 
-    <!-- USGS Footer -->
-    <footer class="footer">
+    <!-- USGS footer -->
+    <footer class="footer" v-if="usgs">
       <div class="tmp-container">
         <div class="footer-doi">
           <ul class="menu nav">
@@ -628,6 +661,7 @@ export default {
   },
   data: () => ({
     debug: process.env.NODE_ENV === 'development',
+    usgs: false,
     // debug: false,
     collapse: {
       dataset: false,
@@ -644,7 +678,7 @@ export default {
     },
     dialogs: {
       theme: false,
-      welcome: false,
+      welcome: true,
       contact: false,
       help: false,
       download: false
@@ -667,11 +701,6 @@ export default {
     counts: {
       total: 0,
       filtered: 0
-    },
-    heights: {
-      dataset: 0,
-      legend: 0,
-      debug: 0
     },
     map: {
       basemaps: [
@@ -710,7 +739,6 @@ export default {
   },
   mounted () {
     // if (!this.theme) this.dialogs.welcome = true
-    this.updateHeights()
     evt.$on('xf:filter', this.updateCounts)
   },
   beforeDestroy () {
@@ -718,40 +746,41 @@ export default {
   },
   watch: {
     variable () {
-      this.updateHeights()
       this.variable && evt.$emit('map:render')
-    },
-    theme () {
-      this.updateHeights()
-    },
-    collapse: {
-      deep: true,
-      handler () {
-        this.updateHeights()
-      }
     }
   },
   methods: {
-    goDebug () {
-      const variables = this.variables.filter(d => d.filter)
-      this.filters = [variables[0]]
-      this.setVariableById(variables[0].id)
-      let i = 1
-      const n = variables.length
-      // const n = 3
-      const interval = setInterval(() => {
-        if (i === n) return clearInterval(interval)
-        this.filters = [variables[i]]
-        this.setVariableById(variables[i].id)
-        i += 1
-      }, 2000)
-    },
-    updateHeights () {
-      this.$nextTick(() => {
-        for (let x in this.$refs) {
-          this.heights[x] = this.$refs[x] ? this.$refs[x].$el.clientHeight : 0
-        }
-      })
+    async goDebug () {
+      const themes = [
+        ...this.themes.options[0].children,
+        ...this.themes.options[1].children
+      ]
+
+      const loadVariable = (variable) => {
+        return new Promise((resolve) => {
+          this.filters = [variable]
+          this.setVariableById(variable.id)
+          setTimeout(() => {
+            resolve(true)
+          }, 2000)
+        })
+      }
+
+      for (let iTheme = 0; iTheme < themes.length; iTheme++) {
+        console.log(`theme: ${themes[iTheme].id}`)
+        await this.selectTheme(themes[iTheme])
+          .then(() => {
+            return new Promise(async (resolve) => {
+              const variables = this.variables.filter(d => d.filter)
+              await loadVariable(variables[0])
+              for (let i = 1; i < variables.length; i++) {
+                console.log(`variable: ${variables[i].id}`)
+                await loadVariable(variables[i])
+              }
+              resolve(true)
+            })
+          })
+      }
     },
     updateCounts () {
       this.counts.total = getTotalCount()
@@ -819,12 +848,6 @@ export default {
 </script>
 
 <style>
-.v-navigation-drawer {
-  margin-top: 70px !important;
-}
-.v-list {
-  background: none !important;
-}
 .v-dialog__content.v-dialog__content--active {
   align-items: start;
 }

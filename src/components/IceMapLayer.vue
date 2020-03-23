@@ -49,7 +49,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['variable']),
+    ...mapGetters(['variable', 'themeType']),
     path () {
       const map = this.map
       function projectPoint (x, y) {
@@ -61,9 +61,6 @@ export default {
     },
     map () {
       return this.$parent.map
-    },
-    overlay () {
-      return this.$parent.overlay
     },
     disableClick () {
       return this.$parent.disableClick
@@ -77,10 +74,10 @@ export default {
   },
   mounted () {
     // console.log(`map-layer(${this.name}):mounted`)
-    evt.$on('map:zoom', this.resize)
+    evt.$on('map:zoom', this.render)
     evt.$on('map:render', this.renderFill)
 
-    this.container = this.overlay.append('g').classed('ice-map-layer', true)
+    this.container = this.$parent.svg.select('g').append('g').attr('class', 'ice-map-layer')
     this.container.call(this.tip)
 
     if (this.layer) {
@@ -88,10 +85,11 @@ export default {
     }
 
     this.setTipHtml()
+    this.render()
   },
   beforeDestroy () {
     // console.log(`map-layer(${this.name}):beforeDestroy`)
-    evt.$off('map:zoom', this.resize)
+    evt.$off('map:zoom', this.render)
     evt.$off('map:render', this.renderFill)
     this.tip.destroy()
     this.container.selectAll('*').remove()
@@ -115,10 +113,18 @@ export default {
   },
   methods: {
     setTipHtml () {
-      this.tip.html(d => `
-        <strong>ID: ${d.id}</strong><br>
-        ${this.variable.label}: ${typeof this.getValue(d) === 'object' ? this.valueFormatter(this.getValue(d).mean) + ` ${this.variable.units || ''}` : 'N/A'}
-      `)
+      if (this.themeType === 'gage') {
+        this.tip.html(d => `
+          <strong>ID: ${d.id}</strong><br>
+          ${this.variable.label}: ${typeof this.getValue(d) === 'object' ? this.valueFormatter(this.getValue(d).mean) + ` ${this.variable.units || ''}` : 'N/A'}
+        `)
+      } else if (this.themeType === 'huc12') {
+        this.tip.html(d => `
+          <strong>HUC12: ${d.properties.huc12}</strong><br>
+          COMID: ${d.properties.comid}<br><br>
+          ${this.variable.label} = ${typeof this.getValue(d) === 'object' ? this.valueFormatter(this.getValue(d).mean) + ` ${this.variable.units || ''}` : 'N/A'}
+        `)
+      }
     },
     loadLayer (layer) {
       // console.log(`map-layer(${this.name}):loadLayer`, layer)
@@ -132,22 +138,13 @@ export default {
         .then(response => response.data)
         .then((data) => {
           this.data = Object.freeze(data)
-          this.resize()
+          this.render()
         })
     },
     clearLayer () {
       this.container
         .selectAll('circle')
         .remove()
-    },
-    resize () {
-      // console.log(`map-layer(${this.name}):resize`)
-      if (this.setBounds && this.data) {
-        const bounds = this.path.bounds(this.data)
-        this.$parent.$emit('resize', bounds)
-      }
-
-      this.render()
     },
     projectPoint (d) {
       const latLng = new L.LatLng(d.geometry.coordinates[1], d.geometry.coordinates[0])

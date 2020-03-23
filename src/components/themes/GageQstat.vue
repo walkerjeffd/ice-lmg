@@ -35,6 +35,7 @@ export default {
         mean: {
           chart: {
             height: 300,
+            width: 450,
             marginTop: 20,
             type: 'line'
           },
@@ -64,6 +65,7 @@ export default {
         quantiles: {
           chart: {
             height: 300,
+            width: 450,
             marginTop: 20,
             type: 'line'
           },

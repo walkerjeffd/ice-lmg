@@ -1,9 +1,9 @@
 <template>
   <v-card
-    width="250"
-    style="position:absolute;bottom:0;right:0;background:rgba(255,255,255,0.75)"
+    :width="variable.type === 'num' ? 180 : 250"
+    style="position:absolute;bottom:0;right:0;background:rgba(255,255,255,0.65)"
     class="mr-3 mb-7 black--text font-weight-medium">
-    <v-toolbar dense dark color="primary">
+    <v-toolbar dense dark color="primary" height="32">
       <div class="subtitle-1 font-weight-bold">Legend</div>
       <v-spacer></v-spacer>
       <v-menu v-model="settings" :close-on-content-click="false" nudge-top="200px">
@@ -54,20 +54,33 @@
         <v-icon small v-else>mdi-menu-down</v-icon>
       </v-btn>
     </v-toolbar>
-    <div v-if="variable && !collapse" class="pt-4 pb-2 px-1">
-      <div class="pl-2 pb-2">Filtered: {{ counts.filtered.toLocaleString() }} of {{ counts.total.toLocaleString() }}</div>
+    <div v-if="!collapse" class="pt-4 pb-2 px-1">
+      <div class="pl-2 pb-2">
+        <v-tooltip left max-width="400">
+          <template v-slot:activator="{ on }">
+            <v-icon small v-on="on" class="float-right" style="padding-top:2px">mdi-information</v-icon>
+          </template>
+          Number of filtered points includes those that:<br>
+          <ol>
+            <li>Have non-null values for selected decade and map variable, and</li>
+            <li>Meet all crossfilter criteria (if any).</li>
+          </ol>
+        </v-tooltip>
+        Filtered: {{ counts.filtered.toLocaleString() }} of {{ counts.total.toLocaleString() }}
+      </div>
 
       <div class="pl-2">
         <v-tooltip left max-width="400">
           <template v-slot:activator="{ on }">
-            <span v-on="on" style="border-bottom:1px dotted;cursor:inherit">{{ variable.label }}<span v-if="variable.units">&nbsp;({{ variable.units }})</span></span>
+            <v-icon small v-on="on" class="float-right" style="padding-top:2px">mdi-information</v-icon>
           </template>
           {{ variable.description }}
         </v-tooltip>
+        <span>{{ variable.label }}<span v-if="variable.units">&nbsp;({{ variable.units }})</span></span>
       </div>
 
-      <ice-continuous-legend id="legend" class="pt-1" v-if="variable && variable.type === 'num'"></ice-continuous-legend>
-      <ice-discrete-legend id="legend" class="pt-1" v-if="variable && variable.type === 'cat'"></ice-discrete-legend>
+      <ice-continuous-legend id="legend" v-if="variable.type === 'num'"></ice-continuous-legend>
+      <ice-discrete-legend id="legend" v-if="variable.type === 'cat'"></ice-discrete-legend>
     </div>
   </v-card>
 </template>

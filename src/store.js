@@ -3,13 +3,16 @@ import Vuex from 'vuex'
 import axios from 'axios'
 import { csvParse, extent } from 'd3'
 
-import { setData, getData, clearCrossfilter, setVariable } from '@/lib/crossfilter'
+import { setData, clearCrossfilter, setVariable } from '@/lib/crossfilter'
 
 Vue.use(Vuex)
+
+const DECADES = ['1950', '1960', '1970', '1980', '1990', '2000']
 
 export default new Vuex.Store({
   state: {
     theme: null,
+    decade: null,
     variable: null,
     settings: {
       color: {
@@ -21,6 +24,12 @@ export default new Vuex.Store({
   },
   getters: {
     theme: state => state.theme,
+    themeType: state => {
+      if (!state.theme) return null
+      return state.theme.id.split('-')[0]
+    },
+    decade: state => state.decade,
+    decadeIndex: state => DECADES.indexOf(state.decade),
     variables: state => (state.theme ? state.theme.variables : []),
     variable: state => state.variable,
     variableById: state => id => {
@@ -34,6 +43,9 @@ export default new Vuex.Store({
   mutations: {
     SET_THEME (state, theme) {
       state.theme = theme
+    },
+    SET_DECADE (state, decade) {
+      state.decade = decade
     },
     SET_VARIABLE (state, variable) {
       state.variable = variable
@@ -49,6 +61,9 @@ export default new Vuex.Store({
     }
   },
   actions: {
+    setDecade ({ commit }, decade) {
+      commit('SET_DECADE', decade)
+    },
     clearTheme ({ commit }) {
       commit('SET_THEME', null)
       commit('SET_VARIABLE', null)
@@ -112,6 +127,18 @@ export default new Vuex.Store({
             .then(data => ({ theme, variable, data }))
         })
         .then(({ theme, variable, data }) => {
+          // update variable extents
+          theme.variables.forEach(v => {
+            const values = data.map(d => d[v.id])
+            v.scale.extent = extent(values)
+            if (v.type === 'num') {
+              v.scale.clipped = [
+                v.scale.extent[0] < v.scale.domain[0],
+                v.scale.extent[1] > v.scale.domain[1]
+              ]
+            }
+          })
+
           return setData(data, theme.data.group.by)
             .then(() => {
               return { theme, variable, data }
@@ -123,8 +150,6 @@ export default new Vuex.Store({
         })
     },
     setVariable ({ commit }, variable) {
-      const values = getData().map(d => d[variable.id])
-      variable.extent = extent(values)
       return setVariable(variable)
         .then(() => commit('SET_VARIABLE', variable))
     },

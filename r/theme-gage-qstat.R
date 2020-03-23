@@ -56,8 +56,8 @@ layer <- df_dataset %>%
   distinct() %>% 
   create_layer()
 
-ggplot(layer$sf) +
-  geom_sf()
+# ggplot(layer$sf) +
+#   geom_sf()
 
 
 # export ------------------------------------------------------------------
@@ -118,7 +118,7 @@ out_dataset %>%
 out_dataset %>% 
   select(-id, -decade, -lat, -lon) %>% 
   select_if(is.numeric) %>% 
-  pivot_longer(everything(), "var", "value") %>% 
+  pivot_longer(everything(), "var", "value", values_drop_na = TRUE) %>% 
   mutate(var = ordered(var, levels = variables$df$id)) %>% 
   group_by(var) %>% 
   summarise(
@@ -135,7 +135,7 @@ out_dataset %>%
 out_dataset %>% 
   select(-id, -decade, -lat, -lon) %>% 
   select_if(is.numeric) %>% 
-  pivot_longer(everything(), "var", "value") %>% 
+  pivot_longer(everything(), "var", "value", values_drop_na = TRUE) %>% 
   mutate(var = ordered(var, levels = variables$df$id)) %>% 
   ggplot(aes(value)) +
   geom_histogram() +

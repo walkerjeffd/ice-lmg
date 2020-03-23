@@ -105,15 +105,15 @@ transform_variables <- function(df, categories) {
         description = df$description[i],
         units = df$units[i],
         type = df$type[i],
+        group = df$group[i],
         map = df$map[i],
         filter = df$filter[i],
-        group = df$group[i],
-        scale = scale,
         formats = list(
           value = df$format_value[i],
           map = df$format_map[i],
           filter = df$format_filter[i]
-        )
+        ),
+        scale = scale
       )
     })
   }
@@ -184,10 +184,14 @@ export_theme <- function (theme, variables, dataset, layer) {
     ),
     variables = variables$config
   ) %>% 
-    jsonlite::write_json(path = file.path(theme$path, "theme.json"), auto_unbox = TRUE, pretty = TRUE)
+    jsonlite::write_json(path = file.path(theme$path, "theme.json"), auto_unbox = TRUE, pretty = TRUE, na = "null")
 }
 
-write_feature_json <- function(theme, df) {
+write_feature_json <- function(theme, df, clear = FALSE) {
+  if (clear) {
+    cat(glue::glue("deleting existing files in {file.path(theme$path, 'features')}"), "\n", sep = "")
+    unlink(file.path(theme$path, "features", "*.json"))
+  }
   cat(glue::glue("saving feature data to {file.path(theme$path, 'features')} (n = {nrow(df)})"), "\n", sep = "")
   pb <- progress::progress_bar$new(total = nrow(df))
   for (i in 1:nrow(df)) {

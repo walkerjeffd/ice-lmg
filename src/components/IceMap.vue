@@ -1,6 +1,6 @@
 <template>
-  <div class="map-container">
-    <l-map ref="map" :center="center" :zoom="zoom" :options="{ ...options, zoomControl: false }">
+  <div class="ice-map-container">
+    <l-map ref="map" :options="{ ...options, zoomControl: false }">
       <l-control-zoom position="topright"></l-control-zoom>
       <l-control-layers position="topright"></l-control-layers>
       <l-tile-layer
@@ -19,6 +19,7 @@
 
 <script>
 import { LMap, LTileLayer, LControlZoom, LControlLayers } from 'vue2-leaflet'
+import * as L from 'leaflet'
 import * as d3 from 'd3'
 
 import evt from '@/lib/events'
@@ -61,7 +62,10 @@ export default {
     zoomLevel: null
   }),
   mounted () {
+    // console.log('map:mounted')
     this.map = this.$refs.map.mapObject
+    this.map.setView(this.center, this.zoom)
+
     this.zoomLevel = this.map.getZoom()
 
     let moveTimeout
@@ -70,6 +74,7 @@ export default {
       this.disableClick = true
     })
     this.map.on('moveend', () => {
+      // console.log('map:moveend', this.map.getCenter().toString())
       moveTimeout = setTimeout(() => {
         this.disableClick = false
       }, 100)
@@ -79,37 +84,23 @@ export default {
       evt.$emit('map:zoom')
     })
 
-    this.svg = d3.select(this.map.getPanes().overlayPane)
-      .append('svg')
-    this.overlay = this.svg.append('g').attr('class', 'leaflet-zoom-hide')
+    const svgLayer = L.svg()
+    this.map.addLayer(svgLayer)
 
-    this.$on('resize', this.resize)
+    this.svg = d3.select(svgLayer.getPane()).select('svg')
+      .classed('leaflet-zoom-animated', false)
+      .classed('leaflet-zoom-hide', true)
+      .classed('map', true)
+      .attr('pointer-events', null)
+      .style('z-index', 201)
 
     this.ready = true
-  },
-  methods: {
-    resize (bounds) {
-      if (bounds) this.bounds = bounds
-
-      const padding = 100
-
-      const topLeft = this.bounds[0]
-      const bottomRight = this.bounds[1]
-
-      this.svg.attr('width', bottomRight[0] - topLeft[0] + padding)
-        .attr('height', bottomRight[1] - topLeft[1] + padding)
-        .style('left', `${topLeft[0] - (padding / 2)}px`)
-        .style('top', `${topLeft[1] - (padding / 2)}px`)
-
-      this.svg.select('g')
-        .attr('transform', `translate(${-(topLeft[0] - (padding / 2))},${-(topLeft[1] - (padding / 2))})`)
-    }
   }
 }
 </script>
 
 <style>
-.map-container {
+.ice-map-container {
   position: absolute;
   width: 100%;
   height: 100%;

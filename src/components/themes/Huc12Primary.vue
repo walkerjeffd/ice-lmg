@@ -11,7 +11,7 @@
         <v-list dense>
           <v-list-item v-for="variableId in tables.cov.fields" :key="variableId">
             <v-list-item-content class="align-start" width="20">{{ variableById(variableId).label }}:</v-list-item-content>
-            <v-list-item-content class="align-end">{{ variableFormatter(variableId)(dataset.values[0][variableId]) }} {{ variableById(variableId).units }}</v-list-item-content>
+            <v-list-item-content class="align-end">{{ variableFormatter(variableId)(dataset.values[decadeIndex][variableId]) }} {{ variableById(variableId).units }}</v-list-item-content>
           </v-list-item>
         </v-list>
       </ice-feature-box>
@@ -20,9 +20,13 @@
         <v-list dense>
           <v-list-item v-for="variableId in tables.cat.fields" :key="variableId">
             <v-list-item-content class="align-start" width="20">{{ variableById(variableId).label }}:</v-list-item-content>
-            <v-list-item-content class="align-end">{{ variableFormatter(variableId)(dataset.values[0][variableId]) }}</v-list-item-content>
+            <v-list-item-content class="align-end">{{ variableFormatter(variableId)(dataset.values[decadeIndex][variableId]) }}</v-list-item-content>
           </v-list-item>
         </v-list>
+      </ice-feature-box>
+      <ice-feature-box>
+        <template v-slot:title>Impoundments</template>
+        <highcharts class="chart" :options="charts.dams"></highcharts>
       </ice-feature-box>
       <ice-feature-box>
         <template v-slot:title>Land Use</template>
@@ -49,6 +53,7 @@
 
 <script>
 import themeSelect from '@/mixins/themeSelect'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'Huc12Primary',
@@ -74,6 +79,7 @@ export default {
         landUse: {
           chart: {
             height: 300,
+            width: 450,
             marginTop: 20,
             marginLeft: 70
           },
@@ -104,9 +110,43 @@ export default {
           ],
           series: []
         },
+        dams: {
+          chart: {
+            height: 200,
+            width: 450,
+            marginTop: 20,
+            marginLeft: 70
+          },
+          title: {
+            text: null
+          },
+          legend: {
+            enabled: false
+          },
+          tooltip: {
+            valueDecimals: 0,
+            shared: true
+          },
+          xAxis: {
+            type: 'category',
+            categories: ['1950s', '1960s', '1970s', '1980s', '1990s', '2000s'],
+            title: {
+              text: 'Decade'
+            }
+          },
+          yAxis: [
+            {
+              title: {
+                text: '# Dams'
+              }
+            }
+          ],
+          series: []
+        },
         ppt: {
           chart: {
             height: 200,
+            width: 450,
             marginTop: 20,
             marginLeft: 70
           },
@@ -140,6 +180,7 @@ export default {
         temp: {
           chart: {
             height: 200,
+            width: 450,
             marginTop: 20,
             marginLeft: 70
           },
@@ -173,6 +214,7 @@ export default {
         qStat: {
           chart: {
             height: 300,
+            width: 450,
             marginTop: 20,
             type: 'line'
           },
@@ -201,6 +243,9 @@ export default {
         }
       }
     }
+  },
+  computed: {
+    ...mapGetters(['decadeIndex'])
   },
   methods: {
     updateCharts () {
@@ -248,6 +293,15 @@ export default {
           type: 'line'
         }
       ]
+
+      this.charts.dams.series = [
+        {
+          name: '# Major Dams Upstream',
+          data: this.values.map(d => d.major),
+          type: 'line'
+        }
+      ]
+
       this.charts.ppt.series = [
         {
           name: 'Mean Precip',

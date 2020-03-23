@@ -107,7 +107,7 @@
       },
       {
         "id": "huc12-qquantile",
-        "name": "Estimated Streamflow Quantiles",
+        "name": "Streamflow Quantiles",
         "description": "Estimated streamflow quantiles for 9,203 level-12 Hydrologic Unit Code (HUC12) basins that drain to the Gulf of Mexico. The estimated quantiles range from 0.03% to 99.97% and were estimated using a multi-output neural network that was trained using streamflow data at sites with records containing only non-zero streamflow values. Quantiles were estimated at decadal intervals from the 1950s (1950-1959) to the 2000s (2000-2009). See the dataset citation for more information about the methodology used to generate this dataset.",
         "citations": [
           {
@@ -115,7 +115,7 @@
             "url": "https://doi.org/10.5066/P9YGKZZV"
           }
         ],
-        "title": "HUC12 Basins > Estimated Streamflow Quantiles"
+        "title": "HUC12 Basins > Streamflow Quantiles"
       },
       {
         "id": "huc12-solar",

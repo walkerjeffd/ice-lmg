@@ -34,7 +34,7 @@ export default {
         solar: {
           chart: {
             height: 300,
-            width: 500,
+            width: 450,
             marginTop: 20,
             type: 'column'
           },

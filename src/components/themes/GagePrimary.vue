@@ -118,6 +118,7 @@ export default {
         landUse: {
           chart: {
             height: 300,
+            width: 450,
             marginTop: 20,
             marginLeft: 70
           },
@@ -151,6 +152,7 @@ export default {
         ppt: {
           chart: {
             height: 200,
+            width: 450,
             marginTop: 20,
             marginLeft: 70
           },
@@ -184,6 +186,7 @@ export default {
         temp: {
           chart: {
             height: 200,
+            width: 450,
             marginTop: 20,
             marginLeft: 70
           },
@@ -217,6 +220,7 @@ export default {
         qStat: {
           chart: {
             height: 300,
+            width: 450,
             marginTop: 20,
             type: 'line'
           },
@@ -246,6 +250,7 @@ export default {
         mkSeason: {
           chart: {
             height: 300,
+            width: 450,
             marginTop: 20,
             marginLeft: 70
           },
@@ -278,6 +283,7 @@ export default {
         qkAnnual: {
           chart: {
             height: 300,
+            width: 450,
             marginTop: 20,
             marginLeft: 70
           },

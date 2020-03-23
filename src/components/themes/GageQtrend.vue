@@ -59,6 +59,7 @@ export default {
         season: {
           chart: {
             height: 300,
+            width: 450,
             marginTop: 20,
             marginLeft: 70
           },
@@ -91,6 +92,7 @@ export default {
         month: {
           chart: {
             height: 300,
+            width: 450,
             marginTop: 20,
             marginLeft: 70
           },
@@ -122,6 +124,7 @@ export default {
         quantile: {
           chart: {
             height: 300,
+            width: 450,
             marginTop: 20,
             marginLeft: 70
           },
@@ -151,6 +154,7 @@ export default {
         qkAnnual: {
           chart: {
             height: 300,
+            width: 450,
             marginTop: 20,
             marginLeft: 70
           },

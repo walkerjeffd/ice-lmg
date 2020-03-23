@@ -9,31 +9,23 @@
         {{ variable.description }}
       </v-tooltip>
       <v-spacer></v-spacer>
-      <v-tooltip bottom open-delay="300">
-        <template v-slot:activator="{ on }">
-          <v-btn icon small @click="resetFilter" v-on="on" :disabled="!filter">
-            <v-icon small>mdi-refresh</v-icon>
-          </v-btn>
-        </template>
-        <span>Reset Filter</span>
-      </v-tooltip>
       <v-btn small icon @click="hide = !hide">
         <v-icon v-if="!hide">mdi-menu-up</v-icon>
         <v-icon v-else>mdi-menu-down</v-icon>
       </v-btn>
       <v-btn small icon @click="close"><v-icon small>mdi-close</v-icon></v-btn>
     </v-toolbar>
-    <v-card-text v-if="!hide" class="py-0 ml-n1 caption">
-      <div v-if="this.variable.type === 'num'">
-        Filter:
-        <span v-if="filter">{{valueFormatter(inverseTransform(filter[0]))}} to {{valueFormatter(inverseTransform(filter[1]))}}</span>
-        <span v-else>None</span>
-      </div>
-      <div v-else>
-        Filter:
-        <span v-if="filter && filter.length === 1">{{filter[0]}}</span>
-        <span v-else-if="filter">{{filter.length}} values</span>
-        <span v-else>None</span>
+    <v-card-text v-if="!hide" class="py-0 px-2 caption">
+      <div :class="{ 'float-right': true, 'mr-6': filterLabel === 'None', 'mr-0': filterLabel !== 'None' }" style="height:20px">
+        Filter: {{ filterLabel }}
+        <v-tooltip right open-delay="300">
+          <template v-slot:activator="{ on }">
+            <v-btn icon x-small v-on="on" v-show="!!filter" @click="resetFilter">
+              <v-icon x-small>mdi-close-circle</v-icon>
+            </v-btn>
+          </template>
+          <span>Clear Filter</span>
+        </v-tooltip>
       </div>
     </v-card-text>
     <div class="ice-filter-chart" v-show="!hide"></div>
@@ -47,6 +39,7 @@ import * as d3 from 'd3'
 import evt from '@/lib/events'
 import variableMixin from '@/mixins/variable'
 import { getCrossfilter } from '@/lib/crossfilter'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'IceFilter',
@@ -63,16 +56,54 @@ export default {
       hide: false
     }
   },
+  computed: {
+    ...mapGetters(['theme']),
+    yLabel () {
+      return this.theme.id.startsWith('gage-') ? '# Gages' : '# HUC12s'
+    },
+    filterLabel () {
+      if (this.variable.type === 'num') {
+        if (!this.filter) return 'None'
+        const values = this.filter.map(this.inverseTransform).map(this.valueFormatter)
+        if (this.variable.scale.clipped[0] && values[0] <= this.variable.scale.domain[0]) {
+          values[0] = `<=${values[0]}`
+        }
+        if (this.variable.scale.clipped[1] && values[1] >= this.variable.scale.domain[1]) {
+          values[1] = `${values[1]}+`
+        }
+        return `${values[0]} to ${values[1]}`
+      } else {
+        if (!this.filter || this.filter.length === 0) return 'None'
+        return this.filter.length > 1 ? `${this.filter.length} values` : `${this.filter.length} value`
+      }
+    }
+  },
   mounted () {
     const width = 460
     const el = this.$el.getElementsByClassName('ice-filter-chart').item(0)
-    const interval = (this.transform(this.variable.scale.domain[1]) - this.transform(this.variable.scale.domain[0])) / 30
     const xf = getCrossfilter()
 
     if (this.variable.type === 'num') {
-      const dim = xf.dimension(d => this.transform(d[this.variable.id]))
-      const group = dim.group(d => Math.floor(d / interval) * interval).reduceCount()
-      const margins = { top: 5, right: 40, bottom: 20, left: 50 }
+      const dim = xf.dimension(d => {
+        let value = d[this.variable.id]
+        if (value == null) {
+          return this.transform(value)
+        } else if (value > this.variable.scale.domain[1]) {
+          value = this.variable.scale.domain[1]
+        } else if (value < this.variable.scale.domain[0]) {
+          value = this.variable.scale.domain[0]
+        }
+        return this.transform(value)
+      })
+
+      const l = this.transform(this.variable.scale.domain[0])
+      const u = this.transform(this.variable.scale.domain[1])
+      const n = 30
+      const interval = (u - l) / n
+      const group = dim.group(d => l + Math.floor(n * (d - l) / (u - l)) * interval).reduceCount()
+      const margins = { top: 5, right: 40, bottom: 20, left: 40 }
+      const domain = this.variable.scale.domain.slice()
+      domain[1] *= 1.00001
 
       this.chart = dc.barChart(el)
         .width(width)
@@ -82,7 +113,9 @@ export default {
         .group(group)
         .elasticY(true)
         .transitionDelay(0)
-        .x(d3.scaleLinear().domain(this.variable.scale.domain.map(this.transform)))
+        .colors('#5095c3')
+        .x(d3.scaleLinear().domain(domain.map(this.transform)))
+        .yAxisLabel(this.yLabel, 24)
         .on('filtered', () => {
           const filter = this.chart.dimension().currentFilter()
           if (filter) {
@@ -93,15 +126,33 @@ export default {
           evt.$emit('xf:filter')
           evt.$emit('map:render')
         })
+        .on('renderlet', () => {
+          if (this.variable.scale.clipped[0]) {
+            const tick = this.chart.select('.x.axis g.tick text')
+            if (+tick.text() === this.variable.scale.domain[0]) {
+              tick.text(`<= ${tick.text()}`)
+            }
+          }
+          if (this.variable.scale.clipped[1]) {
+            const ticks = this.chart.selectAll('.x.axis g.tick text')
+              .filter(function () {
+                return d3.select(this).text() !== ''
+              })
+            const tick = d3.select(ticks.nodes()[ticks.size() - 1])
+            if (+tick.text() === this.variable.scale.domain[1]) {
+              tick.text(`${tick.text()}+`)
+            }
+          }
+        })
 
-      this.chart.xUnits(() => 30)
-
+      this.chart.xUnits(() => n)
       this.chart.xAxis()
+        .ticks(5)
         .tickFormat(d => this.filterFormatter(this.inverseTransform(d)))
 
       this.chart.yAxis().ticks(4)
     } else {
-      const margins = { top: 0, right: 40, bottom: 30, left: 15 }
+      const margins = { top: 0, right: 40, bottom: 35, left: 15 }
       const dim = xf.dimension(d => d[this.variable.id])
       const group = dim.group().reduceCount()
       const count = this.variable.scale.domain.length
@@ -116,15 +167,13 @@ export default {
         .dimension(dim)
         .group(group)
         .elasticX(true)
-        .ordinalColors(d3.range(this.variable.scale.domain.length).map(d => d3.schemeCategory10[0]))
         .transitionDelay(0)
         .transitionDuration(0)
         .gap(gap)
-        // .fixedBarHeight(20)
+        .colors('#5095c3')
         .ordering(d => this.variable.scale.domain.findIndex(v => v.id === d.key))
-        .label(function (d) {
-          return d.key
-        })
+        .label(d => d.key)
+        // .xAxisLabel(this.yLabel, 24)
         .on('filtered', () => {
           const filter = this.chart.filters()
           if (filter && filter.length > 0) {
@@ -136,21 +185,17 @@ export default {
           evt.$emit('map:render')
         })
         .on('renderlet', (chart) => {
-          chart.selectAll('g.row')
-            .each(function () {
-              const barWidth = +d3.select(this).select('rect').attr('width')
-              const textEl = d3.select(this).select('text')
-              const textWidth = textEl.node().getBBox().width
-              if (barWidth < (10 + textWidth)) {
-                textEl
-                  .style('fill', 'black')
-                  .attr('transform', `translate(${barWidth - 5},0)`)
-              } else {
-                textEl
-                  .style('fill', null)
-              }
-            })
           chart.select('.axis').selectAll('g.tick:not(:first-of-type) line.grid-line').style('display', 'none')
+          const label = chart.select('.axis').select('text.x-axis-label')
+          if (label.size() === 0) {
+            chart.select('.axis')
+              .append('text')
+              .attr('class', 'x-axis-label')
+              .attr('text-anchor', 'middle')
+              .attr('x', chart.width() * 0.44)
+              .attr('y', 30)
+              .text(this.yLabel)
+          }
         })
     }
 
@@ -170,7 +215,6 @@ export default {
   },
   methods: {
     render () {
-      // console.log('filter:render')
       this.chart && this.chart.render()
     },
     resetFilter () {
@@ -188,8 +232,21 @@ export default {
 .dc-chart {
   float: none !important;
 }
-.ice-filter-toolbar > .v-toolbar__content {
-  padding-left: 12px;
-  padding-right: 12px;
+.dc-chart text.y-axis-label.y-label {
+  fill: hsl(0, 0%, 20%);
+  font-size: 0.8em;
+  font-family: sans-serif;
+}
+.dc-chart g.row rect {
+  fill-opacity: 1;
+}
+.dc-chart g.row text {
+  fill: hsl(0, 0%, 10%);
+  font-weight: 400;
+}
+.dc-chart text.x-axis-label {
+  fill: hsl(0, 0%, 20%);
+  font-size: 1em;
+  font-family: sans-serif;
 }
 </style>

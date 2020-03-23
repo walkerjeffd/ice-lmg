@@ -16,7 +16,9 @@ export default {
   },
   data () {
     return {
-      dataset: null
+      dataset: null,
+      loading: true,
+      error: false
     }
   },
   computed: {
@@ -50,6 +52,8 @@ export default {
       return format(variable.formats.value)
     },
     updateDataset () {
+      this.loading = true
+      this.error = false
       if (!this.selected) {
         this.dataset = null
         return
@@ -57,9 +61,12 @@ export default {
       this.$http.get(`/${this.theme.id}/features/${this.selected.id}.json`)
         .then((response) => {
           this.dataset = response.data
+          this.loading = false
         })
         .catch((err) => {
           console.log(err)
+          this.loading = false
+          this.error = true
           this.dataset = null
         })
     },
