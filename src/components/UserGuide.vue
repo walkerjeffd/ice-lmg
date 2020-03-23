@@ -17,7 +17,7 @@
     </v-tab>
 
     <!-- Introduction -->
-    <v-tab-item>
+    <v-tab-item eager transition="none" reverse-transition="none">
       <v-card flat>
         <v-card-text class="black--text body-1 pt-0">
           <div class="headline mb-4 mt-4">Welcome to the User's Guide</div>
@@ -62,16 +62,16 @@
           <v-divider class="mt-4"></v-divider>
 
           <v-card-actions class="pt-8 px-0">
-            <v-btn disabled color="primary" class="" @click="tab -= 1"><v-icon>mdi-chevron-left</v-icon>Previous</v-btn>
+            <v-btn disabled color="primary" class="" @click="prevTab"><v-icon>mdi-chevron-left</v-icon>Previous</v-btn>
             <v-spacer></v-spacer>
-            <v-btn color="primary" class="" @click="tab += 1">Next <v-icon>mdi-chevron-right</v-icon></v-btn>
+            <v-btn color="primary" class="" @click="nextTab">Next <v-icon>mdi-chevron-right</v-icon></v-btn>
           </v-card-actions>
         </v-card-text>
       </v-card>
     </v-tab-item>
 
     <!-- Dataset -->
-    <v-tab-item>
+    <v-tab-item eager transition="none" reverse-transition="none">
       <v-card flat>
         <v-card-text class="black--text body-1 pt-0">
           <v-row>
@@ -137,16 +137,16 @@
           <v-divider></v-divider>
 
           <v-card-actions class="pt-8 px-0">
-            <v-btn color="primary" class="" @click="tab -= 1"><v-icon>mdi-chevron-left</v-icon>Previous</v-btn>
+            <v-btn color="primary" class="" @click="prevTab"><v-icon>mdi-chevron-left</v-icon>Previous</v-btn>
             <v-spacer></v-spacer>
-            <v-btn color="primary" class="" @click="tab += 1">Next <v-icon>mdi-chevron-right</v-icon></v-btn>
+            <v-btn color="primary" class="" @click="nextTab">Next <v-icon>mdi-chevron-right</v-icon></v-btn>
           </v-card-actions>
         </v-card-text>
       </v-card>
     </v-tab-item>
 
     <!-- Map -->
-    <v-tab-item>
+    <v-tab-item eager transition="none" reverse-transition="none">
       <v-card flat>
         <v-card-text class="black--text body-1 pt-0">
           <v-row>
@@ -192,16 +192,16 @@
           <v-divider class="mt-4"></v-divider>
 
           <v-card-actions class="pt-8 px-0">
-            <v-btn color="primary" class="" @click="tab -= 1"><v-icon>mdi-chevron-left</v-icon>Previous</v-btn>
+            <v-btn color="primary" class="" @click="prevTab"><v-icon>mdi-chevron-left</v-icon>Previous</v-btn>
             <v-spacer></v-spacer>
-            <v-btn color="primary" class="" @click="tab += 1">Next <v-icon>mdi-chevron-right</v-icon></v-btn>
+            <v-btn color="primary" class="" @click="nextTab">Next <v-icon>mdi-chevron-right</v-icon></v-btn>
           </v-card-actions>
         </v-card-text>
       </v-card>
     </v-tab-item>
 
     <!-- Crossfilters -->
-    <v-tab-item>
+    <v-tab-item eager transition="none" reverse-transition="none">
       <v-card flat>
         <v-card-text class="black--text body-1 pt-0">
           <v-row>
@@ -260,16 +260,16 @@
           <v-divider class="mt-4"></v-divider>
 
           <v-card-actions class="pt-8 px-0">
-            <v-btn color="primary" class="" @click="tab -= 1"><v-icon>mdi-chevron-left</v-icon>Previous</v-btn>
+            <v-btn color="primary" class="" @click="prevTab"><v-icon>mdi-chevron-left</v-icon>Previous</v-btn>
             <v-spacer></v-spacer>
-            <v-btn color="primary" class="" @click="tab += 1">Next <v-icon>mdi-chevron-right</v-icon></v-btn>
+            <v-btn color="primary" class="" @click="nextTab">Next <v-icon>mdi-chevron-right</v-icon></v-btn>
           </v-card-actions>
         </v-card-text>
       </v-card>
     </v-tab-item>
 
     <!-- Download -->
-    <v-tab-item>
+    <v-tab-item eager transition="none" reverse-transition="none">
       <v-card flat>
         <v-card-text class="black--text body-1 pt-0">
           <v-row>
@@ -320,9 +320,9 @@
           <v-divider class="mt-4"></v-divider>
 
           <v-card-actions class="pt-8 px-0">
-            <v-btn color="primary" class="" @click="tab -= 1"><v-icon>mdi-chevron-left</v-icon>Previous</v-btn>
+            <v-btn color="primary" class="" @click="prevTab"><v-icon>mdi-chevron-left</v-icon>Previous</v-btn>
             <v-spacer></v-spacer>
-            <v-btn disabled color="primary" class="" @click="tab += 1">Next <v-icon>mdi-chevron-right</v-icon></v-btn>
+            <v-btn disabled color="primary" class="" @click="nextTab">Next <v-icon>mdi-chevron-right</v-icon></v-btn>
           </v-card-actions>
         </v-card-text>
       </v-card>
@@ -336,6 +336,23 @@ export default {
   data () {
     return {
       tab: 0
+    }
+  },
+  methods: {
+    scroll () {
+      this.$vuetify.goTo(0, { container: this.$el.parentElement, duration: 0 })
+    },
+    nextTab () {
+      this.scroll()
+      this.$nextTick(() => {
+        this.tab += 1
+      })
+    },
+    prevTab () {
+      this.scroll()
+      this.$nextTick(() => {
+        this.tab -= 1
+      })
     }
   }
 }
