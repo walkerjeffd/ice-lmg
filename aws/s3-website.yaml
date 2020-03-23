@@ -1,5 +1,5 @@
 Description: >
-  CONTE Development S3 Bucket For LMG-RESTORE Application
+  S3 Website Bucket For LMG-RESTORE Application
 AWSTemplateFormatVersion: '2010-09-09'
 Parameters:
   BucketName:
@@ -24,7 +24,7 @@ Resources:
     Properties:
       Bucket: !Ref S3Bucket
       PolicyDocument:
-        Id: ConteDevLmgRestoreBucketPolicy
+        Id: LmgRestoreBucketPolicy
         Version: '2012-10-17'
         Statement:
           - Sid: AllowWantedIps
