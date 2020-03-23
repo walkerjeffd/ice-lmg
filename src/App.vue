@@ -52,8 +52,8 @@
             <v-card width="500">
               <v-tabs
                 v-model="tabs.active"
+                class="ice-tabs-main"
                 background-color="primary"
-                color="white"
                 dark
                 slider-color="white">
                 <v-tab ripple>
@@ -291,6 +291,7 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
     <!-- contact -->
     <v-dialog
       v-model="dialogs.contact"
@@ -336,11 +337,12 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <!-- help -->
+
+    <!-- user guide -->
     <v-dialog
       v-model="dialogs.help"
-      max-width="1600"
-      scrollable>
+      scrollable
+      max-width="1600">
       <v-card>
         <v-toolbar dark color="primary">
           <v-toolbar-title><v-icon left>mdi-help</v-icon> User's Guide</v-toolbar-title>
@@ -661,7 +663,7 @@ export default {
   },
   data: () => ({
     debug: process.env.NODE_ENV === 'development',
-    usgs: false,
+    usgs: true,
     // debug: false,
     collapse: {
       dataset: false,
@@ -851,7 +853,7 @@ export default {
 .v-dialog__content.v-dialog__content--active {
   align-items: start;
 }
-.v-tabs > .v-window > .v-window__container {
+.v-tabs.ice-tabs-main > .v-window > .v-window__container {
   max-height: calc(100vh - 255px);
   overflow-y: auto;
 }
