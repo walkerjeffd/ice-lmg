@@ -221,7 +221,7 @@
           <div class="text-center my-8">
             <div>
               <video loop controls width="400">
-              <source src="video/crossfilters-small.mp4" type="video/mp4">
+              <source src="video/crossfilters.mp4" type="video/mp4">
                 Sorry, your browser doesn't support embedded videos.
               </video>
             </div>
