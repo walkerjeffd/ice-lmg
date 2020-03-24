@@ -663,7 +663,7 @@ export default {
   },
   data: () => ({
     debug: process.env.NODE_ENV === 'development',
-    usgs: true,
+    usgs: process.env.VUE_APP_USGS === 'true',
     // debug: false,
     collapse: {
       dataset: false,
