@@ -500,7 +500,7 @@
               </v-treeview>
             </v-col>
             <v-divider vertical></v-divider>
-            <v-col class="d-flex">
+            <v-col>
               <div v-for="theme in themes.active" :key="theme.id" class="pt-4 black--text">
                 <h2 class="mb-2">{{theme.title}}</h2>
                 <p>{{theme.description}}</p>
