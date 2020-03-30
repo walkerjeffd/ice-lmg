@@ -74,6 +74,7 @@ hr.usgs {
 /* header (only) nav */
 .header-nav {
   background: #00264c;
+  height: 68px;
 }
 
 .logo-header img {
