@@ -5,13 +5,13 @@
       <div class="tmp-container">
         <div class="header-search">
           <a class="logo-header" href="https://www.usgs.gov/" title="USGS Home">
-            <img src="img/usgs-logo.png" alt="USGS" class="img" border="0" />
+            <img src="img/usgs-logo.png" alt="USGS" class="img" border="0" height="50" />
           </a>
         </div>
       </div>
     </header>
 
-    <v-app-bar dense app dark absolute :style="{'margin-top': usgs ? '72px' : '0'}">
+    <v-app-bar dense app dark absolute :style="{'margin-top': usgs ? '68px' : '0'}">
       <v-toolbar-title class="headline">
         USGS <span v-if="$vuetify.breakpoint.xl">Lower Mississippi-Gulf Water Science Center</span><span v-else>LMGWSC</span> |
         <span class="font-weight-light">RESTORE Data Visualization Tool</span>
@@ -713,10 +713,34 @@ export default {
           attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
         },
         {
+          name: 'USGS Imagery',
+          visible: false,
+          url: 'https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryOnly/MapServer/tile/{z}/{y}/{x}',
+          attribution: '<a href="http://www.doi.gov">U.S. Department of the Interior</a> | <a href="http://www.usgs.gov">U.S. Geological Survey</a> | <a href="http://www.usgs.gov/laws/policies_notices.html">Policies</a>'
+        },
+        {
+          name: 'USGS Topo',
+          visible: false,
+          url: 'https://basemap.nationalmap.gov/ArcGIS/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}',
+          attribution: '<a href="http://www.doi.gov">U.S. Department of the Interior</a> | <a href="http://www.usgs.gov">U.S. Geological Survey</a> | <a href="http://www.usgs.gov/laws/policies_notices.html">Policies</a>'
+        },
+        {
+          name: 'USGS Hydrography',
+          visible: false,
+          url: 'https://basemap.nationalmap.gov/arcgis/rest/services/USGSHydroCached/MapServer/tile/{z}/{y}/{x}',
+          attribution: '<a href="http://www.doi.gov">U.S. Department of the Interior</a> | <a href="http://www.usgs.gov">U.S. Geological Survey</a> | <a href="http://www.usgs.gov/laws/policies_notices.html">Policies</a>'
+        },
+        {
           name: 'OpenStreetMap',
           visible: false,
           url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
           attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        },
+        {
+          name: 'No Basemap',
+          visible: false,
+          url: '',
+          attribution: ''
         }
       ]
     },
