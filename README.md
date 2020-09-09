@@ -12,50 +12,59 @@ Install dependencies
 yarn install
 ```
 
-Configuration is set using `.env` files per [vue-cli](https://cli.vuejs.org/guide/mode-and-env.html)
+Configuration is set using `.env` files for each environment (`development`, `staging`, `production`). See [vue-cli](https://cli.vuejs.org/guide/mode-and-env.html) for details.
 
-The only configuration variable is `VUE_APP_API_BASEURL`, which is used by `axios` to fetch data.
+There are two required configuration variables:
 
 ```
-VUE_APP_API_BASEURL="http://localhost:8000/"
+BASE_URL=/ # root path for the application
+VUE_APP_API_URL=http://localhost:8000/  # location for fetching data, set to baseURL for axios
 ```
 
 The default `.env` files can be overriden with `.local` variants (e.g. `.env.development.local`).
 
+## Generate Datasets
+
+The R scripts located in the `r` folder are used to generate the datasets for this application, which get saved to the `data/` folder.
+
 ## Development Server
 
+To run the application in development mode, run the `dev` command, which serves the `data/` folder at port `8000`, and runs the vue CLI `serve` command.
+
 ```sh
-yarn dev # runs both data and serve commands
+yarn dev
 ```
 
 ## Production Build
 
-```sh
-yarn build
-```
-
-## Deployment
-
-Run production build and sync static app files from `./dist` to ecosheds server.
-
-```sh
-yarn deploy # runs build first
-# or
-yarn deploy:app
-```
-
-Sync data files to remote server
-
-```sh
-yarn deploy:data
-```
-
-### Deploying to S3
-
-For deploying to S3, use the AWS CLI:
+Run the `build` command to build the application for production. The output is saved to the `dist/` folder.
 
 ```sh
 yarn build
-aws s3 sync dist/ s3://<BUCKET_NAME>/<BASE_URL>
-aws s3 sync data/ s3://<BUCKET_NAME>/<BASE_URL>/data
 ```
+
+For staging build, run `build:staging`
+
+```sh
+yarn build:staging
+```
+
+### Deployment
+
+After building the application, copy the contents of `dist/` and `data/` to the production server.
+
+```sh
+rsync -av --delete dist/ user@host:/path/to/app
+rsync -av --delete data/ user@host:/path/to/data
+```
+
+If the application is deployed to S3, use the AWS CLI.
+
+```sh
+aws s3 sync dist/ s3://<WEBSITE_BUCKET_NAME>/<BASE_URL> --delete
+aws s3 sync data/ s3://<DATA_BUCKET_NAME>/ --delete
+```
+
+## License
+
+MIT (see `LICENSE`)
