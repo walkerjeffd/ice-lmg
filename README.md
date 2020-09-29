@@ -3,6 +3,24 @@
 Jeffrey D Walker, PhD <jeff@walkerenvres.com>  
 [Walker Environmental Research, LLC](https://walkerenvres.com)
 
+## About
+
+This repository contains the source code for the Interactive Catchment Explorer (ICE) application for the Lower Mississippi-Gulf Water Science Center RESTORE project.
+
+**LIVE URL:** https://usgs.gov/apps/ecosheds/lmg-restore
+
+If you are interested in adapting ICE to other datasets, please see the ICE starter template [walkerjeffd/ice-template](https://github.com/walkerjeffd/ice-template), which contains the latest design and implementation of ICE and includes more detailed developer instructions.
+
+## Datasets
+
+The R and bash scripts located in the `r` folder are used to generate the datasets for this application, which get saved to the `data/` folder.
+
+Due to their large size, the generated datasets are **not** stored in this repo. To get the latest version of the datasets, download the following tarball and extract it to the `data/` folder.
+
+```
+wget https://ecosheds.org/data/ice-lmg/ice-lmg-data.tar.gz
+tar -xzvf ice-lmg-data.tar.gz -C ./data
+```
 
 ## Project setup
 
@@ -22,10 +40,6 @@ VUE_APP_API_URL=http://localhost:8000/  # location for fetching data, set to bas
 ```
 
 The default `.env` files can be overriden with `.local` variants (e.g. `.env.development.local`).
-
-## Generate Datasets
-
-The R scripts located in the `r` folder are used to generate the datasets for this application, which get saved to the `data/` folder.
 
 ## Development Server
 
