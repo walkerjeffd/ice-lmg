@@ -3,6 +3,8 @@
 Jeffrey D Walker, PhD <jeff@walkerenvres.com>  
 [Walker Environmental Research, LLC](https://walkerenvres.com)
 
+[![DOI](https://zenodo.org/badge/217355018.svg)](https://zenodo.org/badge/latestdoi/217355018)
+
 ## About
 
 This repository contains the source code for the Interactive Catchment Explorer (ICE) application for the Lower Mississippi-Gulf Water Science Center RESTORE project.
