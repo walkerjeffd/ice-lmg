@@ -22,6 +22,7 @@ yarn-error.log*
 
 # data folder
 data/**/*
+!data/.gitkeep
 
 # r folder
 r/.Rproj.user
